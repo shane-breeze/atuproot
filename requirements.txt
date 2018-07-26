@@ -1,0 +1,5 @@
+alphatwirl==0.16.0
+uproot
+numpy
+pyyaml
+rootpy
