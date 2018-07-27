@@ -1,3 +1,3 @@
 import collections
 
-Dataset = collections.namedtuple('Dataset', 'name files')
+Dataset = collections.namedtuple('Dataset', 'name parent isdata xsection files')

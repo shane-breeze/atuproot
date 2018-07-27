@@ -1,8 +1,8 @@
 from alphatwirl.loop import NullCollector
 from atuproot.AtUproot import AtUproot
-from atuproot.Dataset import Dataset
 
 from sequence.sequence import sequence
+from datasets.datasets import datasets
 
 import logging
 logging.getLogger("ROOT.TClass.Init").setLevel(logging.ERROR)
@@ -15,17 +15,12 @@ logger = log["/"+__name__]
 logger.setLevel(log.INFO)
 
 if __name__ == "__main__":
-    dataset = Dataset(name="ZJetsToNuNu_Pt-250To400", files=[
-        "/vols/build/cms/sdb15/atuproot/nanoAOD_1.root",
-        "/vols/build/cms/sdb15/atuproot/nanoAOD_2.root",
-    ])
-
     process = AtUproot("temp",
         quiet = False,
-        parallel_mode = 'sge',
-        process = 4,
+        parallel_mode = 'multiprocessing',
+        process = 0,
         max_events_per_process = -1,
         profile = False,
         profile_out_path = None,
     )
-    process.run([dataset], [(module, NullCollector()) for module in sequence])
+    process.run(datasets, [(module, NullCollector()) for module in sequence])
