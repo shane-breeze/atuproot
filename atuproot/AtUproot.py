@@ -19,6 +19,7 @@ class AtUproot(object):
                  max_events_per_process = -1,
                  max_files_per_dataset = -1,
                  max_files_per_process = 1,
+                 blocksize = 1000000,
                  profile = False, profile_out_path = None
     ):
         self.parallel = build_parallel(
@@ -34,6 +35,7 @@ class AtUproot(object):
         self.max_events_per_process = max_events_per_process
         self.max_files_per_dataset = max_files_per_dataset
         self.max_files_per_process = max_files_per_process
+        self.blocksize = blocksize
         self.profile = profile
         self.profile_out_path = profile_out_path
         self.parallel_mode = parallel_mode
@@ -64,7 +66,7 @@ class AtUproot(object):
         eventLoopRunner = alphatwirl.loop.MPEventLoopRunner(
             self.parallel.communicationChannel
         )
-        eventBuilderConfigMaker = EventBuilderConfigMaker()
+        eventBuilderConfigMaker = EventBuilderConfigMaker(self.blocksize)
         datasetIntoEventBuildersSplitter = alphatwirl.loop.DatasetIntoEventBuildersSplitter(
             EventBuilder = EventBuilder,
             eventBuilderConfigMaker = eventBuilderConfigMaker,

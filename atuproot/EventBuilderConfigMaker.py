@@ -1,13 +1,15 @@
 import collections
+import uproot
 
 EventBuilderConfig = collections.namedtuple(
     'EventBuilderConfig',
-    'inputPaths treeName maxEvents start dataset name'
+    'inputPaths treeName maxEvents start blocksize dataset name'
 )
 
 class EventBuilderConfigMaker(object):
-    def __init__(self):
+    def __init__(self, blocksize):
         self.treeName = 'Events'
+        self.blocksize = blocksize
 
     def create_config_for(self, dataset, files, start, length):
         config = EventBuilderConfig(
@@ -15,6 +17,7 @@ class EventBuilderConfigMaker(object):
             treeName = self.treeName,
             maxEvents = length,
             start = start,
+            blocksize = self.blocksize,
             dataset = dataset,
             name = dataset.name,
         )
@@ -26,4 +29,7 @@ class EventBuilderConfigMaker(object):
         return dataset.files[:min(maxFiles, len(dataset.files))]
 
     def nevents_in_file(self, path):
-        return len(uproot.open(path)[self.treeName])
+        try:
+            return len(uproot.open(path)[self.treeName])
+        except:
+            return len(uproot.open(path, localsource=uproot.FileSource.defaults)[self.treeName])

@@ -1,5 +1,5 @@
 class BEvents(object):
-    def __init__(self, tree, blocksize=50000):
+    def __init__(self, tree, blocksize=1000000):
         self.tree = tree
         self.nEvents = len(tree)
         self.blocksize = int(blocksize) if blocksize >= 0 else self.nEvents
@@ -30,11 +30,14 @@ class BEvents(object):
         if i >= self.nBlocks:
             self.iBlock = -1
             raise IndexError("The index is out of range: " + str(i))
+        self._branch_cache = {}
+
         self.iBlock = i
         return self
 
     def __iter__(self):
         for self.iBlock in range(self.nBlocks):
+            self._branch_cache = {}
             yield self
         self.iBlock = -1
 

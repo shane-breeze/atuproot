@@ -1,3 +1,3 @@
 import collections
 
-Dataset = collections.namedtuple('Dataset', 'name parent isdata xsection files')
+Dataset = collections.namedtuple('Dataset', 'name parent isdata xsection lumi energy files')
