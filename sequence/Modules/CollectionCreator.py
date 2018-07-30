@@ -1,5 +1,22 @@
 import numpy as np
 import uproot
+from numba import njit
+
+def setup_create_new_stops(selection, starts, lens):
+    nev = lens.shape[0]
+    new_stops = np.zeros(nev, dtype=int)
+    return selection, starts, lens, new_stops, nev
+
+@njit
+def create_new_stops(selection, starts, lens, new_stops, nev):
+    count = 0
+    for iev in range(nev):
+        for ij in range(lens[iev]):
+            rij = starts[iev]+ij
+            if selection[rij]:
+                count += 1
+        new_stops[iev] = count
+    return new_stops
 
 class Collection(object):
     def __init__(self, name, event, ref_name=None, selection=None):
@@ -7,8 +24,6 @@ class Collection(object):
         self.event = event
         self.ref_name = ref_name
         self.selection = selection
-
-        self.branch_cache = {}
 
     def __getattr__(self, attr):
         if attr in ["name", "event"]:
@@ -22,13 +37,10 @@ class Collection(object):
 
     def create_branch(self, attr):
         ref_branch = getattr(self.event, self.ref_name+"_"+attr)
-        selection_jag = uproot.interp.jagged.JaggedArray(
-            self.selection,
-            ref_branch.starts,
-            ref_branch.stops,
-        )
 
-        new_stops = np.cumsum(map(np.sum, selection_jag))
+        new_stops = create_new_stops(*setup_create_new_stops(
+            self.selection, ref_branch.starts, ref_branch.stops-ref_branch.starts,
+        ))
         new_starts = np.roll(new_stops, 1)
         new_starts[0] = 0
 
@@ -68,4 +80,3 @@ class CollectionCreator(object):
     def event(self, event):
         for collection in self.collections:
             setattr(event, collection, Collection(collection, event))
-
