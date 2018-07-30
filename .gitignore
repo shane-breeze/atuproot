@@ -1,3 +1,4 @@
 **/_ccsp_temp
 *.pyc
 externals/pip
+**/__pycache__

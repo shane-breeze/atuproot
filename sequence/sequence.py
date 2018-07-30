@@ -60,8 +60,8 @@ skim_collections = Modules.SkimCollections(
 
 jet_cross_cleaning = Modules.ObjectCrossCleaning(
     name = "jet_cross_cleaning",
-    clean_collections = ("JetVeto",),
-    ref_collections = ("MuonVeto",),
+    clean_collections = ("JetVeto", "JetSelection"),
+    ref_collections = ("MuonVeto", "ElectronVeto", "PhotonVeto"),
 )
 
 sequence = [

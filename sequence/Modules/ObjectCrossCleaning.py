@@ -1,15 +1,10 @@
+import uproot
 import numpy as np
 from numpy import pi
-import uproot
 from numba import njit
+from CollectionCreator import Collection
 
-def BoundPhi(phi):
-    while phi >= np.pi: phi -= 2*np.pi
-    while phi < -np.pi: phi += 2*np.pi
-    return phi
-
-def DeltaR2(deta, dphi):
-    return deta**2+BoundPhi(dphi)**2
+from utils.Geometry import DeltaR2
 
 class ObjectCrossCleaning(object):
     def __init__(self, **kwargs):
@@ -22,6 +17,10 @@ class ObjectCrossCleaning(object):
                 clean_collection = getattr(event, clean_collection_name)
 
                 selection = comp(*setup_comp(clean_collection, ref_collection))
+                output_collection = clean_collection_name+"Clean"
+                setattr(event, output_collection,
+                        Collection(output_collection, event,
+                                   clean_collection_name, selection))
 
 def setup_comp(coll1, coll2):
     etas1, phis1 = coll1.eta, coll1.phi
@@ -33,7 +32,7 @@ def setup_comp(coll1, coll2):
            etas1.stops-etas1.starts, etas2.stops-etas2.starts,\
            nev, contents
 
-@njit
+@njit(cache=True)
 def comp(etas1_cont, etas2_cont, phis1_cont, phis2_cont,
          starts_1, starts_2, lens_1, lens_2, nev, contents):
 
@@ -53,13 +52,14 @@ def comp(etas1_cont, etas2_cont, phis1_cont, phis2_cont,
                 dphi = jphi - phis2_cont[riu]
 
                 # Bound phi
-                if dphi >= pi:
-                    dphi -= 2*pi
-                elif dphi < -pi:
-                    dphi += 2*pi
+                #if dphi >= pi:
+                #    dphi -= 2*pi
+                #elif dphi < -pi:
+                #    dphi += 2*pi
 
                 # delta r**2 < (0.4)**2 -> matched
-                if deta**2 + dphi**2 < 0.16:
+                #if deta**2 + dphi**2 < 0.16:
+                if DeltaR2(deta, dphi) < 0.16:
                     contents[rij] = False
                     break
 

@@ -1,5 +1,4 @@
 import numpy as np
-#from numba import njit
 
 class Lambda(object):
     def __init__(self, function):

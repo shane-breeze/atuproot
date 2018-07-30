@@ -7,7 +7,7 @@ def setup_create_new_stops(selection, starts, lens):
     new_stops = np.zeros(nev, dtype=int)
     return selection, starts, lens, new_stops, nev
 
-@njit
+@njit(cache=True)
 def create_new_stops(selection, starts, lens, new_stops, nev):
     count = 0
     for iev in range(nev):
