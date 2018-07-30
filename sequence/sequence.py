@@ -5,6 +5,7 @@ collection_creator = Modules.CollectionCreator(
     collections = ["CaloMET", "MET", "Jet", "Electron", "Muon", "Photon",
                    "Tau", "GenMET", "GenPart", "GenJet", "GenDressedLepton"],
 )
+
 skim_collections = Modules.SkimCollections(
     name = "skim_collections",
     selection_dict = {
@@ -57,7 +58,14 @@ skim_collections = Modules.SkimCollections(
     }
 )
 
+jet_cross_cleaning = Modules.ObjectCrossCleaning(
+    name = "jet_cross_cleaning",
+    clean_collections = ("JetVeto",),
+    ref_collections = ("MuonVeto",),
+)
+
 sequence = [
     collection_creator,
     skim_collections,
+    jet_cross_cleaning,
 ]
