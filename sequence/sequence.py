@@ -70,8 +70,14 @@ tau_cross_cleaning = Modules.ObjectCrossCleaning(
     ref_collections = ("MuonVeto", "ElectronVeto"),
 )
 
+jec_variations = Modules.JecVariations(
+    jes_unc_file = "/vols/build/cms/sdb15/atuproot/data/jecs/Summer16_23Sep2016V4_MC_Uncertainty_AK4PFchs.txt",
+    variation = None,
+)
+
 sequence = [
     collection_creator,
+    jec_variations,
     skim_collections,
     jet_cross_cleaning,
     tau_cross_cleaning,
