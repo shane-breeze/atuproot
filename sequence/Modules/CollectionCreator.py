@@ -1,14 +1,12 @@
 import numpy as np
 import uproot
-from numba import njit
-
-def setup_create_new_stops(selection, starts, lens):
-    nev = lens.shape[0]
-    new_stops = np.zeros(nev, dtype=int)
-    return selection, starts, lens, new_stops, nev
+from numba import njit, int32
 
 @njit(cache=True)
-def create_new_stops(selection, starts, lens, new_stops, nev):
+def create_new_stops(selection, starts, lens):
+    nev = lens.shape[0]
+    new_stops = np.zeros(nev, dtype=int32)
+
     count = 0
     for iev in range(nev):
         for ij in range(lens[iev]):
@@ -38,9 +36,9 @@ class Collection(object):
     def create_branch(self, attr):
         ref_branch = getattr(self.event, self.ref_name+"_"+attr)
 
-        new_stops = create_new_stops(*setup_create_new_stops(
+        new_stops = create_new_stops(
             self.selection, ref_branch.starts, ref_branch.stops-ref_branch.starts,
-        ))
+        )
         new_starts = np.roll(new_stops, 1)
         new_starts[0] = 0
 
