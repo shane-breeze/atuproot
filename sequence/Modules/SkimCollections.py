@@ -17,4 +17,3 @@ class SkimCollections(object):
 
     def end(self):
         self.selection_functions = {}
-
