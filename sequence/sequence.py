@@ -64,8 +64,15 @@ jet_cross_cleaning = Modules.ObjectCrossCleaning(
     ref_collections = ("MuonVeto", "ElectronVeto", "PhotonVeto"),
 )
 
+tau_cross_cleaning = Modules.ObjectCrossCleaning(
+    name = "tau_cross_cleaning",
+    clean_collections = ("TauVeto", "TauSelection"),
+    ref_collections = ("MuonVeto", "ElectronVeto"),
+)
+
 sequence = [
     collection_creator,
     skim_collections,
     jet_cross_cleaning,
+    tau_cross_cleaning,
 ]
