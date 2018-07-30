@@ -1,7 +1,20 @@
 #!/bin/bash
 cvmfs_pythondir=/cvmfs/sft.cern.ch/lcg/releases/Python/2.7.13-b163d/x86_64-slc6-gcc62-opt/
 cvmfs_pipdir=/cvmfs/sft.cern.ch/lcg/releases/pip/9.0.1-54273/x86_64-slc6-gcc62-opt/
+cvmfs_gccsetup=/cvmfs/sft.cern.ch/lcg/contrib/gcc/6.2/x86_64-slc6/setup.sh
+cvmfs_rootsetup=/cvmfs/sft.cern.ch/lcg/releases/LCG_88/ROOT/6.08.06/x86_64-slc6-gcc62-opt/bin/thisroot.sh
 lzma_path=/cvmfs/cms.cern.ch/slc6_amd64_gcc620/external/xz/5.2.2/
+
+# Setup ROOT
+if [ -z "$(which root-config 2>/dev/null)" ] \
+    || [[ "$(root-config --version)" != 6.* ]]; then
+    if [ -r "${cvmfs_rootsetup}" ] && [ -r "$cvmfs_gccsetup" ]; then
+        source "${cvmfs_gccsetup}"
+        source "${cvmfs_rootsetup}"
+    else
+        echo "Cannot setup ROOT 6 and it doesn't seem to be setup already"
+    fi
+fi
 
 top_dir(){
     local Canonicalize="readlink -f"
