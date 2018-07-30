@@ -53,6 +53,7 @@ class BEvents(object):
             branch = self.tree.array(name,
                                      entrystart = self.entrystart,
                                      entrystop = self.entrystop)
+            self._branch_cache[name] = branch
         return branch
 
     def hasbranch(self, branch):
