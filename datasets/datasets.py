@@ -18,8 +18,22 @@ def get_datasets(path="/vols/build/cms/sdb15/atuproot/datasets/datasets.yaml"):
             parent = info["parent"],
             isdata = info["isdata"],
             xsection = info["xsection"],
+            sumweights = info["sumweights"],
             lumi = datasets_dict["lumi"],
             energy = datasets_dict["energy"],
             files = info["files"],
+            associates = [],
         ))
+
+    # Associate samples
+    not_extensions = [dataset
+                      for dataset in datasets
+                      if "_ext" not in dataset.name]
+    for not_extension in not_extensions:
+        associated_datasets = [dataset
+                               for dataset in datasets
+                               if not_extension.name in dataset.name]
+        for dataset in associated_datasets:
+            dataset.associates = associated_datasets
+
     return datasets

@@ -50,6 +50,7 @@ class BEvents(object):
         else:
             self.entrystart = self.iBlock * self.blocksize
             self.entrystop = min((self.iBlock+1) * self.blocksize, self.nEvents)
+            self.size = self.entrystop - self.entrystart
             branch = self.tree.array(name,
                                      entrystart = self.entrystart,
                                      entrystop = self.entrystop)
