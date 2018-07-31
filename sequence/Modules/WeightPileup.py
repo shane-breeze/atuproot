@@ -23,13 +23,11 @@ class WeightPileup(object):
         corr_up = get_correction(indices, self.correction_up) / corr
         corr_down = get_correction(indices, self.correction_down) / corr
 
-        event.Weight_pileup = corr
+        #event.Weight_pileup = corr
         event.Weight_pileupUp = corr_up
         event.Weight_pileupDown = corr_down
 
-        print event.Weight
         event.Weight *= corr
-        print event.Weight
 
 @njit(cache=True)
 def get_correction(indices, corrections):

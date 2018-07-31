@@ -11,11 +11,13 @@ class InvMassProducer(object):
         ele = event.ElectronSelection
         met = event.MET
 
-        event.MTW = create_mtw(met, muon, ele)
-        MMuMu = create_mll(muon)
-        MEE = create_mll(ele)
-        MMuMu[np.isnan(MMuMu)] = MEE[np.isnan(MMuMu)]
-        event.MLL = MMuMu
+        mtw = create_mtw(met, muon, ele)
+        event.MTW = mtw
+
+        mll1 = create_mll(muon)
+        mll2  = create_mll(ele)
+        mll1[np.isnan(mll1)] = mll2[np.isnan(mll1)]
+        event.MLL = mll1
 
 def create_mll(leps):
     return create_mll_jit(leps.pt.contents, leps.eta.contents,

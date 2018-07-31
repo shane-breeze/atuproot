@@ -41,8 +41,21 @@ class BEvents(object):
             yield self
         self.iBlock = -1
 
-    def __getattr__(self, name):
-        return self._get_branch(name)
+    def __getattr__(self, attr):
+        if attr in ["tree", "nEvents", "blocksize", "iBlock", "nBlocks",
+                    "_branch_cache", "entrystart", "entrystop", "size"]:
+            return getattr(self, attr)
+        return self._get_branch(attr)
+
+    def __setattr__(self, attr, val):
+        if attr in ["tree", "nEvents", "blocksize", "iBlock", "nBlocks",
+                    "_branch_cache", "entrystart", "entrystop", "size"]:
+            super(BEvents, self).__setattr__(attr, val)
+        else:
+            self.set_branch(attr, val)
+
+    def set_branch(self, name, branch):
+        self._branch_cache[name] = branch
 
     def _get_branch(self, name):
         if name in self._branch_cache:
@@ -58,4 +71,4 @@ class BEvents(object):
         return branch
 
     def hasbranch(self, branch):
-        return (branch in self.tree.keys() or branch in self.__dict__)
+        return (branch in self.tree.keys() or branch in self._branch_cache)

@@ -1,5 +1,5 @@
 import numpy as np
-from numba import njit, double
+from numba import njit, float32
 from utils.Geometry import RadToCart, CartToRad, BoundPhi
 from CollectionCreator import Collection
 
@@ -13,32 +13,36 @@ class EventSumsProducer(object):
         event.MHT40 = Collection("MHT40", event)
 
         # MET
-        met, mephi = create_metnox(event.MET,
-                                   event.MuonSelection,
-                                   event.ElectronSelection)
+        met, mephi = create_metnox(
+            event.MET, event.MuonSelection, event.ElectronSelection,
+        )
         event.METnoX_pt = met
         event.METnoX_phi = mephi
 
         # MET_dCaloMET
-        event.MET_dCaloMET = np.abs(event.MET.pt - event.CaloMET.pt) / event.METnoX.pt
+        met_dcalomet = np.abs(event.MET.pt - event.CaloMET.pt) / event.METnoX.pt
+        event.MET_dCalMET = met_dcalomet
 
         # MET Resolution
-        dimupt, dimuphi, metnox_dimupara, metnox_dimuperp = create_metres(
+        dimu_pt, dimu_phi, dimu_para, dimu_perp = create_metres(
             event.METnoX, event.MuonSelection,
         )
-        event.DiMuon_pt = dimupt
-        event.DiMuon_phi = dimuphi
-        event.METnoX_DiMuonParaProjPt = metnox_dimupara
-        event.METnoX_DiMuonParaPerpPt = metnox_dimuperp
+        event.DiMuon_pt = dimu_pt
+        event.DiMuon_phi = dimu_phi
+        event.METnoX_diMuonParaProjPt = dimu_para
+        event.METnoX_diMuonPerpProjPt = dimu_perp
 
         # MHT
-        ht, mht, mhphi = create_mht(event.JetSelectionClean)
+        ht, mht, mhphi = create_mht(
+            event.JetSelectionClean,
+        )
         event.HT40 = ht
         event.MHT40_pt = mht
         event.MHT40_phi = mhphi
 
         # dPhi(J, METnoX)
-        event.Jet_dPhiMETnoX = create_jDPhiMETnoX(event.Jet, event.METnoX)
+        jet_dphimet = create_jDPhiMETnoX(event.Jet, event.METnoX)
+        event.Jet_dPhiMETnoX = jet_dphimet
 
 def create_jDPhiMETnoX(jets, met):
     return create_jDPhiMETnoX_jit(met.phi, jets.phi.contents,
@@ -46,7 +50,7 @@ def create_jDPhiMETnoX(jets, met):
 
 @njit(cache=True)
 def create_jDPhiMETnoX_jit(mephi, jetphi, starts, stops):
-    jet_dphis = np.zeros(jetphi.shape[0], dtype=double)
+    jet_dphis = np.zeros(jetphi.shape[0], dtype=float32)
     for iev, (start, stop) in enumerate(zip(starts, stops)):
         for jet_index in range(start, stop):
             jet_dphis[jet_index] = BoundPhi(jetphi[jet_index] - mephi[iev])
@@ -59,9 +63,9 @@ def create_mht(jets):
 @njit(cache=True)
 def create_mht_jit(jetpt, jetphi, starts, stops):
     nev = stops.shape[0]
-    hts = np.zeros(nev, dtype=double)
-    mhts = np.zeros(nev, dtype=double)
-    mhphis = np.zeros(nev, dtype=double)
+    hts = np.zeros(nev, dtype=float32)
+    mhts = np.zeros(nev, dtype=float32)
+    mhphis = np.zeros(nev, dtype=float32)
 
     for iev, (start, stop) in enumerate(zip(starts, stops)):
         ht, mhx, mhy = 0., 0., 0.
@@ -84,10 +88,10 @@ def create_metres(metnox, muons):
 @njit(cache=True)
 def create_metres_jit(met, mephi, mupt, muphi, mustarts, mustops):
     nev = met.shape[0]
-    dimupts = np.zeros(nev, dtype=double)
-    dimuphis = np.zeros(nev, dtype=double)
-    metnox_dimuparas = np.zeros(nev, dtype=double)
-    metnox_dimuperps = np.zeros(nev, dtype=double)
+    dimupts = np.zeros(nev, dtype=float32)
+    dimuphis = np.zeros(nev, dtype=float32)
+    metnox_dimuparas = np.zeros(nev, dtype=float32)
+    metnox_dimuperps = np.zeros(nev, dtype=float32)
 
     for iev, (start, stop) in enumerate(zip(mustarts, mustops)):
         nmu = stop-start
@@ -129,8 +133,8 @@ def create_metnox_jit(met, mephi,
                       mupt, muphi, mustarts, mustops,
                       elpt, elphi, elstarts, elstops):
     nev = met.shape[0]
-    mets_out = np.zeros(nev, dtype=double)
-    mephis_out = np.zeros(nev, dtype=double)
+    mets_out = np.zeros(nev, dtype=float32)
+    mephis_out = np.zeros(nev, dtype=float32)
 
     for iev, (musta, musto, elsta, elsto) in enumerate(zip(mustarts, mustops,
                                                            elstarts, elstops)):

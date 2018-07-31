@@ -14,9 +14,10 @@ class GenBosonProducer(object):
         event.GenPartBosonDaughters = Collection("GenPartBosonDaughters",
                                                  event, "GenPart", mask)
 
-        event.GenPart_genDressedLeptonIdx = genpart_matched_dressedlepton(
-            event.GenPart, event.GenDressedLepton,
+        genpart_dressedlepidx = genpart_matched_dressedlepton(
+            event.GenPartBosonDaughters, event.GenDressedLepton,
         )
+        event.GenPartBosonDaughters_genDressedLeptonIdx = genpart_dressedlepidx
 
         pt, eta, phi, mass = create_genpart_boson(event.GenPartBosonDaughters,
                                                   event.GenDressedLepton)
@@ -105,11 +106,11 @@ def genpart_matched_dressedlepton_jit(gps_pdg, gps_eta, gps_phi,
     )):
         for igps in range(gps_start, gps_stop):
             for igds in range(gds_start, gds_stop):
-                if gps_pdg[igps] == gds_pdg[igds] and \
-                   DeltaR2(gps_phi[igps]-gds_phi[igds],
-                           gps_phi[igps]-gds_phi[igds]) < 0.01:
-                    indices[igps] = igds
-                    break
+                if gps_pdg[igps] == gds_pdg[igds]:
+                   if DeltaR2(gps_phi[igps]-gds_phi[igds],
+                              gps_phi[igps]-gds_phi[igds]) < 0.01:
+                        indices[igps] = igds - gds_start
+                        break
             else:
                 indices[igps] = -1
     return indices
