@@ -28,7 +28,7 @@ class Collection(object):
             raise AttributeError("{} should be defined but isn't".format(attr))
 
         branch_name = self.name+"_"+attr
-        if not self.event.hasbranch(branch_name):
+        if not self.event.hasbranch(branch_name) and self.ref_name is not None:
             branch = self.create_branch(attr)
             setattr(self.event, branch_name, branch)
         return getattr(self.event, branch_name)
@@ -36,17 +36,22 @@ class Collection(object):
     def create_branch(self, attr):
         ref_branch = getattr(getattr(self.event, self.ref_name), attr)
 
-        new_stops = create_new_stops(
-            self.selection, ref_branch.starts, ref_branch.stops-ref_branch.starts,
-        )
-        new_starts = np.roll(new_stops, 1)
-        new_starts[0] = 0
+        if hasattr(ref_branch, "starts"):
+            new_stops = create_new_stops(
+                self.selection, ref_branch.starts, ref_branch.stops-ref_branch.starts,
+            )
+            new_starts = np.roll(new_stops, 1)
+            new_starts[0] = 0
 
-        return uproot.interp.jagged.JaggedArray(
-            ref_branch.contents[self.selection],
-            new_starts,
-            new_stops,
-        )
+            array = uproot.interp.jagged.JaggedArray(
+                ref_branch.contents[self.selection],
+                new_starts,
+                new_stops,
+            )
+        else:
+            array = ref_branch[self.selection]
+
+        return array
 
     def __call__(self, func):
         return self.apply_selection(func)
