@@ -4,3 +4,8 @@ from ObjectCrossCleaning import ObjectCrossCleaning
 from JecVariations import JecVariations
 from EventSumsProducer import EventSumsProducer
 from InvMassProducer import InvMassProducer
+from GenBosonProducer import GenBosonProducer
+
+from WeightCreator import WeightCreator
+from WeightXsLumi import WeightXsLumi
+from WeightPileup import WeightPileup

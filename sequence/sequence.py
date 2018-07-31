@@ -31,6 +31,14 @@ jec_variations = Modules.JecVariations(
 
 event_sums_producer = Modules.EventSumsProducer()
 inv_mass_producer = Modules.InvMassProducer()
+gen_boson_producer = Modules.GenBosonProducer()
+
+weight_creator = Modules.WeightCreator()
+weight_xsection_lumi = Modules.WeightXsLumi()
+weight_pu = Modules.WeightPileup(
+    correction_file = "/vols/build/cms/sdb15/atuproot/data/pileup/nTrueInt_corrections.txt",
+    overflow = True,
+)
 
 sequence = [
     collection_creator,
@@ -40,4 +48,8 @@ sequence = [
     tau_cross_cleaning,
     event_sums_producer,
     inv_mass_producer,
+    gen_boson_producer,
+    weight_creator,
+    weight_xsection_lumi,
+    weight_pu,
 ]
