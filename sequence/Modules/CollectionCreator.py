@@ -34,7 +34,7 @@ class Collection(object):
         return getattr(self.event, branch_name)
 
     def create_branch(self, attr):
-        ref_branch = getattr(self.event, self.ref_name+"_"+attr)
+        ref_branch = getattr(getattr(self.event, self.ref_name), attr)
 
         new_stops = create_new_stops(
             self.selection, ref_branch.starts, ref_branch.stops-ref_branch.starts,

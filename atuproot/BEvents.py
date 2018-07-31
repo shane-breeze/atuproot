@@ -57,4 +57,4 @@ class BEvents(object):
         return branch
 
     def hasbranch(self, branch):
-        return branch in self.tree.keys()
+        return (branch in self.tree.keys() or branch in self.__dict__)
