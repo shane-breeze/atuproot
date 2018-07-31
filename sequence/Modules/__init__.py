@@ -2,3 +2,5 @@ from CollectionCreator import CollectionCreator, Collection
 from SkimCollections import SkimCollections
 from ObjectCrossCleaning import ObjectCrossCleaning
 from JecVariations import JecVariations
+from EventSumsProducer import EventSumsProducer
+from InvMassProducer import InvMassProducer

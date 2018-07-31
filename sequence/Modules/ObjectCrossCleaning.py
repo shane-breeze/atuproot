@@ -51,14 +51,6 @@ def comp(etas1_cont, etas2_cont, phis1_cont, phis2_cont,
                 deta = jeta - etas2_cont[riu]
                 dphi = jphi - phis2_cont[riu]
 
-                # Bound phi
-                #if dphi >= pi:
-                #    dphi -= 2*pi
-                #elif dphi < -pi:
-                #    dphi += 2*pi
-
-                # delta r**2 < (0.4)**2 -> matched
-                #if deta**2 + dphi**2 < 0.16:
                 if DeltaR2(deta, dphi) < 0.16:
                     contents[rij] = False
                     break
