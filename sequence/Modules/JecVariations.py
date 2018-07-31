@@ -5,7 +5,7 @@ class JecVariations(object):
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
 
-        if self.variations is None:
+        if self.variation is None:
             return
 
         self.bins, self.xvals, self.yvals_up, self.yvals_down = read_file(
@@ -13,7 +13,7 @@ class JecVariations(object):
         )
 
     def event(self, event):
-        if self.variations is None:
+        if self.variation is None:
             return True
 
         if self.variation == "up":
