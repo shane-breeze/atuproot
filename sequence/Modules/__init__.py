@@ -9,3 +9,5 @@ from GenBosonProducer import GenBosonProducer
 from WeightCreator import WeightCreator
 from WeightXsLumi import WeightXsLumi
 from WeightPileup import WeightPileup
+from WeightMetTrigger import WeightMetTrigger
+from WeightMuons import WeightMuons

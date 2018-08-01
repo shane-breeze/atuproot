@@ -39,6 +39,14 @@ weight_pu = Modules.WeightPileup(
     correction_file = "/vols/build/cms/sdb15/atuproot/data/pileup/nTrueInt_corrections.txt",
     overflow = True,
 )
+weight_met_trigger = Modules.WeightMetTrigger(
+    correction_files = {
+        0: "/vols/build/cms/sdb15/atuproot/data/mettrigger/met_trigger_correction_0mu.txt",
+        1: "/vols/build/cms/sdb15/atuproot/data/mettrigger/met_trigger_correction_1mu.txt",
+        2: "/vols/build/cms/sdb15/atuproot/data/mettrigger/met_trigger_correction_2mu.txt",
+    },
+)
+weight_muons = Modules.WeightMuons()
 
 sequence = [
     collection_creator,
@@ -52,4 +60,6 @@ sequence = [
     weight_creator,
     weight_xsection_lumi,
     weight_pu,
+    weight_met_trigger,
+    #weight_muons,
 ]
