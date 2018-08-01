@@ -45,7 +45,7 @@ class EventSumsProducer(object):
         # dPhi(J, METnoX)
         jet_dphimet = create_jDPhiMETnoX(event.Jet, event.METnoX)
         event.Jet_dPhiMETnoX = uproot.interp.jagged.JaggedArray(
-            jet_dphimet, event.Jet.starts(), event.Jet.stops(),
+            jet_dphimet, event.Jet.starts, event.Jet.stops,
         )
 
         event.MinDPhiJ1234METnoX = create_minDPhiJ1234METnoX(event.JetSelectionClean,
@@ -54,22 +54,22 @@ class EventSumsProducer(object):
         # nbjet
         event.nBJetSelectionCleanMedium = count_nbjet(
             event.JetSelectionClean.btagCSVV2.contents,
-            event.JetSelectionClean.starts(),
-            event.JetSelectionClean.stops(),
+            event.JetSelectionClean.starts,
+            event.JetSelectionClean.stops,
             0.8484,
         )
 
         # Lead jet variables
         event.LeadJetSelectionClean_pt = create_lead_jet(
             event.JetSelectionClean.pt.contents,
-            event.JetSelectionClean.starts(),
-            event.JetSelectionClean.stops(),
+            event.JetSelectionClean.starts,
+            event.JetSelectionClean.stops,
             pos = 0,
         )
         event.LeadJetSelectionClean_chHEF = create_lead_jet(
             event.JetSelectionClean.chHEF.contents,
-            event.JetSelectionClean.starts(),
-            event.JetSelectionClean.stops(),
+            event.JetSelectionClean.starts,
+            event.JetSelectionClean.stops,
             pos = 0,
         )
 
