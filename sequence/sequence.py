@@ -46,7 +46,23 @@ weight_met_trigger = Modules.WeightMetTrigger(
         2: "/vols/build/cms/sdb15/atuproot/data/mettrigger/met_trigger_correction_2mu.txt",
     },
 )
-weight_muons = Modules.WeightMuons()
+weight_muons = Modules.WeightMuons(
+    correction_id_paths = [
+        (19.7, "/vols/build/cms/sdb15/atuproot/data/muons/muon_id_runBCDEF.txt"),
+        (16.2, "/vols/build/cms/sdb15/atuproot/data/muons/muon_id_runGH.txt"),
+    ],
+    correction_iso_paths = [
+        (19.7, "/vols/build/cms/sdb15/atuproot/data/muons/muon_isolation_runBCDEF.txt"),
+        (16.2, "/vols/build/cms/sdb15/atuproot/data/muons/muon_isolation_runGH.txt"),
+    ],
+    correction_track_paths = [
+        (1., "/vols/build/cms/sdb15/atuproot/data/muons/muon_tracking.txt"),
+    ],
+    correction_trig_paths = [
+        (19.7, "/vols/build/cms/sdb15/atuproot/data/muons/muon_trigger_runBCDEF.txt"),
+        (16.2, "/vols/build/cms/sdb15/atuproot/data/muons/muon_trigger_runGH.txt"),
+    ],
+)
 
 sequence = [
     collection_creator,
@@ -61,5 +77,5 @@ sequence = [
     weight_xsection_lumi,
     weight_pu,
     weight_met_trigger,
-    #weight_muons,
+    weight_muons,
 ]
