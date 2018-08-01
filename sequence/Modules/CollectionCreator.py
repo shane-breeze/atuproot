@@ -24,7 +24,7 @@ class Collection(object):
         self.selection = selection
 
     def __getattr__(self, attr):
-        if attr in ["name", "event"]:
+        if attr in ["name", "event", "ref_name", "selection"]:
             raise AttributeError("{} should be defined but isn't".format(attr))
 
         branch_name = self.name+"_"+attr
@@ -32,6 +32,18 @@ class Collection(object):
             branch = self.create_branch(attr)
             setattr(self.event, branch_name, branch)
         return getattr(self.event, branch_name)
+
+    @property
+    def size(self):
+        return self.pt.stops - self.pt.starts
+
+    @property
+    def starts(self):
+        return self.pt.starts
+
+    @property
+    def stops(self):
+        return self.pt.stops
 
     def create_branch(self, attr):
         ref_branch = getattr(getattr(self.event, self.ref_name), attr)

@@ -37,6 +37,31 @@ def parse_args():
                         help="Select some sample")
     return parser.parse_args()
 
+class ScribblerWrapper(object):
+    def __init__(self, scribbler):
+        self.scribbler = scribbler
+        self.data = getattr(self.scribbler, "data", True)
+        self.mc = getattr(self.scribbler, "mc", True)
+
+    def getattr(self, attr):
+        getattr(self.scribbler, attr)
+
+    def begin(self, event):
+        self.isdata = event.config.dataset.isdata
+        if hasattr(self.scribbler, "begin"):
+            return self.scribbler.begin(event)
+
+    def event(self, event):
+        if self.isdata and not self.data:
+            return True
+
+        if not self.isdata and not self.mc:
+            return True
+
+        if hasattr(self.scribbler, "event"):
+            return self.scribbler.event(event)
+        return True
+
 if __name__ == "__main__":
     options = parse_args()
 
@@ -60,4 +85,5 @@ if __name__ == "__main__":
         profile = options.profile,
         profile_out_path = "profile.txt",
     )
-    process.run(datasets, [(module, NullCollector()) for module in sequence])
+    process.run(datasets, [(ScribblerWrapper(module), NullCollector())
+                           for module in sequence])

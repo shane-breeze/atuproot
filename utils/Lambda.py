@@ -10,4 +10,7 @@ class Lambda(object):
     def __call__(self, *event):
         if not hasattr(self, "lambda_function"):
             self.begin()
-        return self.lambda_function(*event)
+        try:
+            return self.lambda_function(*event)
+        except Exception as e:
+            raise Exception(e, self.function)

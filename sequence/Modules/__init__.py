@@ -1,3 +1,5 @@
+from CertifiedLumiChecker import CertifiedLumiChecker
+from TriggerChecker import TriggerChecker
 from CollectionCreator import CollectionCreator, Collection
 from SkimCollections import SkimCollections
 from ObjectCrossCleaning import ObjectCrossCleaning
@@ -11,3 +13,5 @@ from WeightXsLumi import WeightXsLumi
 from WeightPileup import WeightPileup
 from WeightMetTrigger import WeightMetTrigger
 from WeightMuons import WeightMuons
+
+from SelectionProducer import SelectionProducer

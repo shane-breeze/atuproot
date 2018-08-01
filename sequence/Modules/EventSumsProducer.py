@@ -1,5 +1,6 @@
+import uproot
 import numpy as np
-from numba import njit, float32
+from numba import njit, float32, int32
 from utils.Geometry import RadToCart, CartToRad, BoundPhi
 from CollectionCreator import Collection
 
@@ -11,6 +12,7 @@ class EventSumsProducer(object):
         event.METnoX = Collection("METnoX", event)
         event.DiMuon = Collection("DiMuon", event)
         event.MHT40 = Collection("MHT40", event)
+        event.LeadJetSelectionClean = Collection("LeadJetSelectionClean", event)
 
         # MET
         met, mephi = create_metnox(
@@ -21,7 +23,7 @@ class EventSumsProducer(object):
 
         # MET_dCaloMET
         met_dcalomet = np.abs(event.MET.pt - event.CaloMET.pt) / event.METnoX.pt
-        event.MET_dCalMET = met_dcalomet
+        event.MET_dCaloMET = met_dcalomet
 
         # MET Resolution
         dimu_pt, dimu_phi, dimu_para, dimu_perp = create_metres(
@@ -42,7 +44,72 @@ class EventSumsProducer(object):
 
         # dPhi(J, METnoX)
         jet_dphimet = create_jDPhiMETnoX(event.Jet, event.METnoX)
-        event.Jet_dPhiMETnoX = jet_dphimet
+        event.Jet_dPhiMETnoX = uproot.interp.jagged.JaggedArray(
+            jet_dphimet, event.Jet.starts(), event.Jet.stops(),
+        )
+
+        event.MinDPhiJ1234METnoX = create_minDPhiJ1234METnoX(event.JetSelectionClean,
+                                                             event.METnoX)
+
+        # nbjet
+        event.nBJetSelectionCleanMedium = count_nbjet(
+            event.JetSelectionClean.btagCSVV2.contents,
+            event.JetSelectionClean.starts(),
+            event.JetSelectionClean.stops(),
+            0.8484,
+        )
+
+        # Lead jet variables
+        event.LeadJetSelectionClean_pt = create_lead_jet(
+            event.JetSelectionClean.pt.contents,
+            event.JetSelectionClean.starts(),
+            event.JetSelectionClean.stops(),
+            pos = 0,
+        )
+        event.LeadJetSelectionClean_chHEF = create_lead_jet(
+            event.JetSelectionClean.chHEF.contents,
+            event.JetSelectionClean.starts(),
+            event.JetSelectionClean.stops(),
+            pos = 0,
+        )
+
+@njit(cache=True)
+def create_lead_jet(collection, starts, stops, pos=0):
+    nev = stops.shape[0]
+    collection_1d = np.zeros(nev, dtype=float32)
+    for iev, (start, stop) in enumerate(zip(starts, stops)):
+        if start+pos >= stop:
+            collection_1d[iev] = np.nan
+        else:
+            collection_1d[iev] = collection[start+pos]
+    return collection_1d
+
+@njit(cache=True)
+def count_nbjet(jet_btags, starts, stops, threshold):
+    nev = stops.shape[0]
+    nbjets = np.zeros(nev, dtype=int32)
+    for iev, (start, stop) in enumerate(zip(starts, stops)):
+        for ij in range(start, stop):
+            if jet_btags[ij] > threshold:
+                nbjets[iev] += 1
+    return nbjets
+
+def create_minDPhiJ1234METnoX(jets, met):
+    return create_minDPhiJ1234METnoX_jit(jets.dPhiMETnoX.contents,
+                                         jets.dPhiMETnoX.starts,
+                                         jets.dPhiMETnoX.stops,
+                                         met.phi)
+
+@njit(cache=True)
+def create_minDPhiJ1234METnoX_jit(jets_dphi, starts, stops, mephi):
+    nev = stops.shape[0]
+    mindphis = np.zeros(nev, dtype=float32)
+    for iev, (start, stop) in enumerate(zip(starts, stops)):
+        mindphi = np.pi
+        for ij in range(start, min(stop, 4)):
+            mindphi = min(mindphi, BoundPhi(jets_dphi[ij]-mephi[iev]))
+        mindphis[iev] = mindphi
+    return mindphis
 
 def create_jDPhiMETnoX(jets, met):
     return create_jDPhiMETnoX_jit(met.phi, jets.phi.contents,
