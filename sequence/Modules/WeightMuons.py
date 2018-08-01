@@ -76,14 +76,6 @@ class WeightMuons(object):
             sf[1][sf[1]==np.max(sf[1])] = np.infty
 
     def event(self, event):
-        # weights: e.g. (19.7, 16.2)
-        # corrections: [[pts, etas, corrs, unc_ups, unc_downs], ...]
-        self.weights_id, self.corrections_id
-        self.weights_iso, self.corrections_iso
-        self.weights_track, self.corrections_track
-        self.weights_trig, self.corrections_trig
-
-
         # ID
         corrs_id, corrs_id_up, corrs_id_down = get_correction_pt_abseta(
             event.MuonSelection, self.weights_id, self.corrections_id,
@@ -110,6 +102,8 @@ class WeightMuons(object):
         )
         corrs_trig_up = np.sqrt(corrs_trig_up**2 + (0.005)**2)
         corrs_trig_down = np.sqrt(corrs_trig_down**2 + (0.005)**2)
+
+        event.Weight *= corrs_id * corrs_iso * corrs_track * corrs_trig
 
 def get_correction_eta(muons, weights, corrections, any_pass=False):
     etabins, corrs, corrs_up, corrs_down = [x for x in zip(*corrections)]
