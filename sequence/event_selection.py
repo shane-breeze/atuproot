@@ -8,11 +8,12 @@ filter_selection = "ev: (ev.Flag_goodVertices>0.5) & "\
                        "(ev.Flag_eeBadScFilter>0.5)"
 met_selection = "ev: ev.METnoX.pt > 200."
 dphi_jet_met_selection = "ev: ev.MinDPhiJ1234METnoX > 0.5"
-dcalo_pfmet_selection = "ev: ev.MET_dCaloMET > 0.5"
+dcalo_pfmet_selection = "ev: ev.MET_dCaloMET < 0.5"
 jet_selection = "ev: (ev.JetSelectionClean.size > 0) & "\
                     "(ev.JetSelectionClean.size == ev.JetVetoClean.size) & "\
                     "(ev.LeadJetSelectionClean.pt > 200.) & "\
-                    "((0.1 < ev.LeadJetSelectionClean.chHEF) < 0.95)"
+                    "(ev.LeadJetSelectionClean.chHEF > 0.1) & "\
+                    "(ev.LeadJetSelectionClean.chHEF < 0.95)"
 muon_selection = "ev: (ev.MuonSelection.size == ev.MuonVeto.size) & (ev.MuonVeto.size == {})"
 ele_selection = "ev: (ev.ElectronSelection.size == ev.ElectronVeto.size) & (ev.ElectronVeto.size == {})"
 pho_veto = "ev: (ev.PhotonSelection.size == ev.PhotonVeto.size) & (ev.PhotonVeto.size == 0)"
@@ -47,12 +48,12 @@ monojet_selection = [
 
 singlemuon_selection = [
     muon_selection.format(1),
-    ele_selection.format(1),
+    ele_selection.format(0),
     mtw_selection,
 ]
 
 doublemuon_selection = [
     muon_selection.format(2),
-    ele_selection.format(2),
+    ele_selection.format(0),
     mll_selection,
 ]

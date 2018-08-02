@@ -8,7 +8,7 @@ jet_sele = "j: (j.pt>40.) & "\
 
 muo_veto = "u: (u.pt>10.) & "\
               "(np.abs(u.eta)<2.5) & "\
-              "(np.abs(u.pfRelIso04_all)<0.15) & "\
+              "(np.abs(u.pfRelIso04_all)<0.25) & "\
               "(np.abs(u.dxy)<0.5) & "\
               "(np.abs(u.dz)<1.0)"
 muo_sele = "u: (u.pt>30.) &"\
