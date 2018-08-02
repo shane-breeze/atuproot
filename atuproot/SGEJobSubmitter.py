@@ -50,7 +50,7 @@ SGE_JOBSTATE_CODES = {
 ##__________________________________________________________________||
 class SGEJobSubmitter(object):
     def __init__(self, queue="hep.q", walltime=10800):
-        self.job_desc_template = "qsub -t 1-{njobs}:1 -o /dev/null -e /dev/null -cwd -V -q {queue} -l h_rt={walltime} {job_script}"
+        self.job_desc_template = "qsub -t 1-{njobs}:1 -o /dev/null -e /dev/null -cwd -V -q {queue} -l h_rt={walltime} -l h_vmem=12G {job_script}"
         self.clusterprocids_outstanding = [ ]
         self.clusterprocids_finished = [ ]
         self.queue = queue
