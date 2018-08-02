@@ -1,3 +1,5 @@
+from ScribblerWrapper import ScribblerWrapper
+
 from CertifiedLumiChecker import CertifiedLumiChecker
 from TriggerChecker import TriggerChecker
 from CollectionCreator import CollectionCreator, Collection

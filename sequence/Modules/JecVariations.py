@@ -34,7 +34,7 @@ class JecVariations(object):
         event.Jet.pt.contents *= corrs
         event.Jet.mass.contents *= corrs
 
-@njit(cache=True)
+@njit
 def interp(x, xp, fp):
     nx = xp.shape[0]
 
@@ -48,7 +48,7 @@ def interp(x, xp, fp):
             return (x - xp[ix]) * (fp[ix+1] - fp[ix]) / (xp[ix+1] - xp[ix]) + fp[ix]
     return np.nan
 
-@njit(cache=True)
+@njit
 def get_correction(jvals, bin_indices, xvals, yvals, delta):
     njs = jvals.shape[0]
     corr = np.ones(njs)
@@ -60,7 +60,7 @@ def get_correction(jvals, bin_indices, xvals, yvals, delta):
                                            yvals[bin_idx]))
     return corr
 
-@njit(cache=True)
+@njit
 def select_bins(vals, bins):
     njs = vals.shape[0]
     nbins = bins.shape[0]

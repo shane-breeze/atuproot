@@ -33,7 +33,7 @@ class WeightMetTrigger(object):
                                                out=np.zeros_like(corrs_down),
                                                where=corrs!=0)
 
-@njit(cache=True)
+@njit
 def get_correction(cats, bins, incorr, incorr_up, incorr_down, nmuons, met):
     nev = nmuons.shape[0]
     corrs = np.ones(nev, dtype=float32)

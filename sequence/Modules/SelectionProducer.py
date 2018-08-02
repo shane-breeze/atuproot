@@ -6,6 +6,7 @@ import numpy as np
 class SelectionProducer(object):
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
+        self.debug = False
 
     def begin(self, event):
         self.isdata = event.config.dataset.isdata
@@ -21,6 +22,14 @@ class SelectionProducer(object):
                                   for cutflow, selection in self.selections.items()}
 
     def event(self, event):
+        if self.debug:
+            results = [cut(event) for cut in self.selections_lambda["SingleMuon"]]
+            for idx in range(len(results)-1):
+                results[idx+1] = results[idx+1] & results[idx]
+            for idx in range(len(self.selections_lambda["SingleMuon"])):
+                print self.selections_lambda["SingleMuon"][idx].function, results[idx]
+            exit()
+
         for cutflow, selection in self.selections_lambda.items():
             setattr(event, "Cutflow_{}".format(cutflow),
                     reduce(lambda x, y: x & y, [cut(event) for cut in selection]))

@@ -29,14 +29,14 @@ class WeightPileup(object):
 
         event.Weight *= corr
 
-@njit(cache=True)
+@njit
 def get_correction(indices, corrections):
     weights = np.ones(indices.shape[0], dtype=float32)
     for iev, idx in enumerate(indices):
         weights[iev] = corrections[idx]
     return weights
 
-@njit(cache=True)
+@njit
 def get_index(vals, bins):
     indices = np.zeros(vals.shape[0], dtype=int32)
     for ival in range(vals.shape[0]):

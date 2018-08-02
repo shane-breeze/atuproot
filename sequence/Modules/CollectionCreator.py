@@ -2,7 +2,7 @@ import numpy as np
 import uproot
 from numba import njit, int32
 
-@njit(cache=True)
+@njit
 def create_new_stops(selection, starts, lens):
     nev = lens.shape[0]
     new_stops = np.zeros(nev, dtype=int32)

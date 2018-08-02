@@ -41,7 +41,7 @@ def create_genpart_boson(genpart, gendressedlep):
                                     gendressedlep.pt.starts,
                                     gendressedlep.pt.stops)
 
-@njit(cache=True)
+@njit
 def create_genpart_boson_jit(gps_pt, gps_eta, gps_phi, gps_mass, gps_gdidx,
                              gps_starts, gps_stops,
                              gds_pt, gds_eta, gds_phi, gds_mass,
@@ -95,7 +95,7 @@ def genpart_matched_dressedlepton(genparts, gendressedleps):
                                              gendressedleps.pdgId.starts,
                                              gendressedleps.pdgId.stops)
 
-@njit(cache=True)
+@njit
 def genpart_matched_dressedlepton_jit(gps_pdg, gps_eta, gps_phi,
                                       gps_starts, gps_stops,
                                       gds_pdg, gds_eta, gds_phi,
@@ -115,7 +115,7 @@ def genpart_matched_dressedlepton_jit(gps_pdg, gps_eta, gps_phi,
                 indices[igps] = -1
     return indices
 
-@njit(cache=True)
+@njit
 def genpart_candidate_mask(pdgs, status, flags):
     mask = np.zeros(pdgs.shape[0], dtype=boolean)
     for ip in range(pdgs.shape[0]):

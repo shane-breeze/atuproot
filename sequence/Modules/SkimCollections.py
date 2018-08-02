@@ -7,7 +7,7 @@ class SkimCollections(object):
 
     def begin(self, event):
         self.selection_functions = {k: Lambda(v)
-                                    for k, v in self.selection_dict.items()}
+                               for k, v in self.selection_dict.items()}
 
     def event(self, event):
         for (input_collection, output_collection), selection in self.selection_functions.items():

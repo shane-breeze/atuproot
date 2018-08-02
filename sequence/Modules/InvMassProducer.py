@@ -24,7 +24,7 @@ def create_mll(leps):
                           leps.phi.contents, leps.mass.contents,
                           leps.pt.starts, leps.pt.stops)
 
-@njit(cache=True)
+@njit
 def create_mll_jit(pt, eta, phi, mass, starts, stops):
     mlls = np.zeros(stops.shape[0], dtype=float32)
     for iev, (start, stop) in enumerate(zip(starts, stops)):
@@ -50,7 +50,7 @@ def create_mtw(met, muon, ele):
                           ele.pt.contents, ele.phi.contents,
                           ele.pt.starts, ele.pt.stops)
 
-@njit(cache=True)
+@njit
 def create_mtw_jit(met,  mephi,
                    mupt, muphi, musta, musto,
                    elpt, elphi, elsta, elsto):
@@ -67,6 +67,6 @@ def create_mtw_jit(met,  mephi,
         mtws[iev] = mtw
     return mtws
 
-@njit(cache=True)
+@njit
 def calc_mtw(ptprod, dphi):
     return np.sqrt(2*ptprod*(1-np.cos(dphi)))

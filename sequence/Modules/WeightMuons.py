@@ -112,7 +112,7 @@ def get_correction_eta(muons, weights, corrections, any_pass=False):
         weights, etabins, corrs, corrs_up, corrs_down, any_pass=any_pass,
     )
 
-@njit(cache=True)
+@njit
 def get_correction_eta_jit(mueta, starts, stops, weights, inetabins,
                            incorrs, incorrs_up, incorrs_down, any_pass=False):
     nev = stops.shape[0]
@@ -175,7 +175,7 @@ def get_correction_pt_abseta(muons, weights, corrections, any_pass=False):
         weights, ptbins, etabins, corrs, corrs_up, corrs_down, any_pass=any_pass,
     )
 
-@njit(cache=True)
+@njit
 def get_correction_pt_abseta_jit(mupt, mueta, starts, stops, weights,
                                  inptbins, inetabins,
                                  incorrs, incorrs_up, incorrs_down,

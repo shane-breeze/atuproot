@@ -68,4 +68,5 @@ class TriggerChecker(object):
     def event(self, event):
         event.IsTriggered = reduce(lambda x,y: x | y,
                                    [getattr(event, trigger)
-                                    for trigger in self.trigger_list])
+                                    for trigger in self.trigger_list
+                                    if event.hasbranch(trigger)])

@@ -48,8 +48,9 @@ class EventSumsProducer(object):
             jet_dphimet, event.Jet.starts, event.Jet.stops,
         )
 
-        event.MinDPhiJ1234METnoX = create_minDPhiJ1234METnoX(event.JetSelectionClean,
-                                                             event.METnoX)
+        event.MinDPhiJ1234METnoX = create_minDPhiJ1234METnoX(
+            event.JetSelectionClean,
+        )
 
         # nbjet
         event.nBJetSelectionCleanMedium = count_nbjet(
@@ -73,7 +74,7 @@ class EventSumsProducer(object):
             pos = 0,
         )
 
-@njit(cache=True)
+@njit
 def create_lead_jet(collection, starts, stops, pos=0):
     nev = stops.shape[0]
     collection_1d = np.zeros(nev, dtype=float32)
@@ -84,7 +85,7 @@ def create_lead_jet(collection, starts, stops, pos=0):
             collection_1d[iev] = collection[start+pos]
     return collection_1d
 
-@njit(cache=True)
+@njit
 def count_nbjet(jet_btags, starts, stops, threshold):
     nev = stops.shape[0]
     nbjets = np.zeros(nev, dtype=int32)
@@ -94,20 +95,19 @@ def count_nbjet(jet_btags, starts, stops, threshold):
                 nbjets[iev] += 1
     return nbjets
 
-def create_minDPhiJ1234METnoX(jets, met):
+def create_minDPhiJ1234METnoX(jets):
     return create_minDPhiJ1234METnoX_jit(jets.dPhiMETnoX.contents,
-                                         jets.dPhiMETnoX.starts,
-                                         jets.dPhiMETnoX.stops,
-                                         met.phi)
+                                         jets.starts,
+                                         jets.stops)
 
-@njit(cache=True)
-def create_minDPhiJ1234METnoX_jit(jets_dphi, starts, stops, mephi):
+@njit
+def create_minDPhiJ1234METnoX_jit(jets_dphi, starts, stops):
     nev = stops.shape[0]
     mindphis = np.zeros(nev, dtype=float32)
     for iev, (start, stop) in enumerate(zip(starts, stops)):
-        mindphi = np.pi
-        for ij in range(start, min(stop, 4)):
-            mindphi = min(mindphi, BoundPhi(jets_dphi[ij]-mephi[iev]))
+        mindphi = 2*np.pi
+        for ij in range(start, min(stop, start+4)):
+            mindphi = min(mindphi, abs(jets_dphi[ij]))
         mindphis[iev] = mindphi
     return mindphis
 
@@ -115,7 +115,7 @@ def create_jDPhiMETnoX(jets, met):
     return create_jDPhiMETnoX_jit(met.phi, jets.phi.contents,
                                   jets.phi.starts, jets.phi.stops)
 
-@njit(cache=True)
+@njit
 def create_jDPhiMETnoX_jit(mephi, jetphi, starts, stops):
     jet_dphis = np.zeros(jetphi.shape[0], dtype=float32)
     for iev, (start, stop) in enumerate(zip(starts, stops)):
@@ -127,7 +127,7 @@ def create_mht(jets):
     return create_mht_jit(jets.pt.contents, jets.phi.contents,
                           jets.pt.starts, jets.pt.stops)
 
-@njit(cache=True)
+@njit
 def create_mht_jit(jetpt, jetphi, starts, stops):
     nev = stops.shape[0]
     hts = np.zeros(nev, dtype=float32)
@@ -152,7 +152,7 @@ def create_metres(metnox, muons):
                              muons.pt.contents, muons.phi.contents,
                              muons.pt.starts, muons.pt.stops)
 
-@njit(cache=True)
+@njit
 def create_metres_jit(met, mephi, mupt, muphi, mustarts, mustops):
     nev = met.shape[0]
     dimupts = np.zeros(nev, dtype=float32)
@@ -195,7 +195,7 @@ def create_metnox(met, muons, electrons):
                              electrons.pt.starts,
                              electrons.pt.stops)
 
-@njit(cache=True)
+@njit
 def create_metnox_jit(met, mephi,
                       mupt, muphi, mustarts, mustops,
                       elpt, elphi, elstarts, elstops):
@@ -207,10 +207,10 @@ def create_metnox_jit(met, mephi,
                                                            elstarts, elstops)):
         mex, mey = RadToCart(met[iev], mephi[iev])
         for muidx in range(musta, musto):
-            mux, muy = RadToCart(mupt[muidx], mupt[muidx])
+            mux, muy = RadToCart(mupt[muidx], muphi[muidx])
             mex, mey = mex+mux, mey+muy
         for elidx in range(elsta, elsto):
-            elx, ely = RadToCart(elpt[elidx], elpt[elidx])
+            elx, ely = RadToCart(elpt[elidx], elphi[elidx])
             mex, mey = mex+elx, mey+ely
         mets_out[iev], mephis_out[iev] = CartToRad(mex, mey)
 
