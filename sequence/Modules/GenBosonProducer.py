@@ -8,9 +8,9 @@ class GenBosonProducer(object):
         self.__dict__.update(kwargs)
 
     def event(self, event):
-        mask = genpart_candidate_mask(event.GenPart.pdgId.contents,
-                                      event.GenPart.status.contents,
-                                      event.GenPart.statusFlags.contents)
+        mask = genpart_candidate_mask(event.GenPart.pdgId.content,
+                                      event.GenPart.status.content,
+                                      event.GenPart.statusFlags.content)
         event.GenPartBosonDaughters = Collection("GenPartBosonDaughters",
                                                  event, "GenPart", mask)
 
@@ -27,17 +27,17 @@ class GenBosonProducer(object):
         event.GenPartBoson_mass = mass
 
 def create_genpart_boson(genpart, gendressedlep):
-    return create_genpart_boson_jit(genpart.pt.contents,
-                                    genpart.eta.contents,
-                                    genpart.phi.contents,
-                                    genpart.mass.contents,
+    return create_genpart_boson_jit(genpart.pt.content,
+                                    genpart.eta.content,
+                                    genpart.phi.content,
+                                    genpart.mass.content,
                                     genpart.genDressedLeptonIdx,
                                     genpart.pt.starts,
                                     genpart.pt.stops,
-                                    gendressedlep.pt.contents,
-                                    gendressedlep.eta.contents,
-                                    gendressedlep.phi.contents,
-                                    gendressedlep.mass.contents,
+                                    gendressedlep.pt.content,
+                                    gendressedlep.eta.content,
+                                    gendressedlep.phi.content,
+                                    gendressedlep.mass.content,
                                     gendressedlep.pt.starts,
                                     gendressedlep.pt.stops)
 
@@ -84,14 +84,14 @@ def create_genpart_boson_jit(gps_pt, gps_eta, gps_phi, gps_mass, gps_gdidx,
     return pts, etas, phis, masss
 
 def genpart_matched_dressedlepton(genparts, gendressedleps):
-    return genpart_matched_dressedlepton_jit(genparts.pdgId.contents,
-                                             genparts.eta.contents,
-                                             genparts.phi.contents,
+    return genpart_matched_dressedlepton_jit(genparts.pdgId.content,
+                                             genparts.eta.content,
+                                             genparts.phi.content,
                                              genparts.pdgId.starts,
                                              genparts.pdgId.stops,
-                                             gendressedleps.pdgId.contents,
-                                             gendressedleps.eta.contents,
-                                             gendressedleps.phi.contents,
+                                             gendressedleps.pdgId.content,
+                                             gendressedleps.eta.content,
+                                             gendressedleps.phi.content,
                                              gendressedleps.pdgId.starts,
                                              gendressedleps.pdgId.stops)
 

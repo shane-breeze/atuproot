@@ -1,5 +1,5 @@
-import Modules
-from physics_object_selection import selection_dict
+from . import Modules
+from .physics_object_selection import selection_dict
 
 certified_lumi_checker = Modules.CertifiedLumiChecker(
     lumi_json_path = "/vols/build/cms/sdb15/atuproot/data/json/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt",

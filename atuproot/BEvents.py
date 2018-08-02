@@ -14,10 +14,10 @@ class BEvents(object):
     def __repr__(self):
         return '{}({})'.format(
             self.__class__.__name__,
-            self._repr_contents(),
+            self._repr_content(),
         )
 
-    def _repr_contents(self):
+    def _repr_content(self):
         return 'tree = {!r}, nEvents = {!r}, nBlocks = {!r}, blocksize = {!r}, iBlock = {!r}'.format(
             self.tree,
             self.nEvents,

@@ -1,11 +1,11 @@
 import alphatwirl
 import logging
 
-from EventBuilderConfigMaker import EventBuilderConfigMaker
-from EventBuilder import EventBuilder
-from build_parallel import build_parallel
+from .EventBuilderConfigMaker import EventBuilderConfigMaker
+from .EventBuilder import EventBuilder
+from .build_parallel import build_parallel
 
-from yes_no import query_yes_no
+from .yes_no import query_yes_no
 
 class AtUproot(object):
     def __init__(self, outdir,

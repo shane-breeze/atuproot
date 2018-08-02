@@ -108,7 +108,7 @@ class WeightMuons(object):
 def get_correction_eta(muons, weights, corrections, any_pass=False):
     etabins, corrs, corrs_up, corrs_down = [x for x in zip(*corrections)]
     return get_correction_eta_jit(
-        muons.eta.contents, muons.eta.starts, muons.eta.stops,
+        muons.eta.content, muons.eta.starts, muons.eta.stops,
         weights, etabins, corrs, corrs_up, corrs_down, any_pass=any_pass,
     )
 
@@ -171,7 +171,7 @@ def get_correction_eta_jit(mueta, starts, stops, weights, inetabins,
 def get_correction_pt_abseta(muons, weights, corrections, any_pass=False):
     ptbins, etabins, corrs, corrs_up, corrs_down = [x for x in zip(*corrections)]
     return get_correction_pt_abseta_jit(
-        muons.pt.contents, muons.eta.contents, muons.pt.starts, muons.pt.stops,
+        muons.pt.content, muons.eta.content, muons.pt.starts, muons.pt.stops,
         weights, ptbins, etabins, corrs, corrs_up, corrs_down, any_pass=any_pass,
     )
 

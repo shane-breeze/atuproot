@@ -20,8 +20,8 @@ class InvMassProducer(object):
         event.MLL = mll1
 
 def create_mll(leps):
-    return create_mll_jit(leps.pt.contents, leps.eta.contents,
-                          leps.phi.contents, leps.mass.contents,
+    return create_mll_jit(leps.pt.content, leps.eta.content,
+                          leps.phi.content, leps.mass.content,
                           leps.pt.starts, leps.pt.stops)
 
 @njit
@@ -45,9 +45,9 @@ def create_mll_jit(pt, eta, phi, mass, starts, stops):
 
 def create_mtw(met, muon, ele):
     return create_mtw_jit(met.pt, met.phi,
-                          muon.pt.contents, muon.phi.contents,
+                          muon.pt.content, muon.phi.content,
                           muon.pt.starts, muon.pt.stops,
-                          ele.pt.contents, ele.phi.contents,
+                          ele.pt.content, ele.phi.content,
                           ele.pt.starts, ele.pt.stops)
 
 @njit

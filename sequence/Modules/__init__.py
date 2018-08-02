@@ -1,19 +1,19 @@
-from ScribblerWrapper import ScribblerWrapper
+from .ScribblerWrapper import ScribblerWrapper
 
-from CertifiedLumiChecker import CertifiedLumiChecker
-from TriggerChecker import TriggerChecker
-from CollectionCreator import CollectionCreator, Collection
-from SkimCollections import SkimCollections
-from ObjectCrossCleaning import ObjectCrossCleaning
-from JecVariations import JecVariations
-from EventSumsProducer import EventSumsProducer
-from InvMassProducer import InvMassProducer
-from GenBosonProducer import GenBosonProducer
+from .CertifiedLumiChecker import CertifiedLumiChecker
+from .TriggerChecker import TriggerChecker
+from .CollectionCreator import CollectionCreator, Collection
+from .SkimCollections import SkimCollections
+from .ObjectCrossCleaning import ObjectCrossCleaning
+from .JecVariations import JecVariations
+from .EventSumsProducer import EventSumsProducer
+from .InvMassProducer import InvMassProducer
+from .GenBosonProducer import GenBosonProducer
 
-from WeightCreator import WeightCreator
-from WeightXsLumi import WeightXsLumi
-from WeightPileup import WeightPileup
-from WeightMetTrigger import WeightMetTrigger
-from WeightMuons import WeightMuons
+from .WeightCreator import WeightCreator
+from .WeightXsLumi import WeightXsLumi
+from .WeightPileup import WeightPileup
+from .WeightMetTrigger import WeightMetTrigger
+from .WeightMuons import WeightMuons
 
-from SelectionProducer import SelectionProducer
+from .SelectionProducer import SelectionProducer

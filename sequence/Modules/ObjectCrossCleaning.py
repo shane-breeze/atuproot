@@ -2,7 +2,7 @@ import uproot
 import numpy as np
 from numpy import pi
 from numba import njit, boolean
-from CollectionCreator import Collection
+from .CollectionCreator import Collection
 
 from utils.Geometry import DeltaR2
 
@@ -25,15 +25,15 @@ class ObjectCrossCleaning(object):
                                clean_collection_name, selections))
 
 def comp(coll1, coll2):
-    return comp_jit(coll1.eta.contents, coll1.phi.contents,
+    return comp_jit(coll1.eta.content, coll1.phi.content,
                     coll1.starts, coll1.stops,
-                    coll2.eta.contents, coll2.phi.contents,
+                    coll2.eta.content, coll2.phi.content,
                     coll2.starts, coll2.stops)
 
 @njit
 def comp_jit(etas1_cont, phis1_cont, starts_1, stops_1,
              etas2_cont, phis2_cont, starts_2, stops_2):
-    contents = np.ones(stops_1[-1], dtype=boolean)
+    content = np.ones(stops_1[-1], dtype=boolean)
     for iev, (start_1, stop_1, start_2, stop_2) in enumerate(zip(starts_1,
                                                                  stops_1,
                                                                  starts_2,
@@ -44,6 +44,6 @@ def comp_jit(etas1_cont, phis1_cont, starts_1, stops_1,
                 dphi = phis1_cont[idx1] - phis2_cont[idx2]
 
                 if DeltaR2(deta, dphi) < 0.16:
-                    contents[idx1] = False
+                    content[idx1] = False
                     break
-    return contents
+    return content

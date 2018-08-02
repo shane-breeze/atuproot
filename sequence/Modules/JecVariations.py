@@ -23,16 +23,16 @@ class JecVariations(object):
             yvals = self.yvals_down
             delta = -1.
 
-        bin_indices = select_bins(event.Jet.eta.contents,
+        bin_indices = select_bins(event.Jet.eta.content,
                                   self.bins)
-        corrs = get_correction(event.Jet.pt.contents,
+        corrs = get_correction(event.Jet.pt.content,
                                bin_indices,
                                self.xvals,
                                yvals,
                                delta)
 
-        event.Jet.pt.contents *= corrs
-        event.Jet.mass.contents *= corrs
+        event.Jet.pt.content *= corrs
+        event.Jet.mass.content *= corrs
 
 @njit
 def interp(x, xp, fp):

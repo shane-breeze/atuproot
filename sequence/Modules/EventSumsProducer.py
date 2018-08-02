@@ -2,7 +2,7 @@ import uproot
 import numpy as np
 from numba import njit, float32, int32
 from utils.Geometry import RadToCart, CartToRad, BoundPhi
-from CollectionCreator import Collection
+from .CollectionCreator import Collection
 
 class EventSumsProducer(object):
     def __init__(self, **kwargs):
@@ -54,7 +54,7 @@ class EventSumsProducer(object):
 
         # nbjet
         event.nBJetSelectionCleanMedium = count_nbjet(
-            event.JetSelectionClean.btagCSVV2.contents,
+            event.JetSelectionClean.btagCSVV2.content,
             event.JetSelectionClean.starts,
             event.JetSelectionClean.stops,
             0.8484,
@@ -62,13 +62,13 @@ class EventSumsProducer(object):
 
         # Lead jet variables
         event.LeadJetSelectionClean_pt = create_lead_jet(
-            event.JetSelectionClean.pt.contents,
+            event.JetSelectionClean.pt.content,
             event.JetSelectionClean.starts,
             event.JetSelectionClean.stops,
             pos = 0,
         )
         event.LeadJetSelectionClean_chHEF = create_lead_jet(
-            event.JetSelectionClean.chHEF.contents,
+            event.JetSelectionClean.chHEF.content,
             event.JetSelectionClean.starts,
             event.JetSelectionClean.stops,
             pos = 0,
@@ -96,7 +96,7 @@ def count_nbjet(jet_btags, starts, stops, threshold):
     return nbjets
 
 def create_minDPhiJ1234METnoX(jets):
-    return create_minDPhiJ1234METnoX_jit(jets.dPhiMETnoX.contents,
+    return create_minDPhiJ1234METnoX_jit(jets.dPhiMETnoX.content,
                                          jets.starts,
                                          jets.stops)
 
@@ -112,7 +112,7 @@ def create_minDPhiJ1234METnoX_jit(jets_dphi, starts, stops):
     return mindphis
 
 def create_jDPhiMETnoX(jets, met):
-    return create_jDPhiMETnoX_jit(met.phi, jets.phi.contents,
+    return create_jDPhiMETnoX_jit(met.phi, jets.phi.content,
                                   jets.phi.starts, jets.phi.stops)
 
 @njit
@@ -124,7 +124,7 @@ def create_jDPhiMETnoX_jit(mephi, jetphi, starts, stops):
     return jet_dphis
 
 def create_mht(jets):
-    return create_mht_jit(jets.pt.contents, jets.phi.contents,
+    return create_mht_jit(jets.pt.content, jets.phi.content,
                           jets.pt.starts, jets.pt.stops)
 
 @njit
@@ -149,7 +149,7 @@ def create_mht_jit(jetpt, jetphi, starts, stops):
 
 def create_metres(metnox, muons):
     return create_metres_jit(metnox.pt, metnox.phi,
-                             muons.pt.contents, muons.phi.contents,
+                             muons.pt.content, muons.phi.content,
                              muons.pt.starts, muons.pt.stops)
 
 @njit
@@ -186,12 +186,12 @@ def create_metres_jit(met, mephi, mupt, muphi, mustarts, mustops):
 def create_metnox(met, muons, electrons):
     return create_metnox_jit(met.pt,
                              met.phi,
-                             muons.pt.contents,
-                             muons.phi.contents,
+                             muons.pt.content,
+                             muons.phi.content,
                              muons.pt.starts,
                              muons.pt.stops,
-                             electrons.pt.contents,
-                             electrons.phi.contents,
+                             electrons.pt.content,
+                             electrons.phi.content,
                              electrons.pt.starts,
                              electrons.pt.stops)
 

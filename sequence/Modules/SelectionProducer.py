@@ -27,7 +27,7 @@ class SelectionProducer(object):
             for idx in range(len(results)-1):
                 results[idx+1] = results[idx+1] & results[idx]
             for idx in range(len(self.selections_lambda["SingleMuon"])):
-                print self.selections_lambda["SingleMuon"][idx].function, results[idx]
+                print(self.selections_lambda["SingleMuon"][idx].function, results[idx])
             exit()
 
         for cutflow, selection in self.selections_lambda.items():

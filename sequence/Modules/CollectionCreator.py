@@ -56,7 +56,7 @@ class Collection(object):
             new_starts[0] = 0
 
             array = uproot.interp.jagged.JaggedArray(
-                ref_branch.contents[self.selection],
+                ref_branch.content[self.selection],
                 new_starts,
                 new_stops,
             )
@@ -83,7 +83,7 @@ class Collection(object):
 
             def __getattr__(self, attr):
                 result = getattr(self.collection, attr)
-                return result.contents
+                return result.content
 
         temp_collection = CollectionWrapper(self)
         return func(temp_collection)

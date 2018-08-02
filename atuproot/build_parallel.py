@@ -5,7 +5,7 @@ from alphatwirl import concurrently, progressbar
 from alphatwirl.misc.deprecation import _deprecated
 
 from alphatwirl.parallel import Parallel
-from SGEJobSubmitter import SGEJobSubmitter
+from .SGEJobSubmitter import SGEJobSubmitter
 
 ##__________________________________________________________________||
 def build_parallel(parallel_mode, quiet=True, processes=4, user_modules=[ ],

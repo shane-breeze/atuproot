@@ -6,15 +6,15 @@ from sequence.collectors import reader_collectors
 from datasets.datasets import get_datasets
 from sequence.Modules import ScribblerWrapper
 
-import logging
-logging.getLogger("ROOT.TClass.Init").setLevel(logging.ERROR)
-
-from rootpy import log
-log_mpl = log["/matplotlib"]
-log_mpl.setLevel(log_mpl.INFO)
-
-logger = log["/"+__name__]
-logger.setLevel(log.INFO)
+#import logging
+#logging.getLogger("ROOT.TClass.Init").setLevel(logging.ERROR)
+#
+#from rootpy import log
+#log_mpl = log["/matplotlib"]
+#log_mpl.setLevel(log_mpl.info)
+#
+#logger = log["/"+__name__]
+#logger.setLevel(log.INFO)
 
 import argparse
 def parse_args():
