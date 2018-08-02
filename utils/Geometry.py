@@ -2,7 +2,7 @@ import numpy as np
 from numpy import pi
 from numba import njit
 
-@njit(cache=True)
+@njit
 def BoundPhi(phi):
     if phi >= pi:
         phi -= 2*pi
@@ -10,19 +10,19 @@ def BoundPhi(phi):
         phi += 2*pi
     return phi
 
-@njit(cache=True)
+@njit
 def DeltaR2(deta, dphi):
     return deta**2 + BoundPhi(dphi)**2
 
-@njit(cache=True)
+@njit
 def RadToCart(r, phi):
     return r*np.cos(phi), r*np.sin(phi)
 
-@njit(cache=True)
+@njit
 def CartToRad(x, y):
     return np.sqrt(x**2+y**2), BoundPhi(np.arctan2(y, x))
 
-@njit(cache=True)
+@njit
 def LorTHPMToXYZE(t, h, p, m):
     x = t*np.cos(p)
     y = t*np.sin(p)
@@ -30,7 +30,7 @@ def LorTHPMToXYZE(t, h, p, m):
     e = np.sqrt(m**2 + t**2 + z**2)
     return x, y, z, e
 
-@njit(cache=True)
+@njit
 def LorXYZEToTHPM(x, y, z, e):
     t = np.sqrt(x**2+y**2)
     h = np.arctanh(z/np.sqrt(t**2+z**2))

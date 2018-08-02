@@ -1,4 +1,5 @@
 import numpy as np
+np.warnings.filterwarnings('ignore')
 
 class Lambda(object):
     def __init__(self, function):
