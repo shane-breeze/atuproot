@@ -46,7 +46,7 @@ def build_parallel_dropbox(parallel_mode, user_modules,
     elif parallel_mode == 'sge':
         dispatcher_options = dict()
         dispatcher_class = SGEJobSubmitter
-        dropbox_options = dict(sleep = 60)
+        dropbox_options = dict(sleep = 10)
     else:
         dispatcher_options = dict()
         dispatcher_class = concurrently.SubprocessRunner
