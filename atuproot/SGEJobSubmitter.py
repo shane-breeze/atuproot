@@ -8,6 +8,12 @@ import getpass
 import re
 import logging
 
+logger = logging.getLogger(__name__)
+handler = logging.StreamHandler()
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+
 import alphatwirl
 
 from alphatwirl.concurrently.exec_util import try_executing_until_succeed, compose_shortened_command_for_logging
