@@ -181,7 +181,7 @@ def create_metres_jit(met, mephi, mupt, muphi, mustarts, mustops):
         metnox_dimuparas[iev] = metnox_dimupara
         metnox_dimuperps[iev] = metnox_dimuperp
 
-    return dimupts, dimuphis, metnox_dimupara, metnox_dimuperp
+    return dimupts, dimuphis, metnox_dimuparas, metnox_dimuperps
 
 def create_metnox(met, muons, electrons):
     return create_metnox_jit(met.pt,
