@@ -15,10 +15,10 @@ class EventBuilder(object):
     def __call__(self):
         if len(self.config.inputPaths) != 1:
             raise AttributeError("Multiple inputPaths not yet supported")
-        #try:
-        tree = uproot.open(self.config.inputPaths[0])[self.config.treeName]
-        #except:
-        #    tree = uproot.open(self.config.inputPaths[0], localsource=uproot.FileSource.defaults)[self.config.treeName]
+        try:
+            tree = uproot.open(self.config.inputPaths[0])[self.config.treeName]
+        except:
+            tree = uproot.open(self.config.inputPaths[0], localsource=uproot.FileSource.defaults)[self.config.treeName]
         events = BEvents(tree, self.config.blocksize)
         events.config = self.config
         return events
