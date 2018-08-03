@@ -6,15 +6,10 @@ from sequence.collectors import reader_collectors
 from datasets.datasets import get_datasets
 from sequence.Modules import ScribblerWrapper
 
-#import logging
-#logging.getLogger("ROOT.TClass.Init").setLevel(logging.ERROR)
-#
-#from rootpy import log
-#log_mpl = log["/matplotlib"]
-#log_mpl.setLevel(log_mpl.info)
-#
-#logger = log["/"+__name__]
-#logger.setLevel(log.INFO)
+import logging
+logging.getLogger(__name__).setLevel(logging.INFO)
+logging.getLogger("alphatwirl").setLevel(logging.INFO)
+logging.getLogger("atuproot.SGEJobSubmitter").setLevel(logging.INFO)
 
 import argparse
 def parse_args():
@@ -43,10 +38,10 @@ if __name__ == "__main__":
     options = parse_args()
 
     datasets = get_datasets()
-    for dataset in datasets:
-        if dataset.isdata and not dataset.parent == options.data:
-            del dataset
 
+    datasets = [dataset
+                for dataset in datasets
+                if not (dataset.isdata and not dataset.parent == options.data)]
 
     if options.sample is not None:
         datasets = [d for d in datasets
