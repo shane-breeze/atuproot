@@ -94,8 +94,8 @@ datasets:
     - QCD_Pt-30To50
     - QCD_Pt-50To80
     - QCD_Pt-80To120
-    #- QCD_Pt-80To120_ext1
-    #- QCD_Pt-120To170
+    - QCD_Pt-80To120_ext1
+    - QCD_Pt-120To170
     - QCD_Pt-120To170_ext1
     - QCD_Pt-170To300
     - QCD_Pt-170To300_ext1
