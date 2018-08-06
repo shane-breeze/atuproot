@@ -37,3 +37,7 @@ def get_datasets(path="/vols/build/cms/sdb15/atuproot/datasets/datasets.yaml"):
             dataset.associates = associated_datasets
 
     return datasets
+
+if __name__ == "__main__":
+    datasets = get_datasets()
+    print sorted(set([d.parent for d in datasets]))
