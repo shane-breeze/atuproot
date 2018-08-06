@@ -2,9 +2,8 @@ from alphatwirl.loop import NullCollector
 from atuproot.AtUproot import AtUproot
 
 from sequence.sequence import sequence
-from sequence.collectors import reader_collectors
 from datasets.datasets import get_datasets
-from sequence.Modules import ScribblerWrapper
+from sequence.Readers import ScribblerWrapper
 
 import logging
 logging.getLogger(__name__).setLevel(logging.INFO)
@@ -39,9 +38,9 @@ if __name__ == "__main__":
 
     datasets = get_datasets()
 
-    datasets = [dataset
-                for dataset in datasets
-                if not (dataset.isdata and not dataset.parent == options.data)]
+    #datasets = [dataset
+    #            for dataset in datasets
+    #            if not (dataset.isdata and not dataset.parent == options.data)]
 
     if options.sample is not None:
         datasets = [d for d in datasets
@@ -57,5 +56,5 @@ if __name__ == "__main__":
         profile = options.profile,
         profile_out_path = "profile.txt",
     )
-    process.run(datasets, [(ScribblerWrapper(module), NullCollector())
-                           for module in sequence] + reader_collectors)
+    process.run(datasets, [(ScribblerWrapper(reader_collector[0]), reader_collector[1])
+                           for reader_collector in sequence])
