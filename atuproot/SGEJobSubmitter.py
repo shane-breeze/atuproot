@@ -55,12 +55,13 @@ SGE_JOBSTATE_CODES = {
 
 ##__________________________________________________________________||
 class SGEJobSubmitter(object):
-    def __init__(self, queue="hep.q", walltime=10800):
-        self.job_desc_template = "qsub -t 1-{njobs}:1 -o /dev/null -e /dev/null -cwd -V -q {queue} -l h_rt={walltime} -l h_vmem=12G {job_script}"
+    def __init__(self, queue="hep.q", walltime=10800, vmem=12):
+        self.job_desc_template = "qsub -t 1-{njobs}:1 -o /dev/null -e /dev/null -cwd -V -q {queue} -l h_rt={walltime} -l h_vmem={vmem}G {job_script}"
         self.clusterprocids_outstanding = [ ]
         self.clusterprocids_finished = [ ]
         self.queue = queue
         self.walltime = walltime # 3h
+        self.vmem = vmem
         self.wallmax = 172800 # 48h
 
     def run(self, workingArea, package_index):
@@ -87,6 +88,7 @@ class SGEJobSubmitter(object):
             njobs = len(package_paths),
             queue = self.queue,
             walltime = self.walltime,
+            vmem = self.vmem
         )
 
         s = "#!/bin/bash\n\nulimit -c 0\n\n"
