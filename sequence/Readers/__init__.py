@@ -7,6 +7,7 @@ from .SkimCollections import SkimCollections
 from .ObjectCrossCleaning import ObjectCrossCleaning
 from .JecVariations import JecVariations
 from .EventSumsProducer import EventSumsProducer
+from .SignalRegionBlinder import SignalRegionBlinder
 from .InvMassProducer import InvMassProducer
 from .GenBosonProducer import GenBosonProducer
 

@@ -16,6 +16,9 @@ class SelectionProducer(object):
             "Monojet": baseline + es.baseline_selection + es.monojet_selection,
             "SingleMuon": baseline + es.baseline_selection + es.singlemuon_selection,
             "DoubleMuon": baseline + es.baseline_selection + es.doublemuon_selection,
+            "SingleElectron": baseline + es.baseline_selection + es.singleelectron_selection,
+            "DoubleElectron": baseline + es.baseline_selection + es.doubleelectron_selection,
+            "MonojetQCD": baseline + es.baseline_selection + es.monojetqcd_selection,
         }
 
         self.selections_lambda = {cutflow: [Lambda(cut) for cut in selection]
