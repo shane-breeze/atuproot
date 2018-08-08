@@ -2,29 +2,43 @@ import numpy as np
 import os
 import pickle
 
-from .Histogrammer_cfg import histogrammer_cfgs
+from . import Histogrammer_cfg as cfg
 from datasets.datasets import get_datasets
-
+from utils.Lambda import Lambda
 from drawing.dist_ratio import dist_ratio
 
 class HistReader(object):
     def __init__(self, **kwargs):
-        self.histogrammer_cfgs = histogrammer_cfgs
+        self.histogrammer_cfgs = cfg.histogrammer_cfgs
+        self.string_conv_func = {}
 
     def begin(self, event):
-        # Create an attribute which will be a tuple of histograms. Attribute
-        # name is: {name}__{cutflow}__{variable}. The tuple contains:
-        # (counts, yields, variance)
+        """
+        Create an attribute which will be a tuple of histograms. Attribute name
+        is:
+            {name}__{cutflow}__{variable}
+        The tuple contains:
+            (counts, yields, variance)
+        """
         for histogrammer_cfg in self.histogrammer_cfgs:
             for cutflow in histogrammer_cfg["cutflows"]:
                 setattr(self, "__".join([histogrammer_cfg["name"], cutflow]), None)
+
+            # Create Lambda functions out of strings
+            for variable in histogrammer_cfg["variables"]:
+                if variable not in self.string_conv_func:
+                    self.string_conv_func[variable] = Lambda(variable)
+
+    def end(self):
+        # Remove unpicklables / large (memory) objects
+        self.string_conv_func = {}
 
     def event(self, event):
         for histogrammer_cfg in self.histogrammer_cfgs:
             for cutflow in histogrammer_cfg["cutflows"]:
                 selection = getattr(event, "Cutflow_{}".format(cutflow))
                 weights = event.Weight[selection]
-                variables = [getattr(event, variable)[selection]
+                variables = [self.string_conv_func[variable](event)[selection]
                              for variable in histogrammer_cfg["variables"]]
 
                 bins = histogrammer_cfg["bins"][0] if len(variables)==1 else histogrammer_cfg["bins"]
@@ -107,9 +121,9 @@ class HistCollector(object):
             if not os.path.exists(outdir):
                 os.makedirs(outdir)
 
-                path = os.path.join(outdir, hist_name+".pkl")
-                with open(path, 'w') as f:
-                    pickle.dump(datum, f)
+            path = os.path.join(outdir, hist_name+".pkl")
+            with open(path, 'w') as f:
+                pickle.dump(datum, f)
 
         self.draw(histname_cutflows, data)
         return dataset_readers_list
@@ -118,25 +132,39 @@ class HistCollector(object):
         for histname, cutflow in histname_cutflows:
             for dataset_name in ["MET", "SingleMuon", "SingleElectron"]:
                 key = (dataset_name, histname, cutflow)
+                if key not in data:
+                    print "{} not in output".format(key)
+                    continue
                 hists_data = {dataset_name: data[key]}
 
                 hist_data = {
-                    "name": dataset_name,
+                    "name": histname,
+                    "sample": dataset_name,
                     "bins": data[key]["bins"],
                     "counts": data[key]["counts"],
                     "yields": data[key]["yields"],
                     "variance": data[key]["variance"],
                 }
 
-                hists_mc = [{
-                    "name": mc_dataset_name,
-                    "bins": data[(mc_dataset_name, histname, cutflow)]["bins"],
-                    "counts": data[(mc_dataset_name, histname, cutflow)]["counts"],
-                    "yields": data[(mc_dataset_name, histname, cutflow)]["yields"],
-                    "variance": data[(mc_dataset_name, histname, cutflow)]["variance"],
-                } for mc_dataset_name in ['DYJetsToLL', 'Diboson', 'EWKV2Jets',
-                                          'G1Jet', 'QCD', 'SingleTop', 'TTJets',
-                                          'VGamma', 'WJetsToLNu', 'ZJetsToNuNu']]
+                try:
+                    hists_mc = [{
+                        "name": histname,
+                        "sample": mc_dataset_name,
+                        "bins": data[(mc_dataset_name, histname, cutflow)]["bins"],
+                        "counts": data[(mc_dataset_name, histname, cutflow)]["counts"],
+                        "yields": data[(mc_dataset_name, histname, cutflow)]["yields"],
+                        "variance": data[(mc_dataset_name, histname, cutflow)]["variance"],
+                    } for mc_dataset_name in ['DYJetsToLL', 'Diboson', 'EWKV2Jets',
+                                              'G1Jet', 'QCD', 'SingleTop', 'TTJets',
+                                              'VGamma', 'WJetsToLNu', 'ZJetsToNuNu']]
+                except KeyError:
+                    for mc_dataset_name in ['DYJetsToLL', 'Diboson', 'EWKV2Jets',
+                                            'G1Jet', 'QCD', 'SingleTop', 'TTJets',
+                                            'VGamma', 'WJetsToLNu', 'ZJetsToNuNu']:
+                        key = (mc_dataset_name, histname, cutflow)
+                        if key not in data:
+                            print "{} not in output".format(key)
+                    continue
 
                 if not os.path.exists(os.path.join(self.outdir, cutflow, "plots")):
                     os.makedirs(os.path.join(self.outdir, cutflow, "plots"))
@@ -145,6 +173,7 @@ class HistCollector(object):
                     hist_data,
                     hists_mc,
                     os.path.join(self.outdir, cutflow, "plots", dataset_name+"_"+histname+".pdf"),
+                    cfg,
                 )
 
     def reread(self, outdir):
@@ -152,6 +181,8 @@ class HistCollector(object):
         histname_cutflows = []
         for cutflow in os.listdir(outdir):
             for parent in os.listdir(os.path.join(outdir, cutflow)):
+                if parent == "plots":
+                    continue
                 for hist_path in os.listdir(os.path.join(outdir, cutflow, parent)):
                     hist_name = os.path.splitext(os.path.basename(hist_path))[0]
                     if (hist_name, cutflow) not in histname_cutflows:
