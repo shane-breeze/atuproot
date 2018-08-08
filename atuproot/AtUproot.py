@@ -21,8 +21,8 @@ class AtUproot(object):
                  dispatcher_options = dict(),
                  process = 4,
                  user_modules = (),
-                 max_events_per_dataset = -1,
-                 max_events_per_process = -1,
+                 max_blocks_per_dataset = -1,
+                 max_blocks_per_process = -1,
                  max_files_per_dataset = -1,
                  max_files_per_process = 1,
                  blocksize = 1000000,
@@ -37,8 +37,8 @@ class AtUproot(object):
         )
         self.outdir = outdir
         self.force = force
-        self.max_events_per_dataset = max_events_per_dataset
-        self.max_events_per_process = max_events_per_process
+        self.max_blocks_per_dataset = max_blocks_per_dataset
+        self.max_blocks_per_process = max_blocks_per_process
         self.max_files_per_dataset = max_files_per_dataset
         self.max_files_per_process = max_files_per_process
         self.blocksize = blocksize
@@ -76,10 +76,10 @@ class AtUproot(object):
         datasetIntoEventBuildersSplitter = alphatwirl.loop.DatasetIntoEventBuildersSplitter(
             EventBuilder = EventBuilder,
             eventBuilderConfigMaker = eventBuilderConfigMaker,
-            maxEvents = self.max_events_per_dataset,
-            maxEventsPerRun = self.max_events_per_process,
+            maxEvents = self.max_blocks_per_dataset,
+            maxEventsPerRun = self.max_blocks_per_process,
             maxFiles = self.max_files_per_dataset,
-            maxFilesPerRun = self.max_files_per_process
+            maxFilesPerRun = self.max_files_per_process,
         )
         eventReader = alphatwirl.loop.EventDatasetReader(
             eventLoopRunner = eventLoopRunner,

@@ -19,6 +19,9 @@ class EventBuilder(object):
             tree = uproot.open(self.config.inputPaths[0])[self.config.treeName]
         except:
             tree = uproot.open(self.config.inputPaths[0], localsource=uproot.FileSource.defaults)[self.config.treeName]
-        events = BEvents(tree, self.config.blocksize)
+        events = BEvents(tree,
+                         self.config.blocksize,
+                         self.config.maxBlocks,
+                         self.config.start)
         events.config = self.config
         return events

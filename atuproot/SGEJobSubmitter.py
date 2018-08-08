@@ -63,6 +63,7 @@ class SGEJobSubmitter(object):
         self.walltime = walltime # 3h
         self.vmem = vmem
         self.wallmax = 172800 # 48h
+        self.vmemmax = 32
 
     def run(self, workingArea, package_index):
         return self.run_multiple(workingArea, [package_index])[0]
