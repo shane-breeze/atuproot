@@ -14,6 +14,21 @@ class GenBosonProducer(object):
         event.GenPartBosonDaughters = Collection("GenPartBosonDaughters",
                                                  event, "GenPart", mask)
 
+        event.GenPartBosonDaughters.pdgId
+        event.GenPartBosonDaughters.pt
+        event.GenPartBosonDaughters.eta
+        event.GenPartBosonDaughters.phi
+        event.GenPartBosonDaughters.mass
+
+        # Finished with GenPart branches
+        event.delete_branches(["GenPart_pdgId",
+                               "GenPart_status",
+                               "GenPart_statusFlags",
+                               "GenPart_pt",
+                               "GenPart_eta",
+                               "GenPart_phi",
+                               "GenPart_mass"])
+
         genpart_dressedlepidx = genpart_matched_dressedlepton(
             event.GenPartBosonDaughters, event.GenDressedLepton,
         )
@@ -25,6 +40,19 @@ class GenBosonProducer(object):
         event.GenPartBoson_eta = eta
         event.GenPartBoson_phi = phi
         event.GenPartBoson_mass = mass
+
+        event.delete_branches(["GenPartBosonDaughters_pdgId",
+                               "GenPartBosonDaughters_pt",
+                               "GenPartBosonDaughters_eta",
+                               "GenPartBosonDaughters_phi",
+                               "GenPartBosonDaughters_mass",
+                               "GenPartBosonDaughters_genDressedLeptonIdx",
+                               "GenPartBosonDaughters",
+                               "GenDressedLepton_pdgId",
+                               "GenDressedLepton_pt",
+                               "GenDressedLepton_eta",
+                               "GenDressedLepton_phi",
+                               "GenDressedLepton_mass"])
 
 def create_genpart_boson(genpart, gendressedlep):
     return create_genpart_boson_jit(genpart.pt.content,
