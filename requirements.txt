@@ -1,0 +1,8 @@
+numpy
+icc-rt
+numba
+alphatwirl==0.16.0
+pandas
+pyyaml
+uproot
+rootpy
