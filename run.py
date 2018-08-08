@@ -1,3 +1,6 @@
+import warnings
+warnings.filterwarnings('ignore')
+
 from alphatwirl.loop import NullCollector
 from atuproot.AtUproot import AtUproot
 
