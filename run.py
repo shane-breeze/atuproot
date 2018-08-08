@@ -10,6 +10,10 @@ logging.getLogger(__name__).setLevel(logging.INFO)
 logging.getLogger("alphatwirl").setLevel(logging.INFO)
 logging.getLogger("atuproot.SGEJobSubmitter").setLevel(logging.INFO)
 
+logging.getLogger(__name__).propagate = False
+logging.getLogger("alphatwirl").propagate = False
+logging.getLogger("atuproot.SGEJobSubmitter").propagate = False
+
 import argparse
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -19,8 +23,10 @@ def parse_args():
                         help="Which mode to run in (multiprocessing, htcondor, sge)")
     parser.add_argument("--ncores", default=0, type=int,
                         help="Number of cores to run on")
-    parser.add_argument("--nEventsPerSample", default=-1, type=int,
-                        help="Number of events per sample")
+    parser.add_argument("--nblocks-per-dataset", default=-1, type=int,
+                        help="Number of blocks per dataset")
+    parser.add_argument("--nblocks-per-sample", default=-1, type=int,
+                        help="Number of blocks per sample")
     parser.add_argument("--blocksize", default=1000000, type=int,
                         help="Number of events per block")
     parser.add_argument("--data", default="MET", type=str,
@@ -51,7 +57,8 @@ if __name__ == "__main__":
         quiet = options.quiet,
         parallel_mode = options.mode,
         process = options.ncores,
-        max_events_per_process = options.nEventsPerSample,
+        max_blocks_per_dataset = options.nblocks_per_dataset,
+        max_blocks_per_process = options.nblocks_per_sample,
         blocksize = options.blocksize,
         profile = options.profile,
         profile_out_path = "profile.txt",
