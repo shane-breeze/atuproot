@@ -10,19 +10,18 @@ met_selection = "ev: ev.METnoX.pt > 200."
 dphi_jet_met_selection = "ev: ev.MinDPhiJ1234METnoX > 0.5"
 dphi_jet_met_inv_selection = "ev: ev.MinDPhiJ1234METnoX <= 0.5"
 dcalo_pfmet_selection = "ev: ev.MET_dCaloMET < 0.5"
-jet_selection = "ev: (ev.JetSelectionClean.size > 0) & "\
-                    "(ev.JetSelectionClean.size == ev.JetVetoClean.size) & "\
-                    "(ev.LeadJetSelectionClean.pt > 200.) & "\
-                    "(ev.LeadJetSelectionClean.chHEF > 0.1) & "\
-                    "(ev.LeadJetSelectionClean.chHEF < 0.95)"
+jet_selection = "ev: (ev.JetSelection.size > 0) & "\
+                    "(ev.JetSelection.size == ev.JetVeto.size) & "\
+                    "(ev.LeadJetSelection.pt > 200.) & "\
+                    "(ev.LeadJetSelection.chHEF > 0.1) & "\
+                    "(ev.LeadJetSelection.chHEF < 0.95)"
 muon_selection = "ev: (ev.MuonSelection.size == ev.MuonVeto.size) & (ev.MuonVeto.size == {})"
 ele_selection = "ev: (ev.ElectronSelection.size == ev.ElectronVeto.size) & (ev.ElectronVeto.size == {})"
 pho_veto = "ev: (ev.PhotonSelection.size == ev.PhotonVeto.size) & (ev.PhotonVeto.size == 0)"
-nbjet_veto = "ev: (ev.nBJetSelectionCleanMedium == 0)"
-tau_veto = "ev: (ev.TauSelectionClean.size == ev.TauVetoClean.size) & (ev.TauVetoClean.size == 0)"
+nbjet_veto = "ev: (ev.nBJetSelectionMedium == 0)"
+tau_veto = "ev: (ev.TauSelection.size == ev.TauVeto.size) & (ev.TauVeto.size == 0)"
 mtw_selection = "ev: (ev.MTW >= 30.) & (ev.MTW < 125.)"
 mll_selection = "ev: (ev.MLL >= 71.) & (ev.MLL < 111.)"
-#mll_selection = "ev: (ev.MLL >= 80.) & (ev.MLL < 100.)"
 
 blind_mask = "ev: ev.BlindMask"
 

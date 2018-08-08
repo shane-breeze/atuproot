@@ -25,13 +25,13 @@ skim_collections = Readers.SkimCollections(
 
 jet_cross_cleaning = Readers.ObjectCrossCleaning(
     name = "jet_cross_cleaning",
-    clean_collections = ("JetVeto", "JetSelection"),
+    clean_collections = ("Jet",),
     ref_collections = ("MuonVeto", "ElectronVeto", "PhotonVeto"),
 )
 
 tau_cross_cleaning = Readers.ObjectCrossCleaning(
     name = "tau_cross_cleaning",
-    clean_collections = ("TauVeto", "TauSelection"),
+    clean_collections = ("Tau",),
     ref_collections = ("MuonVeto", "ElectronVeto"),
 )
 
@@ -90,22 +90,39 @@ hist_reader = Collectors.HistReader()
 hist_collector = Collectors.HistCollector()
 
 sequence = [
-    (certified_lumi_checker, NullCollector()),
-    (trigger_checker, NullCollector()),
+    # Creates object collections accessible through the event variable. e.g.
+    # event.Jet.pt rather than event.Jet_pt. Simpler to pass a collection to
+    # functions and allows subcollections (done by skim_collections)
     (collection_creator, NullCollector()),
+    # Try to keep GenPart branch stuff before everything else. It's quite big
+    # and is deleted after use. Don't want to add the memory consumption of
+    # this with all other branches
+    (gen_boson_producer, NullCollector()),
     (jec_variations, NullCollector()),
     (skim_collections, NullCollector()),
+    # Cross cleaning must be placed after the veto and selection collections
+    # are created but before they're used anywhere to allow the collection
+    # selection mask to be updated
     (jet_cross_cleaning, NullCollector()),
     (tau_cross_cleaning, NullCollector()),
+    # General event variable producers
     (event_sums_producer, NullCollector()),
-    (signal_region_blinder, NullCollector()),
     (inv_mass_producer, NullCollector()),
-    (gen_boson_producer, NullCollector()),
+    # Readers which create a mask for the event. Doesn't apply it, just stores
+    # the mask as an array of booleans
+    (trigger_checker, NullCollector()),
+    (certified_lumi_checker, NullCollector()),
+    (signal_region_blinder, NullCollector()),
+    (selection_producer, NullCollector()),
+    # Weighters. Need to add a weight (of ones) to the event first -
+    # weight_creator. The generally just apply to MC and that logic it dealt
+    # with by the ScribblerWrapper.
     (weight_creator, NullCollector()),
     (weight_xsection_lumi, NullCollector()),
     (weight_pu, NullCollector()),
     (weight_met_trigger, NullCollector()),
     (weight_muons, NullCollector()),
-    (selection_producer, NullCollector()),
+    # Add collectors (with accompanying readers) at the end so that all
+    # event attributes are available to them
     (hist_reader, hist_collector),
 ]
