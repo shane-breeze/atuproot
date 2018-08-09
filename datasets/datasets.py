@@ -2,7 +2,7 @@ import yaml
 import os
 from atuproot.Dataset import Dataset
 
-def get_datasets(path="/vols/build/cms/sdb15/atuproot/datasets/datasets.yaml"):
+def get_datasets(path="atuproot/datasets/datasets.yaml"):
     with open(path, 'r') as f:
         datasets_dict = yaml.load(f)
 

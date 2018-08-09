@@ -81,7 +81,7 @@ class HistCollector(object):
         self.outdir = "output"
         if not os.path.exists(self.outdir):
             os.makedirs(self.outdir)
-        self.datasets = get_datasets()
+        self.datasets = get_datasets(path="atuproot/datasets/datasets.yaml")
 
     def collect(self, dataset_readers_list):
         data = {}

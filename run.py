@@ -2,7 +2,7 @@ import warnings
 warnings.filterwarnings('ignore')
 
 from alphatwirl.loop import NullCollector
-from atuproot.AtUproot import AtUproot
+from AtUproot import AtUproot
 
 from sequence.sequence import sequence
 from datasets.datasets import get_datasets
