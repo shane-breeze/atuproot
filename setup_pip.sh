@@ -57,7 +57,7 @@ export LD_LIBRARY_PATH="$(build_some_path "$LD_LIBRARY_PATH" "${cvmfs_Libs}"{lib
 
 # Special treatment needed for setuptools
 python -m pip install --prefix "${EXTERNALS_DIR}"/pip -U setuptools --ignore-installed
-python -m pip install --prefix "${EXTERNALS_DIR}"/pip -r requirements.txt --ignore-installed
+python -m pip install --prefix "${EXTERNALS_DIR}"/pip -r ${ROOT_DIR}/requirements.txt --ignore-installed
 python -m pip install --prefix "${EXTERNALS_DIR}"/pip backports.lzma --ignore-installed --global-option=build_ext --global-option="-L${cvmfs_LzmaDir}/lib/" --global-option="-I${cvmfs_LzmaDir}/include/"
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}":"${cvmfs_LzmaDir}"/lib
 

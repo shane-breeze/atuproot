@@ -1,0 +1,13 @@
+DAS: [/MET/Run2016B-03Feb2017_ver2-v2/MINIAOD]
+files: [/vols/cms/ZinvWidth/NanoAOD/201806_Jun/data/MET_Run2016B_v2/trees/nanoAOD_5.root,
+  /vols/cms/ZinvWidth/NanoAOD/201806_Jun/data/MET_Run2016B_v2/trees/nanoAOD_3.root,
+  /vols/cms/ZinvWidth/NanoAOD/201806_Jun/data/MET_Run2016B_v2/trees/nanoAOD_2.root,
+  /vols/cms/ZinvWidth/NanoAOD/201806_Jun/data/MET_Run2016B_v2/trees/nanoAOD_4.root,
+  /vols/cms/ZinvWidth/NanoAOD/201806_Jun/data/MET_Run2016B_v2/trees/nanoAOD_1.root]
+isdata: true
+name: MET_Run2016B_v2
+nevents: 35987712
+parent: MET
+sumweights: 35987712.0
+tree: Events
+xsection: null

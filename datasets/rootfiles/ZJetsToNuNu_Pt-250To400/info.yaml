@@ -1,0 +1,9 @@
+DAS: [/DYJetsToNuNu_PtZ-250To400_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM]
+files: [/vols/cms/ZinvWidth/NanoAOD/201806_Jun/data/ZJetsToNuNu_Pt-250To400/trees/nanoAOD_1.root]
+isdata: false
+name: ZJetsToNuNu_Pt-250To400
+nevents: 1052985
+parent: ZJetsToNuNu
+sumweights: 5163758.924870491
+tree: Events
+xsection: 6.219
