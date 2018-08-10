@@ -130,7 +130,7 @@ class HistCollector(object):
 
     def draw(self, histname_cutflows, data):
         for histname, cutflow in histname_cutflows:
-            for dataset_name in ["MET", "SingleMuon", "SingleElectron"]:
+            for dataset_name in ["MET", "SingleMuon"]: #, "SingleElectron"]:
                 key = (dataset_name, histname, cutflow)
                 if key not in data:
                     print "{} not in output".format(key)
@@ -172,7 +172,7 @@ class HistCollector(object):
                 dist_ratio(
                     hist_data,
                     hists_mc,
-                    os.path.join(self.outdir, cutflow, "plots", dataset_name+"_"+histname+".pdf"),
+                    os.path.join(self.outdir, cutflow, "plots", dataset_name+"_"+histname),
                     cfg,
                 )
 
