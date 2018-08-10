@@ -16,5 +16,6 @@ from .WeightXsLumi import WeightXsLumi
 from .WeightPileup import WeightPileup
 from .WeightMetTrigger import WeightMetTrigger
 from .WeightMuons import WeightMuons
+from .WeightQcdEwk import WeightQcdEwk
 
 from .SelectionProducer import SelectionProducer

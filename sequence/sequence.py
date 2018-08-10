@@ -83,6 +83,11 @@ weight_muons = Readers.WeightMuons(
     ],
     data = False,
 )
+weight_qcd_ewk = Readers.WeightQcdEwk(
+    input_paths = {
+        "ZJetsToNuNu": "/vols/build/cms/sdb15/atuproot/data/qcd_ewk/vvj.dat",
+    },
+)
 
 selection_producer = Readers.SelectionProducer()
 
@@ -113,7 +118,6 @@ sequence = [
     (trigger_checker, NullCollector()),
     (certified_lumi_checker, NullCollector()),
     (signal_region_blinder, NullCollector()),
-    (selection_producer, NullCollector()),
     # Weighters. Need to add a weight (of ones) to the event first -
     # weight_creator. The generally just apply to MC and that logic it dealt
     # with by the ScribblerWrapper.
@@ -122,6 +126,8 @@ sequence = [
     (weight_pu, NullCollector()),
     (weight_met_trigger, NullCollector()),
     (weight_muons, NullCollector()),
+    (weight_qcd_ewk, NullCollector()),
+    (selection_producer, NullCollector()),
     # Add collectors (with accompanying readers) at the end so that all
     # event attributes are available to them
     (hist_reader, hist_collector),
