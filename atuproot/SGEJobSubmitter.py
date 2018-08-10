@@ -58,7 +58,6 @@ SGE_JOBSTATE_CODES = {
 ##__________________________________________________________________||
 class SGEJobSubmitter(object):
     vmem_dict = {
-        "TTJets_Inclusive": 20,
         "MET_Run2016B_v2": 12,
         "SingleMuon_Run2016B_v2": 12,
         "SingleMuon_Run2016C_v1": 12,
@@ -68,11 +67,13 @@ class SGEJobSubmitter(object):
         "SingleMuon_Run2016G_v1": 12,
         "SingleMuon_Run2016H_v2": 12,
         "SingleElectron_Run2016H_v2": 12,
+        "TTJets_Inclusive": 12,
         "QCD_Pt-1400To1800_ext1": 12,
+        "WZTo2Q2Nu": 12,
+        "SingleTop_s-channel_InclusiveDecays": 12,
+        "ZGToLLG": 12,
     }
-    walltime_dict = {
-        "TTJets_Inclusive": 5400,
-    }
+    walltime_dict = {}
     def __init__(self, queue="hep.q", walltime=3600, vmem=6):
         self.job_desc_template = "qsub -N {name} -t 1-{njobs}:1 -o /dev/null -e /dev/null -cwd -V -q {queue} -l h_rt={walltime} -l h_vmem={vmem}G {job_script}"
         self.clusterprocids_outstanding = [ ]
