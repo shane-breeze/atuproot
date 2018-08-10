@@ -60,51 +60,36 @@ class EventSumsProducer(object):
             0.8484,
         )
 
-        # Lead jet variables
-        event.LeadJetSelection_pt = create_lead_object(
-            event.JetSelection.pt.content,
-            event.JetSelection.starts,
-            event.JetSelection.stops,
-            pos = 0,
-        )
-        event.LeadJetSelection_eta = create_lead_object(
-            event.JetSelection.eta.content,
-            event.JetSelection.starts,
-            event.JetSelection.stops,
-            pos = 0,
-        )
-        event.LeadJetSelection_chHEF = create_lead_object(
-            event.JetSelection.chHEF.content,
-            event.JetSelection.starts,
-            event.JetSelection.stops,
-            pos = 0,
-        )
+        for collection in ["LeadMuonSelection", "SecondMuonSelection",
+                           "LeadElectronSelection", "SecondElectronSelection"]:
+            for attr in ["pt", "eta", "phi"]:
+                ref_collection = collection.replace("Lead", "").replace("Second", "")
+                pos = 0 if "Lead" in collection else 1
+                setattr(
+                    event,
+                    collection+"_"+attr,
+                    create_lead_object(
+                        getattr(getattr(event, ref_collection), attr).content,
+                        getattr(event, ref_collection).starts,
+                        getattr(event, ref_collection).stops,
+                        pos = pos,
+                    ),
+                )
 
-        event.LeadMuonSelection_pt = create_lead_object(
-            event.MuonSelection.pt.content,
-            event.MuonSelection.starts,
-            event.MuonSelection.stops,
-            pos = 0,
-        )
-        event.LeadMuonSelection_eta = create_lead_object(
-            event.MuonSelection.eta.content,
-            event.MuonSelection.starts,
-            event.MuonSelection.stops,
-            pos = 0,
-        )
-
-        event.LeadElectronSelection_pt = create_lead_object(
-            event.ElectronSelection.pt.content,
-            event.ElectronSelection.starts,
-            event.ElectronSelection.stops,
-            pos = 0,
-        )
-        event.LeadElectronSelection_eta = create_lead_object(
-            event.ElectronSelection.eta.content,
-            event.ElectronSelection.starts,
-            event.ElectronSelection.stops,
-            pos = 0,
-        )
+        for collection in ["LeadJetSelection"]:
+            for attr in ["pt", "eta", "phi", "chEmEF", "chHEF", "neEmEF", "neHEF"]:
+                ref_collection = collection.replace("Lead", "").replace("Second", "")
+                pos = 0 if "Lead" in collection else 1
+                setattr(
+                    event,
+                    collection+"_"+attr,
+                    create_lead_object(
+                        getattr(getattr(event, ref_collection), attr).content,
+                        getattr(event, ref_collection).starts,
+                        getattr(event, ref_collection).stops,
+                        pos = pos,
+                    ),
+                )
 
 @njit
 def create_lead_object(collection, starts, stops, pos=0):
