@@ -86,8 +86,8 @@ weight_muons = Readers.WeightMuons(
 
 selection_producer = Readers.SelectionProducer()
 
-hist_reader = Collectors.HistReader()
-hist_collector = Collectors.HistCollector()
+#hist_reader = Collectors.HistReader()
+#hist_collector = Collectors.HistCollector()
 
 sequence = [
     # Creates object collections accessible through the event variable. e.g.
@@ -124,5 +124,5 @@ sequence = [
     (weight_muons, NullCollector()),
     # Add collectors (with accompanying readers) at the end so that all
     # event attributes are available to them
-    (hist_reader, hist_collector),
+    #(hist_reader, hist_collector),
 ]
