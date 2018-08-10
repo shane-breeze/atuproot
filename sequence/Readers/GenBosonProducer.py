@@ -14,6 +14,11 @@ class GenBosonProducer(object):
         event.GenPartBosonDaughters = Collection("GenPartBosonDaughters",
                                                  event, "GenPart", mask)
 
+        event.nGenBosons = ngen_bosons(event.GenPart.pdgId.content,
+                                       event.GenPart.genPartIdxMother.content,
+                                       event.GenPart.starts,
+                                       event.GenPart.stops)
+
         event.GenPartBosonDaughters.pdgId
         event.GenPartBosonDaughters.pt
         event.GenPartBosonDaughters.eta
@@ -27,7 +32,8 @@ class GenBosonProducer(object):
                                "GenPart_pt",
                                "GenPart_eta",
                                "GenPart_phi",
-                               "GenPart_mass"])
+                               "GenPart_mass",
+                               "GenPart_genPartIdxMother"])
 
         genpart_dressedlepidx = genpart_matched_dressedlepton(
             event.GenPartBosonDaughters, event.GenDressedLepton,
@@ -153,3 +159,17 @@ def genpart_candidate_mask(pdgs, status, flags):
             (abs(pdgs[ip]) in [12, 14, 16] and status[ip]==1)):
             mask[ip] = True
     return mask
+
+@njit
+def ngen_bosons(pdgs, mother_idxs, starts, stops):
+    ngen_bosons = np.zeros(stops.shape[0], dtype=int32)
+    for iev, (start, stop) in enumerate(zip(starts, stops)):
+        value = 0
+        for ip in range(start, stop):
+            if abs(pdgs[ip]) in [11, 12, 13, 14, 15, 16, 23, 24] and mother_idxs[ip]==0:
+                if abs(pdgs[ip])<20:
+                    value += 1
+                else:
+                    value += 2
+        ngen_bosons[iev] = value/2
+    return ngen_bosons
