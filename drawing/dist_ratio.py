@@ -19,6 +19,10 @@ def convert_to_hist(histogram):
     for idx in range(len(new_hist)):
         new_hist[idx].value = histogram.yields[idx]
         new_hist[idx].error = np.sqrt(histogram.variance[idx])
+
+    new_hist[-2].value += new_hist[-1].value
+    new_hist[-2].error = np.sqrt(new_hist[-2].error**2 + new_hist[-1].error**2)
+
     return new_hist
 
 def dist_ratio(hist_data_cfg, hists_mc_cfg, filepath, cfg):
@@ -52,9 +56,8 @@ def dist_ratio(hist_data_cfg, hists_mc_cfg, filepath, cfg):
     hists_mc_sum.hist.linecolor = "black"
     hists_mc_sum.hist.markercolor = "black"
 
-    stack_mc = HistStack(sorted([h.hist for h in hists_mc],
-                                key = lambda x: x.integral(overflow=True)),
-                         drawstyle='hist')
+    hists_mc = sorted(hists_mc, key=lambda x: x.hist.integral(overflow=True))
+    stack_mc = HistStack([h.hist for h in hists_mc], drawstyle='hist')
 
     try:
         data_mini = min([hbin.value
@@ -74,8 +77,19 @@ def dist_ratio(hist_data_cfg, hists_mc_cfg, filepath, cfg):
                            if hbin.value>0.])
     except ValueError:
         mc_sum_mini, mc_sum_maxi = 1., 100.
-    mini = max(min(mc_sum_mini, data_mini), 0.5)
+
+    try:
+        mc_sep_mini = min([hbin.value
+                           for hbin in hists_mc[0].hist
+                           if hbin.value>0.])
+    except ValueError:
+        mc_sep_mini = data_mini
+
+    mini = max(min(mc_sum_mini, data_mini, mc_sep_mini), 0.5)
     maxi = max(mc_sum_maxi, data_maxi)
+
+    # legend boundary
+
     new_ymin = pow(10, 1.1*np.log10(mini) - 0.1*np.log10(maxi))
     new_ymax = pow(10, 1.1*np.log10(maxi) - 0.1*np.log10(mini))
 
@@ -83,9 +97,9 @@ def dist_ratio(hist_data_cfg, hists_mc_cfg, filepath, cfg):
     padtop = Pad(0., 0.3, 1.0, 1.0)
     padbot = Pad(0., 0., 1.0, 0.3)
 
-    canvas.margin = 0.1, 0.1, 0.1, 0.1
-    padtop.margin = 0.1, 0.1, 0.01, 0.1
-    padbot.margin = 0.1, 0.1, 0.1, 0.01
+    canvas.margin = 0.12, 0.06, 0.35, 0.1
+    padtop.margin = 0.12, 0.06, 0.01, 0.1
+    padbot.margin = 0.12, 0.06, 0.35, 0.01
 
     canvas.cd()
     padtop.Draw()
@@ -123,8 +137,10 @@ def dist_ratio(hist_data_cfg, hists_mc_cfg, filepath, cfg):
     xaxis.set_tick_length(0.03*10./7.)
     xaxis.set_label_size(0.030*10./3.)
     xaxis.set_title_size(0.035*10./3.)
+    xaxis.set_title_offset(1.2)
     yaxis.set_label_size(0.030*10./3.)
     yaxis.set_title_size(0.035*10./3.)
+    yaxis.set_title_offset(0.5)
 
     (xaxis, yaxis), ranges = draw(
         [ratio],
@@ -133,16 +149,25 @@ def dist_ratio(hist_data_cfg, hists_mc_cfg, filepath, cfg):
         xtitle = cfg.axis_label[hist_data.name],
         ytitle = "Data / SM total",
     )
+
     padbot.cd()
-    draw_line(0., 1., 1600., 1.)
+    draw_line(ranges[0], 1., ranges[1], 1.)
 
     padtop.cd()
     cms_header(size=0.035*10./7.)
 
-    canvas.save_as(filepath)
+    canvas.save_as(filepath + ".pdf")
+    #canvas.save_as(filepath + ".png")
 
-    del hist_data.hist
-    for hist_mc in hists_mc:
-        del hist_mc.hist
-    del hists_mc_sum.hist
-    del ratio
+    padtop.close()
+    padbot.close()
+    canvas.close()
+
+    #del hist_data.hist
+    #for hist_mc in hists_mc:
+    #    del hist_mc.hist
+    #del hists_mc_sum.hist
+    #del ratio
+    #del padtop
+    #del padbot
+    #del canvas
