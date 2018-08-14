@@ -43,6 +43,7 @@ jec_variations = Readers.JecVariations(
 event_sums_producer = Readers.EventSumsProducer()
 signal_region_blinder = Readers.SignalRegionBlinder(
     blind = True,
+    apply_to_mc = True,
 )
 inv_mass_producer = Readers.InvMassProducer()
 gen_boson_producer = Readers.GenBosonProducer(
@@ -85,7 +86,9 @@ weight_muons = Readers.WeightMuons(
 )
 weight_qcd_ewk = Readers.WeightQcdEwk(
     input_paths = {
-        "ZJetsToNuNu": "/vols/build/cms/sdb15/atuproot/data/qcd_ewk/vvj.dat",
+        "ZJetsToNuNu": ("/vols/build/cms/sdb15/atuproot/data/qcd_ewk/vvj.dat", "vvj_pTV_kappa_EW"),
+        "WJetsToLNu": ("/vols/build/cms/sdb15/atuproot/data/qcd_ewk/evj.dat", "evj_pTV_kappa_EW"),
+        "DYJetsToLL": ("/vols/build/cms/sdb15/atuproot/data/qcd_ewk/eej.dat", "eej_pTV_kappa_EW"),
     },
 )
 
