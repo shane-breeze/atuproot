@@ -10,13 +10,15 @@ def get_datasets(path):
         datasets_dict = yaml.load(f)
 
     datasets = []
-    path = datasets_dict["path"]
+    dataset_info_path = datasets_dict["path"]
     default = datasets_dict["default"]
     for dataset in set(datasets_dict["datasets"]):
         if isinstance(dataset, six.string_types):
-            dataset_kwargs = _from_string(dataset, path, default)
+            dataset_kwargs = _from_string(dataset, dataset_info_path, default)
         elif isinstance(dataset, dict):
-            dataset_kwargs = _from_dict(dataset, path, default)
+            dataset_kwargs = _from_dict(dataset, dataset_info_path, default)
+        else:
+            raise TypeError("{} not a string or dict".format(dataset))
         datasets.append(Dataset(**dataset_kwargs))
 
     # Associate samples
@@ -51,6 +53,9 @@ def _extend_info(cfg, name, path):
     try:
         with open(infopath, 'r') as f:
             info = yaml.load(f)
+            if info["name"] != cfg["name"]:
+                raise ValueError("Mismatch between expected and read names: "
+                                 "{} and {}".format(cfg["name"], info["name"]))
             cfg.update(info)
     except IOError:
         logger = logging.getLogger(__name__)
