@@ -8,13 +8,12 @@ EventBuilderConfig = collections.namedtuple(
 
 class EventBuilderConfigMaker(object):
     def __init__(self, blocksize):
-        self.treeName = 'Events'
         self.blocksize = blocksize
 
     def create_config_for(self, dataset, files, start, length):
         config = EventBuilderConfig(
             inputPaths = files,
-            treeName = self.treeName,
+            treeName = dataset.tree,
             maxEvents = length,
             start = start,
             blocksize = self.blocksize,
