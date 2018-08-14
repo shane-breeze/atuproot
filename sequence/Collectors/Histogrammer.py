@@ -3,21 +3,22 @@ import os
 import pickle
 import logging
 
-from datasets.datasets import get_datasets
 from utils.Lambda import Lambda
 from drawing.dist_ratio import dist_ratio
 
 class HistReader(object):
-    def __init__(self, **kwargs):
+    def __init__(self, cfg=None):
         """
         Get the list of histogram configs and expand them for 1 histogram per
         entry (i.e. unroll the cutflows)
 
         Also create empty dict for lambda functions later
         """
+        self.histogrammer_cfgs = cfg.histogrammer_cfgs
+
         self.histogram_cfgs = []
         self.functions = []
-        for hist_cfg in self.cfg.histogrammer_cfgs:
+        for hist_cfg in self.histogrammer_cfgs:
             for cutflow in hist_cfg["cutflows"]:
                 self.histogram_cfgs.append({
                     "name": (cutflow, hist_cfg["name"]),
@@ -37,6 +38,7 @@ class HistReader(object):
 
         Create the lambda functions
         """
+        self.dataset = event.config.dataset
         self.histograms = {}
 
         for function in self.functions:
@@ -49,6 +51,11 @@ class HistReader(object):
         self.string_conv_func = {}
 
     def event(self, event):
+        """
+        Loop over event blocks and histogramming them.
+
+        Add together the histograms from different blocks.
+        """
         for histogram_cfg in self.histogram_cfgs:
             cutflow = histogram_cfg["name"][0]
             weight = histogram_cfg["weight"]
@@ -90,6 +97,9 @@ class HistReader(object):
                 }
 
     def merge(self, other):
+        """
+        Merge histograms from different (computational) processes
+        """
         for identifier in self.histograms:
             other_hists = other.histograms[identifier]
             self_hists = self.histograms[identifier]
@@ -107,13 +117,15 @@ class HistCollector(object):
         self.outdir = "output"
         if not os.path.exists(self.outdir):
             os.makedirs(self.outdir)
-        self.datasets = get_datasets()
 
     def collect(self, dataset_readers_list):
+        """
+        Add together the histograms into dataset parents. Pass the results to
+        the plotting scripts to draw it
+        """
         histograms = {}
         for dataset, readers in dataset_readers_list:
-            dataset_object = next(d for d in self.datasets if d.name == dataset)
-            parent = dataset_object.parent
+            parent = readers[0].dataset.parent
 
             for identifier, old_histogram in readers[0].histograms.items():
                 new_identifier = (identifier[0], parent, identifier[1])
@@ -146,6 +158,9 @@ class HistCollector(object):
         return dataset_readers_list
 
     def draw(self, histograms):
+        """
+        Setup everything required for the drawing function
+        """
         logger = logging.getLogger(__name__)
         cutflow_histnames = list(set([(k[0], k[2]) for k in histograms]))
 
@@ -198,6 +213,10 @@ class HistCollector(object):
                 )
 
     def reread(self, outdir):
+        """
+        Reread the output pickle files to recreate the pdf plots created from
+        them.
+        """
         logger = logging.getLogger(__name__)
         histograms = {}
         for cutflow in os.listdir(outdir):

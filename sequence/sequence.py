@@ -106,10 +106,10 @@ hist_collector = Collectors.HistCollector(
 )
 
 qcdewk_reader = Collectors.HistReader(
-    cfg = Collectors.QcdEwk_cfg.py,
+    cfg = Collectors.QcdEwk_cfg,
 )
 qcdewk_collector = Collectors.QcdEwkCollector(
-    cfg = Collectors.QcdEwk_cfg.py,
+    cfg = Collectors.QcdEwk_cfg,
 )
 
 sequence = [

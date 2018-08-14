@@ -1,3 +1,5 @@
+import logging
+
 from .Histogrammer import HistCollector
 
 class QcdEwkCollector(HistCollector):
