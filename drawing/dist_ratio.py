@@ -5,8 +5,12 @@ from misc.draw_line import draw_line
 import numpy as np
 from random import getrandbits
 
-from rootpy.plotting import Canvas, Pad, Legend, Hist, HistStack
-from rootpy.plotting.utils import draw
+try:
+    from rootpy.plotting import Canvas, Pad, Legend, Hist, HistStack
+    from rootpy.plotting.utils import draw
+    has_rootpy = True
+except ImportError:
+    has_rootpy = False
 
 class Histogram(object):
     def __init__(self, **kwargs):
@@ -26,6 +30,8 @@ def convert_to_hist(histogram):
     return new_hist
 
 def dist_ratio(hist_data_cfg, hists_mc_cfg, filepath, cfg):
+    if not has_rootpy:
+        return
     cms_tdr_style()
 
     hist_data = Histogram(**hist_data_cfg)
@@ -162,12 +168,3 @@ def dist_ratio(hist_data_cfg, hists_mc_cfg, filepath, cfg):
     padtop.close()
     padbot.close()
     canvas.close()
-
-    #del hist_data.hist
-    #for hist_mc in hists_mc:
-    #    del hist_mc.hist
-    #del hists_mc_sum.hist
-    #del ratio
-    #del padtop
-    #del padbot
-    #del canvas
