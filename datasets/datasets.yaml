@@ -1,6 +1,7 @@
 path: /vols/cms/ZinvWidth/NanoAOD/201806_Jun/data/{}/info.yaml
-lumi: 35860
-energy: 13000
+default:
+    lumi: 35860
+    energy: 13000
 datasets:
     - MET_Run2016B_v1
     - MET_Run2016B_v2
