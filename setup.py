@@ -14,7 +14,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/shane-breeze/atuproot",
     packages=setuptools.find_packages(),
-    install_requires=['six', "alphatwirl==0.16.0", "uproot", "pandas"],
+    install_requires=['six', "alphatwirl==0.16.0", "uproot", "pandas", "numba", "pyyaml"],
     setup_requires=["pytest-runner"],
     tests_require=["pytest"],
     classifiers=(
