@@ -3,8 +3,12 @@ from . import Collectors
 from .physics_object_selection import selection_dict
 from alphatwirl.loop import NullCollector
 
+import os
+datapath = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "data")
+#print(datapath)
+
 certified_lumi_checker = Readers.CertifiedLumiChecker(
-    lumi_json_path = "/vols/build/cms/sdb15/atuproot/data/json/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt",
+    lumi_json_path = datapath + "/json/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt",
     mc = False,
 )
 
@@ -36,7 +40,7 @@ tau_cross_cleaning = Readers.ObjectCrossCleaning(
 )
 
 jec_variations = Readers.JecVariations(
-    jes_unc_file = "/vols/build/cms/sdb15/atuproot/data/jecs/Summer16_23Sep2016V4_MC_Uncertainty_AK4PFchs.txt",
+    jes_unc_file = datapath + "/jecs/Summer16_23Sep2016V4_MC_Uncertainty_AK4PFchs.txt",
     variation = None,
 )
 
@@ -55,32 +59,32 @@ weight_xsection_lumi = Readers.WeightXsLumi(
     data = False,
 )
 weight_pu = Readers.WeightPileup(
-    correction_file = "/vols/build/cms/sdb15/atuproot/data/pileup/nTrueInt_corrections.txt",
+    correction_file = datapath + "/pileup/nTrueInt_corrections.txt",
     overflow = True, data = False,
 )
 weight_met_trigger = Readers.WeightMetTrigger(
     correction_files = {
-        0: "/vols/build/cms/sdb15/atuproot/data/mettrigger/met_trigger_correction_0mu.txt",
-        1: "/vols/build/cms/sdb15/atuproot/data/mettrigger/met_trigger_correction_1mu.txt",
-        2: "/vols/build/cms/sdb15/atuproot/data/mettrigger/met_trigger_correction_2mu.txt",
+        0: datapath + "/mettrigger/met_trigger_correction_0mu.txt",
+        1: datapath + "/mettrigger/met_trigger_correction_1mu.txt",
+        2: datapath + "/mettrigger/met_trigger_correction_2mu.txt",
     },
     data = False,
 )
 weight_muons = Readers.WeightMuons(
     correction_id_paths = [
-        (19.7, "/vols/build/cms/sdb15/atuproot/data/muons/muon_id_runBCDEF.txt"),
-        (16.2, "/vols/build/cms/sdb15/atuproot/data/muons/muon_id_runGH.txt"),
+        (19.7, datapath + "/muons/muon_id_runBCDEF.txt"),
+        (16.2, datapath + "/muons/muon_id_runGH.txt"),
     ],
     correction_iso_paths = [
-        (19.7, "/vols/build/cms/sdb15/atuproot/data/muons/muon_isolation_runBCDEF.txt"),
-        (16.2, "/vols/build/cms/sdb15/atuproot/data/muons/muon_isolation_runGH.txt"),
+        (19.7, datapath + "/muons/muon_isolation_runBCDEF.txt"),
+        (16.2, datapath + "/muons/muon_isolation_runGH.txt"),
     ],
     correction_track_paths = [
-        (1., "/vols/build/cms/sdb15/atuproot/data/muons/muon_tracking.txt"),
+        (1., datapath + "/muons/muon_tracking.txt"),
     ],
     correction_trig_paths = [
-        (19.7, "/vols/build/cms/sdb15/atuproot/data/muons/muon_trigger_runBCDEF.txt"),
-        (16.2, "/vols/build/cms/sdb15/atuproot/data/muons/muon_trigger_runGH.txt"),
+        (19.7, datapath + "/muons/muon_trigger_runBCDEF.txt"),
+        (16.2, datapath + "/muons/muon_trigger_runGH.txt"),
     ],
     data = False,
 )
@@ -102,10 +106,10 @@ hist_collector = Collectors.HistCollector(
 )
 
 qcdewk_reader = Collectors.HistReader(
-    cfg = Collectors.QcdEwk_cfg.py,
+    cfg = Collectors.QcdEwk_cfg,
 )
 qcdewk_collector = Collectors.QcdEwkCollector(
-    cfg = Collectors.QcdEwk_cfg.py,
+    cfg = Collectors.QcdEwk_cfg,
 )
 
 sequence = [

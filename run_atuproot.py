@@ -1,12 +1,10 @@
+#!/usr/bin/env python
 import warnings
 warnings.filterwarnings('ignore')
 
-from alphatwirl.loop import NullCollector
 from atuproot.AtUproot import AtUproot
-
-from sequence.sequence import sequence
 from datasets.datasets import get_datasets
-from sequence.Readers import ScribblerWrapper
+from sequence.config import build_sequence
 
 import logging
 logging.getLogger(__name__).setLevel(logging.INFO)
@@ -21,10 +19,15 @@ logging.getLogger("atuproot.AtUproot").propagate = False
 import argparse
 def parse_args():
     parser = argparse.ArgumentParser()
+    parser.add_argument("dataset_cfg", type=str,
+                        help="Dataset config to run over")
+    parser.add_argument("sequence_cfg", type=str,
+                        help="Config for how to process events")
     parser.add_argument("--outdir", default="output", type=str,
                         help="Where to save the results")
     parser.add_argument("--mode", default="multiprocessing", type=str,
-                        help="Which mode to run in (multiprocessing, htcondor, sge)")
+                        help="Which mode to run in (multiprocessing, htcondor, "
+                             "sge)")
     parser.add_argument("--ncores", default=0, type=int,
                         help="Number of cores to run on")
     parser.add_argument("--nblocks-per-dataset", default=-1, type=int,
@@ -44,14 +47,7 @@ def parse_args():
                              "only to rerun the draw function on outdir")
     return parser.parse_args()
 
-def run(options):
-    datasets = get_datasets()
-
-    if options.sample is not None:
-        datasets = [d for d in datasets
-                    if d.name==options.sample or \
-                       d.parent==options.sample]
-
+def run(sequence, datasets, options):
     process = AtUproot(options.outdir,
         quiet = options.quiet,
         parallel_mode = options.mode,
@@ -62,10 +58,9 @@ def run(options):
         profile = options.profile,
         profile_out_path = "profile.txt",
     )
-    process.run(datasets, [(ScribblerWrapper(reader), collector)
-                           for (reader, collector) in sequence])
+    process.run(datasets, sequence)
 
-def redraw(options):
+def redraw(sequence, datasets, options):
     for (reader, collector) in sequence:
         if hasattr(collector, "reread"):
             collector.reread(options.outdir)
@@ -73,7 +68,14 @@ def redraw(options):
 if __name__ == "__main__":
     options = parse_args()
 
+    sequence = build_sequence(options.sequence_cfg)
+    datasets = get_datasets(options.dataset_cfg)
+    if options.sample is not None:
+        datasets = [d for d in datasets
+                    if d.name==options.sample or \
+                       d.parent==options.sample]
+
     if options.redraw:
-        redraw(options)
+        redraw(sequence, datasets, options)
     else:
-        run(options)
+        run(sequence, datasets, options)

@@ -4,7 +4,7 @@ from utils.Colours import colours_dict
 inf = np.infty
 pi = np.pi+0.00001
 
-qcdewk_cfgs = [
+histogrammer_cfgs = [
     {
         "name": "GenPartBoson_pt_WeightNominal",
         "cutflows": ["Monojet", "SingleMuon", "DoubleMuon", "SingleElectron", "DoubleElectron", "MonojetQCD"],
@@ -34,13 +34,13 @@ qcdewk_cfgs = [
         "cutflows": ["DoubleMuon"],
         "variables": ["ev: ev.DiMuon_pt"],
         "bins": [[-inf]+list(np.linspace(0., 1000., 41))+[inf]],
-        "weights": "ev: ev.Weight / ev.WeightEW",
+        "weight": "ev: ev.Weight / ev.WeightEW",
     }, {
         "name": "DiMuon_pt_WeightEW",
         "cutflows": ["DoubleMuon"],
         "variables": ["ev: ev.DiMuon_pt"],
         "bins": [[-inf]+list(np.linspace(0., 1000., 41))+[inf]],
-        "weights": "ev: ev.Weight",
+        "weight": "ev: ev.Weight",
     },
 ]
 
