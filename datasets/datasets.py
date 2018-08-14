@@ -1,3 +1,4 @@
+from __future__ import print_function
 import yaml
 import os
 from atuproot.Dataset import Dataset
@@ -40,4 +41,4 @@ def get_datasets(path="/vols/build/cms/sdb15/atuproot/datasets/datasets.yaml"):
 
 if __name__ == "__main__":
     datasets = get_datasets()
-    print sorted(set([d.parent for d in datasets]))
+    print(sorted(set([d.parent for d in datasets])))
