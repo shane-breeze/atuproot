@@ -63,7 +63,6 @@ sample_colours = {
 }
 
 axis_label = {
-    "WeightEW": "Weight EW",
     "GenPartBoson_Pt": "Boson p_{T} (GeV)",
     "METnoX_pt": "E_{T}^{miss} (GeV)",
     "DiMuon_pt": "p_{T}(#mu#mu) (GeV)",
