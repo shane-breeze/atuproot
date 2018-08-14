@@ -7,13 +7,25 @@ and [numba](https://numba.pydata.org/) to process [ROOT](https://root.cern.ch/)
 
 ## How to use
 
-Setup requires: alphatwirl, numpy, uproot, numba, pandas, pyyaml
+Can be installed using pip:
+```
+pip install --user git@github.com:benkrikler/atuproot.git
+```
+
+or for developing:
+```
+git clone git@github.com:benkrikler/atuproot.git
+cd atuproot
+pip install --user -e .
+```
+
+Pip should take care of the requirements, such as alphatwirl, numpy, uproot, numba, pandas, pyyaml
 
 The code uses input files located at Imperial. Currently can't chain multiple
 files together. Run the code like so:
 
 ```
-python run.py --data MET --blocksize 500000 --ncores 4
+python run_atuproot.py --data MET --blocksize 500000 --ncores 4
 ```
 
 to run over the MET dataset (and associated MC samples) loading in 500k events

@@ -1,12 +1,10 @@
+#!/usr/bin/env python
 import warnings
 warnings.filterwarnings('ignore')
 
-from alphatwirl.loop import NullCollector
 from atuproot.AtUproot import AtUproot
-
-from sequence.sequence import sequence
 from datasets.datasets import get_datasets
-from sequence.Readers import ScribblerWrapper
+from sequence.config import build_sequence
 
 import logging
 logging.getLogger(__name__).setLevel(logging.INFO)
@@ -21,6 +19,8 @@ logging.getLogger("atuproot.AtUproot").propagate = False
 import argparse
 def parse_args():
     parser = argparse.ArgumentParser()
+    parser.add_argument("dataset_cfg", type=str, help="Dataset config to run over")
+    parser.add_argument("sequence_cfg", type=str, help="Config for how to process events")
     parser.add_argument("--outdir", default="output", type=str,
                         help="Where to save the results")
     parser.add_argument("--mode", default="multiprocessing", type=str,
@@ -44,7 +44,7 @@ def parse_args():
                              "only to rerun the draw function on outdir")
     return parser.parse_args()
 
-def run(options):
+def run(sequence, options):
     datasets = get_datasets()
 
     if options.sample is not None:
@@ -62,8 +62,7 @@ def run(options):
         profile = options.profile,
         profile_out_path = "profile.txt",
     )
-    process.run(datasets, [(ScribblerWrapper(reader), collector)
-                           for (reader, collector) in sequence])
+    process.run(datasets, sequence)
 
 def redraw(options):
     for (reader, collector) in sequence:
@@ -73,7 +72,8 @@ def redraw(options):
 if __name__ == "__main__":
     options = parse_args()
 
+    sequence =  build_sequence(options.sequence_cfg)
     if options.redraw:
-        redraw(options)
+        redraw(sequence, options)
     else:
-        run(options)
+        run(sequence, options)
