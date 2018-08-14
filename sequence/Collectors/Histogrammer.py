@@ -11,18 +11,20 @@ from drawing.dist_ratio import dist_ratio
 Config = namedtuple("Config", "histogrammer_cfgs sample_colours axis_label")
 
 class HistReader(object):
-    def __init__(self, cfg=None):
+    def __init__(self, **kwargs):
         """
         Get the list of histogram configs and expand them for 1 histogram per
         entry (i.e. unroll the cutflows)
 
         Also create empty dict for lambda functions later
         """
+        cfg = kwargs.pop("cfg")
         self.cfg = Config(
             histogrammer_cfgs = cfg.histogrammer_cfgs,
             sample_colours = cfg.sample_colours,
             axis_label = cfg.axis_label,
         )
+        self.__dict__.update(kwargs)
 
         self.histogram_cfgs = []
         self.functions = []
@@ -137,13 +139,15 @@ class HistReader(object):
             }
 
 class HistCollector(object):
-    def __init__(self, cfg=None):
+    def __init__(self, **kwargs):
         # drop unpicklables
+        cfg = kwargs.pop("cfg")
         self.cfg = Config(
             histogrammer_cfgs = cfg.histogrammer_cfgs,
             sample_colours = cfg.sample_colours,
             axis_label = cfg.axis_label,
         )
+        self.__dict__.update(kwargs)
 
         self.outdir = "output"
         if not os.path.exists(self.outdir):
@@ -232,7 +236,7 @@ class HistCollector(object):
                             logger.warning("{} not in output".format(key))
                     continue
 
-                path = os.path.join(self.outdir, cutflow, "plots", data_parent)
+                path = os.path.join(self.outdir, self.name, cutflow, "plots", data_parent)
                 if not os.path.exists(path):
                     os.makedirs(path)
 
@@ -250,17 +254,17 @@ class HistCollector(object):
         """
         logger = logging.getLogger(__name__)
         histograms = {}
-        for cutflow in os.listdir(outdir):
-            for parent in os.listdir(os.path.join(outdir, cutflow)):
+        for cutflow in os.listdir(os.path.join(outdir, self.name)):
+            for parent in os.listdir(os.path.join(outdir, self.name, cutflow)):
                 if parent == "plots":
                     continue
-                for histpath in os.listdir(os.path.join(outdir, cutflow, parent)):
+                for histpath in os.listdir(os.path.join(outdir, self.name, cutflow, parent)):
                     histname = os.path.splitext(os.path.basename(histpath))[0]
                     key = (cutflow, parent, histname)
                     if key in histograms:
                         logger.warning("{} already loaded".format(key))
                         continue
-                    with open(os.path.join(outdir, cutflow, parent, histpath), 'r') as f:
+                    with open(os.path.join(outdir, self.name, cutflow, parent, histpath), 'r') as f:
                         histograms[key] = pickle.load(f)
         self.draw(histograms)
         return histograms
