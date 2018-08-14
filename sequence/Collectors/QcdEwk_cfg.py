@@ -6,32 +6,41 @@ pi = np.pi+0.00001
 
 qcdewk_cfgs = [
     {
-        "name": "GenPartBoson_pt",
+        "name": "GenPartBoson_pt_WeightNominal",
         "cutflows": ["Monojet", "SingleMuon", "DoubleMuon", "SingleElectron", "DoubleElectron", "MonojetQCD"],
         "variables": ["ev: ev.GenPartBoson_pt"],
         "bins": [[-inf]+list(np.linspace(0., 1000., 41))+[inf]],
-        "weights": [
-            ("WeightNominal", "ev: ev.Weight / ev.WeightEW"),
-            ("WeightEW", "ev: ev.Weight"),
-        ],
+        "weight": "ev: ev.Weight / ev.WeightEW",
     }, {
-        "name": "METnoX_pt",
+        "name": "GenPartBoson_pt_WeightEW",
+        "cutflows": ["Monojet", "SingleMuon", "DoubleMuon", "SingleElectron", "DoubleElectron", "MonojetQCD"],
+        "variables": ["ev: ev.GenPartBoson_pt"],
+        "bins": [[-inf]+list(np.linspace(0., 1000., 41))+[inf]],
+        "weight": "ev: ev.Weight",
+    }, {
+        "name": "METnoX_pt_WeightNominal",
         "cutflows": ["Monojet", "SingleMuon", "DoubleMuon", "SingleElectron", "DoubleElectron", "MonojetQCD"],
         "variables": ["ev: ev.METnoX_pt"],
         "bins": [[-inf]+list(np.linspace(0., 1000., 41))+[inf]],
-        "weights": [
-            ("WeightNominal", "ev: ev.Weight / ev.WeightEW"),
-            ("WeightEW", "ev: ev.Weight"),
-        ],
+        "weight": "ev: ev.Weight / ev.WeightEW",
     }, {
-        "name": "DiMuon_pt",
+        "name": "METnoX_pt_WeightEW",
+        "cutflows": ["Monojet", "SingleMuon", "DoubleMuon", "SingleElectron", "DoubleElectron", "MonojetQCD"],
+        "variables": ["ev: ev.METnoX_pt"],
+        "bins": [[-inf]+list(np.linspace(0., 1000., 41))+[inf]],
+        "weight": "ev: ev.Weight",
+    }, {
+        "name": "DiMuon_pt_WeightNominal",
         "cutflows": ["DoubleMuon"],
         "variables": ["ev: ev.DiMuon_pt"],
         "bins": [[-inf]+list(np.linspace(0., 1000., 41))+[inf]],
-        "weights": [
-            ("WeightNominal", "ev: ev.Weight / ev.WeightEW"),
-            ("WeightEW", "ev: ev.Weight"),
-        ],
+        "weights": "ev: ev.Weight / ev.WeightEW",
+    }, {
+        "name": "DiMuon_pt_WeightEW",
+        "cutflows": ["DoubleMuon"],
+        "variables": ["ev: ev.DiMuon_pt"],
+        "bins": [[-inf]+list(np.linspace(0., 1000., 41))+[inf]],
+        "weights": "ev: ev.Weight",
     },
 ]
 
