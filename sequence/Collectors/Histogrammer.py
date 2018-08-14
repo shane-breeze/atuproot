@@ -28,12 +28,21 @@ class HistReader(object):
         self.functions = []
         for hist_cfg in self.cfg.histogrammer_cfgs:
             for cutflow in hist_cfg["cutflows"]:
-                self.histogram_cfgs.append({
-                    "name": (cutflow, hist_cfg["name"]),
-                    "variables": hist_cfg["variables"],
-                    "bins": hist_cfg["bins"],
-                    "weight": hist_cfg["weight"],
-                })
+                if "parents" in hist_cfg:
+                    self.histogram_cfgs.append({
+                        "name": (cutflow, hist_cfg["name"]),
+                        "parents": hist_cfg["parents"],
+                        "variables": hist_cfg["variables"],
+                        "bins": hist_cfg["bins"],
+                        "weight": hist_cfg["weight"],
+                    })
+                else:
+                    self.histogram_cfgs.append({
+                        "name": (cutflow, hist_cfg["name"]),
+                        "variables": hist_cfg["variables"],
+                        "bins": hist_cfg["bins"],
+                        "weight": hist_cfg["weight"],
+                    })
                 for variable in hist_cfg["variables"]+[hist_cfg["weight"]]:
                     if variable not in self.functions:
                         self.functions.append(variable)
@@ -47,6 +56,7 @@ class HistReader(object):
         Create the lambda functions
         """
         self.dataset = event.config.dataset
+        self.parent = self.dataset.parent
         self.histograms = {}
 
         for function in self.functions:
@@ -65,6 +75,13 @@ class HistReader(object):
         Add together the histograms from different blocks.
         """
         for histogram_cfg in self.histogram_cfgs:
+
+            # Skip specified parents
+            if "parents" in histogram_cfg:
+                restricted_parents = histogram_cfg["parents"]
+                if self.parent not in restricted_parents:
+                    continue
+
             cutflow = histogram_cfg["name"][0]
             weight = histogram_cfg["weight"]
 

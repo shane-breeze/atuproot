@@ -8,12 +8,14 @@ histogrammer_cfgs = [
     {
         "name": "GenPartBoson_pt_WeightNominal",
         "cutflows": ["Monojet", "SingleMuon", "DoubleMuon", "SingleElectron", "DoubleElectron", "MonojetQCD"],
+        "parents": ["ZJetsToNuNu", "WJetsToLNu", "DYJetsToLL"],
         "variables": ["ev: ev.GenPartBoson_pt"],
         "bins": [[-inf]+list(np.linspace(0., 1000., 41))+[inf]],
         "weight": "ev: ev.Weight / ev.WeightEW",
     }, {
         "name": "GenPartBoson_pt_WeightEW",
         "cutflows": ["Monojet", "SingleMuon", "DoubleMuon", "SingleElectron", "DoubleElectron", "MonojetQCD"],
+        "parents": ["ZJetsToNuNu", "WJetsToLNu", "DYJetsToLL"],
         "variables": ["ev: ev.GenPartBoson_pt"],
         "bins": [[-inf]+list(np.linspace(0., 1000., 41))+[inf]],
         "weight": "ev: ev.Weight",
