@@ -149,5 +149,5 @@ sequence = [
     # Add collectors (with accompanying readers) at the end so that all
     # event attributes are available to them
     (hist_reader, hist_collector),
-    (qcdewk_reader, qcdewk_collector),
+    #(qcdewk_reader, qcdewk_collector),
 ]

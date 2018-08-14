@@ -1,10 +1,14 @@
+from collections import namedtuple
+import logging
 import numpy as np
 import os
 import pickle
-import logging
 
 from utils.Lambda import Lambda
 from drawing.dist_ratio import dist_ratio
+
+# Take the cfg module and drop unpicklables
+Config = namedtuple("Config", "histogrammer_cfgs sample_colours axis_label")
 
 class HistReader(object):
     def __init__(self, cfg=None):
@@ -14,11 +18,15 @@ class HistReader(object):
 
         Also create empty dict for lambda functions later
         """
-        self.histogrammer_cfgs = cfg.histogrammer_cfgs
+        self.cfg = Config(
+            histogrammer_cfgs = cfg.histogrammer_cfgs,
+            sample_colours = cfg.sample_colours,
+            axis_label = cfg.axis_label,
+        )
 
         self.histogram_cfgs = []
         self.functions = []
-        for hist_cfg in self.histogrammer_cfgs:
+        for hist_cfg in self.cfg.histogrammer_cfgs:
             for cutflow in hist_cfg["cutflows"]:
                 self.histogram_cfgs.append({
                     "name": (cutflow, hist_cfg["name"]),
@@ -112,8 +120,14 @@ class HistReader(object):
             }
 
 class HistCollector(object):
-    def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
+    def __init__(self, cfg=None):
+        # drop unpicklables
+        self.cfg = Config(
+            histogrammer_cfgs = cfg.histogrammer_cfgs,
+            sample_colours = cfg.sample_colours,
+            axis_label = cfg.axis_label,
+        )
+
         self.outdir = "output"
         if not os.path.exists(self.outdir):
             os.makedirs(self.outdir)
