@@ -2,6 +2,7 @@ from __future__ import print_function
 import yaml
 import os
 import six
+import logging
 from atuproot.Dataset import Dataset
 
 def get_datasets(path):
@@ -11,12 +12,12 @@ def get_datasets(path):
     datasets = []
     path = datasets_dict["path"]
     default = datasets_dict["default"]
-    for dataset in datasets_dict["datasets"]:
+    for dataset in set(datasets_dict["datasets"]):
         if isinstance(dataset, six.string_types):
-            dataset = _from_string(dataset, path, default)
+            dataset_kwargs = _from_string(dataset, path, default)
         elif isinstance(dataset, dict):
-            dataset = _from_dict(dataset, path, default)
-        datasets.append(Dataset(**dataset))
+            dataset_kwargs = _from_dict(dataset, path, default)
+        datasets.append(Dataset(**dataset_kwargs))
 
     # Associate samples
     not_extensions = [dataset
@@ -52,7 +53,8 @@ def _extend_info(cfg, name, path):
             info = yaml.load(f)
             cfg.update(info)
     except IOError:
-        pass
+        logger = logging.getLogger(__name__)
+        logger.warning("IOError: {}".format(infopath))
 
     return cfg
 
