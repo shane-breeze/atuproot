@@ -1,3 +1,4 @@
+import logging
 
 class BEvents(object):
     def __init__(self, tree, blocksize=1000000, maxBlocks=-1, start=0):
@@ -56,10 +57,11 @@ class BEvents(object):
             #    elif hasattr(v, "nbytes"):
             #        size += v.nbytes
             #    sizes[k] = size
+            #logger = logging.getLogger(__name__)
             #for (k, v) in sorted([(k, v) for k, v in sizes.items()], key=lambda x: x[1]):
-            #    print "Memory of {} = {} MB".format(k, v / (1024*1024.))
+            #    logger.info("Memory of {} = {} MB".format(k, v / (1024*1024.)))
             #total = sum([v for k, v in sizes.items()])
-            #print "Memory of _branch_cache = {} MB".format(total / (1024*1024.))
+            #logger.info("Memory of _branch_cache = {} MB".format(total / (1024*1024.)))
 
             self._branch_cache = {}
             yield self

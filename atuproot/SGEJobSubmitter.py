@@ -17,7 +17,6 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 import alphatwirl
-
 from alphatwirl.concurrently.exec_util import try_executing_until_succeed, compose_shortened_command_for_logging
 
 ##__________________________________________________________________||
