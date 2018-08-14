@@ -94,8 +94,19 @@ weight_qcd_ewk = Readers.WeightQcdEwk(
 
 selection_producer = Readers.SelectionProducer()
 
-hist_reader = Collectors.HistReader()
-hist_collector = Collectors.HistCollector()
+hist_reader = Collectors.HistReader(
+    cfg = Collectors.Histogrammer_cfg,
+)
+hist_collector = Collectors.HistCollector(
+    cfg = Collectors.Histogrammer_cfg,
+)
+
+qcdewk_reader = Collectors.HistReader(
+    cfg = Collectors.QcdEwk_cfg.py,
+)
+qcdewk_collector = Collectors.QcdEwkCollector(
+    cfg = Collectors.QcdEwk_cfg.py,
+)
 
 sequence = [
     # Creates object collections accessible through the event variable. e.g.
@@ -134,4 +145,5 @@ sequence = [
     # Add collectors (with accompanying readers) at the end so that all
     # event attributes are available to them
     (hist_reader, hist_collector),
+    (qcdewk_reader, qcdewk_collector),
 ]

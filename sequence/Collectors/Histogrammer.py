@@ -3,7 +3,6 @@ import os
 import pickle
 import logging
 
-from . import Histogrammer_cfg as cfg
 from datasets.datasets import get_datasets
 from utils.Lambda import Lambda
 from drawing.dist_ratio import dist_ratio
@@ -18,7 +17,7 @@ class HistReader(object):
         """
         self.histogram_cfgs = []
         self.functions = []
-        for hist_cfg in cfg.histogrammer_cfgs:
+        for hist_cfg in self.cfg.histogrammer_cfgs:
             for cutflow in hist_cfg["cutflows"]:
                 self.histogram_cfgs.append({
                     "name": (cutflow, hist_cfg["name"]),
@@ -195,7 +194,7 @@ class HistCollector(object):
                     hist_data,
                     hists_mc,
                     os.path.join(path, histname),
-                    cfg,
+                    self.cfg,
                 )
 
     def reread(self, outdir):
