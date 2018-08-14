@@ -32,29 +32,29 @@ def get_datasets(path):
     return datasets
 
 def _from_string(dataset, path, default):
-        cfg = default.copy()
-        cfg["name"] = dataset
-        return _extend_info(cfg, name, path)
+    cfg = default.copy()
+    cfg["name"] = dataset
+    return _extend_info(cfg, dataset, path)
 
 
 def _from_dict(dataset, path, default):
-        cfg = default.copy()
-        cfg.update(dataset)
-        if "name" not in cfg:
-            raise RuntimeError("Dataset provided as dict, without key-value pair for 'name'")
-        return _extend_info(cfg, dataset["name"], path)
+    cfg = default.copy()
+    cfg.update(dataset)
+    if "name" not in cfg:
+        raise RuntimeError("Dataset provided as dict, without key-value pair for 'name'")
+    return _extend_info(cfg, dataset["name"], path)
 
 
 def _extend_info(cfg, name, path):
-        infopath = path.format(name)
-        try:
-            with open(infopath, 'r') as f:
-                info = yaml.load(f)
-                cfg.update(info)
-        except IOError:
-            pass
+    infopath = path.format(name)
+    try:
+        with open(infopath, 'r') as f:
+            info = yaml.load(f)
+            cfg.update(info)
+    except IOError:
+        pass
 
-        return cfg
+    return cfg
 
 
 if __name__ == "__main__":
