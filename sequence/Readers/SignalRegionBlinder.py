@@ -8,10 +8,7 @@ class SignalRegionBlinder(object):
         self.isdata = event.config.dataset.isdata
 
     def event(self, event):
-        if self.blind:
+        if (self.isdata or self.apply_to_mc) and self.blind:
             event.BlindMask = (event.METnoX_pt <= 250.)
-
-        #if self.isdata and self.blind:
-        #    event.BlindMask = (event.METnoX_pt <= 250.)
-        #else:
-        #    event.BlindMask = np.ones(event.METnoX_pt.shape[0], dtype=bool)
+        else:
+            event.BlindMask = np.ones(event.METnoX_pt.shape[0], dtype=bool)
