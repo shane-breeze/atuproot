@@ -1,6 +1,7 @@
 import numpy as np
 import os
 import pickle
+import logging
 
 from . import Histogrammer_cfg as cfg
 from datasets.datasets import get_datasets
@@ -9,71 +10,97 @@ from drawing.dist_ratio import dist_ratio
 
 class HistReader(object):
     def __init__(self, **kwargs):
-        self.histogrammer_cfgs = cfg.histogrammer_cfgs
+        """
+        Get the list of histogram configs and expand them for 1 histogram per
+        entry (i.e. unroll the cutflows)
+
+        Also create empty dict for lambda functions later
+        """
+        self.histogram_cfgs = []
+        self.functions = []
+        for hist_cfg in cfg.histogrammer_cfgs:
+            for cutflow in hist_cfg["cutflows"]:
+                self.histogram_cfgs.append({
+                    "name": (cutflow, hist_cfg["name"]),
+                    "variables": hist_cfg["variables"],
+                    "bins": hist_cfg["bins"],
+                    "weight": hist_cfg["weight"],
+                })
+                for variable in hist_cfg["variables"]+[hist_cfg["weight"]]:
+                    if variable not in self.functions:
+                        self.functions.append(variable)
+
         self.string_conv_func = {}
 
     def begin(self, event):
         """
-        Create an attribute which will be a tuple of histograms. Attribute name
-        is:
-            {name}__{cutflow}__{variable}
-        The tuple contains:
-            (counts, yields, variance)
-        """
-        for histogrammer_cfg in self.histogrammer_cfgs:
-            for cutflow in histogrammer_cfg["cutflows"]:
-                setattr(self, "__".join([histogrammer_cfg["name"], cutflow]), None)
+        Create empty dict to store the histograms. The histogram name is unique
 
-            # Create Lambda functions out of strings
-            for variable in histogrammer_cfg["variables"]:
-                if variable not in self.string_conv_func:
-                    self.string_conv_func[variable] = Lambda(variable)
+        Create the lambda functions
+        """
+        self.histograms = {}
+
+        for function in self.functions:
+            self.string_conv_func[function] = Lambda(function)
 
     def end(self):
-        # Remove unpicklables / large (memory) objects
+        """
+        Remove unpicklabe lambda functions
+        """
         self.string_conv_func = {}
 
     def event(self, event):
-        for histogrammer_cfg in self.histogrammer_cfgs:
-            for cutflow in histogrammer_cfg["cutflows"]:
-                selection = getattr(event, "Cutflow_{}".format(cutflow))
-                weights = event.Weight[selection]
-                variables = [self.string_conv_func[variable](event)[selection]
-                             for variable in histogrammer_cfg["variables"]]
+        for histogram_cfg in self.histogram_cfgs:
+            cutflow = histogram_cfg["name"][0]
+            weight = histogram_cfg["weight"]
 
-                bins = histogrammer_cfg["bins"][0] if len(variables)==1 else histogrammer_cfg["bins"]
-                varis = variables[0] if len(variables)==1 else variables
-                weights1 = weights if len(variables)==1 else [weights]*len(variables)
-                weights2 = weights**2 if len(variables)==1 else [weights**2]*len(variables)
+            selection = getattr(event, "Cutflow_{}".format(cutflow))
+            weights = self.string_conv_func[weight](event)[selection]
 
-                hist_counts, hist_bins = np.histogram(varis, bins=bins)
-                hist_yields = np.histogram(varis,
-                                           bins=bins,
-                                           weights=weights1)[0]
-                hist_variance = np.histogram(varis,
-                                             bins=bins,
-                                             weights=weights2)[0]
+            variables = [self.string_conv_func[variable](event)[selection]
+                         for variable in histogram_cfg["variables"]]
+            bins = histogram_cfg["bins"]
+            weights1 = [weights]*len(variables)
+            weights2 = [weights**2]*len(variables)
 
-                name = "__".join([histogrammer_cfg["name"], cutflow])
-                if getattr(self, name) is None:
-                    setattr(self, name, (hist_bins, hist_counts, hist_yields, hist_variance))
-                else:
-                    other_bins, other_counts, other_yields, other_variance = getattr(self, name)
-                    #assert hist_bins == other_bins
-                    setattr(self, name, (hist_bins,
-                                         other_counts + hist_counts,
-                                         other_yields + hist_yields,
-                                         other_variance + hist_variance))
+            if len(variables) == 1:
+                variables = variables[0]
+                bins = bins[0]
+                weights1 = weights1[0]
+                weights2 = weights2[0]
+
+            hist_counts, hist_bins = np.histogram(variables, bins=bins)
+            hist_yields = np.histogram(variables, bins=bins, weights=weights1)[0]
+            hist_variance = np.histogram(variables, bins=bins, weights=weights2)[0]
+
+            identifier = histogram_cfg["name"]
+            if identifier not in self.histograms:
+                self.histograms[identifier] = {
+                    "bins": hist_bins,
+                    "counts": hist_counts,
+                    "yields": hist_yields,
+                    "variance": hist_variance,
+                }
+            else:
+                histogram = self.histograms[identifier]
+                self.histograms[identifier] = {
+                    "bins": histogram["bins"],
+                    "counts": histogram["counts"] + hist_counts,
+                    "yields": histogram["yields"] + hist_yields,
+                    "variance": histogram["variance"] + hist_variance,
+                }
 
     def merge(self, other):
-        for histogrammer_cfg in self.histogrammer_cfgs:
-            for cutflow in histogrammer_cfg["cutflows"]:
-                name = "__".join([histogrammer_cfg["name"], cutflow])
-                self_hists = getattr(self, name)
-                other_hists = getattr(other, name)
-                setattr(self, name,
-                        tuple([self_hists[0]] +
-                              map(sum, zip(self_hists[1:], other_hists[1:]))))
+        for identifier in self.histograms:
+            other_hists = other.histograms[identifier]
+            self_hists = self.histograms[identifier]
+
+            self.histograms[identifier] = {
+                "bins": self_hists["bins"],
+                "counts": self_hists["counts"] + other_hists["counts"],
+                "yields": self_hists["yields"] + other_hists["yields"],
+                "variance": self_hists["variance"] + other_hists["variance"],
+            }
 
 class HistCollector(object):
     def __init__(self, **kwargs):
@@ -84,110 +111,107 @@ class HistCollector(object):
         self.datasets = get_datasets()
 
     def collect(self, dataset_readers_list):
-        data = {}
-        histname_cutflows = []
+        histograms = {}
         for dataset, readers in dataset_readers_list:
-            # get dataset
             dataset_object = next(d for d in self.datasets if d.name == dataset)
+            parent = dataset_object.parent
 
-            for histogrammer_cfg in readers[0].histogrammer_cfgs:
-                for cutflow in histogrammer_cfg["cutflows"]:
-                    if (histogrammer_cfg["name"], cutflow) not in histname_cutflows:
-                        histname_cutflows.append((histogrammer_cfg["name"], cutflow))
-                    name = "__".join([histogrammer_cfg["name"], cutflow])
-                    hist_bins, hist_counts, hist_yields, hist_variance = getattr(readers[0], name)
+            for identifier, old_histogram in readers[0].histograms.items():
+                new_identifier = (identifier[0], parent, identifier[1])
+                if new_identifier in histograms:
+                    histogram = histograms[new_identifier]
+                    histograms[new_identifier] = {
+                        "bins": histogram["bins"],
+                        "counts": old_histogram["counts"] + histogram["counts"],
+                        "yields": old_histogram["yields"] + histogram["yields"],
+                        "variance": old_histogram["variance"] + histogram["variance"],
+                    }
+                else:
+                    histograms[new_identifier] = {
+                        "bins": old_histogram["bins"],
+                        "counts": old_histogram["counts"],
+                        "yields": old_histogram["yields"],
+                        "variance": old_histogram["variance"],
+                    }
 
-                    key = (dataset_object.parent, histogrammer_cfg["name"], cutflow)
-                    if key in data:
-                        other = data[key]
-                        #assert other["bins"] == hist_bins
-
-                        data[key] = {
-                            "bins": hist_bins,
-                            "counts": other["counts"]+hist_counts,
-                            "yields": other["yields"]+hist_yields,
-                            "variance": other["variance"]+hist_variance,
-                        }
-                    else:
-                        data[key] = {
-                            "bins": hist_bins,
-                            "counts": hist_counts,
-                            "yields": hist_yields,
-                            "variance": hist_variance,
-                        }
-
-        for (parent, hist_name, cutflow), datum in data.items():
+        for (cutflow, parent, histname), histogram in histograms.items():
             outdir = os.path.join(self.outdir, cutflow, parent)
             if not os.path.exists(outdir):
                 os.makedirs(outdir)
 
-            path = os.path.join(outdir, hist_name+".pkl")
+            path = os.path.join(outdir, histname+".pkl")
             with open(path, 'w') as f:
-                pickle.dump(datum, f)
+                pickle.dump(histogram, f)
 
-        self.draw(histname_cutflows, data)
+        self.draw(histograms)
         return dataset_readers_list
 
-    def draw(self, histname_cutflows, data):
-        for histname, cutflow in histname_cutflows:
-            for dataset_name in ["MET", "SingleMuon"]: #, "SingleElectron"]:
-                key = (dataset_name, histname, cutflow)
-                if key not in data:
-                    print "{} not in output".format(key)
+    def draw(self, histograms):
+        logger = logging.getLogger(__name__)
+        cutflow_histnames = list(set([(k[0], k[2]) for k in histograms]))
+
+        for cutflow, histname in cutflow_histnames:
+            for data_parent in ["MET", "SingleMuon"]:
+                key = (cutflow, data_parent, histname)
+                if key not in histograms:
+                    logger.warning("{} not in output".format(key))
                     continue
-                hists_data = {dataset_name: data[key]}
+                histogram = histograms[key]
 
                 hist_data = {
                     "name": histname,
-                    "sample": dataset_name,
-                    "bins": data[key]["bins"],
-                    "counts": data[key]["counts"],
-                    "yields": data[key]["yields"],
-                    "variance": data[key]["variance"],
+                    "sample": data_parent,
+                    "bins": histogram["bins"],
+                    "counts": histogram["counts"],
+                    "yields": histogram["yields"],
+                    "variance": histogram["variance"],
                 }
 
                 try:
                     hists_mc = [{
                         "name": histname,
-                        "sample": mc_dataset_name,
-                        "bins": data[(mc_dataset_name, histname, cutflow)]["bins"],
-                        "counts": data[(mc_dataset_name, histname, cutflow)]["counts"],
-                        "yields": data[(mc_dataset_name, histname, cutflow)]["yields"],
-                        "variance": data[(mc_dataset_name, histname, cutflow)]["variance"],
-                    } for mc_dataset_name in ['DYJetsToLL', 'Diboson', 'EWKV2Jets',
-                                              'G1Jet', 'QCD', 'SingleTop', 'TTJets',
-                                              'VGamma', 'WJetsToLNu', 'ZJetsToNuNu']]
+                        "sample": mc_parent,
+                        "bins": histograms[(cutflow, mc_parent, histname)]["bins"],
+                        "counts": histograms[(cutflow, mc_parent, histname)]["counts"],
+                        "yields": histograms[(cutflow, mc_parent, histname)]["yields"],
+                        "variance": histograms[(cutflow, mc_parent, histname)]["variance"],
+                    } for mc_parent in ['DYJetsToLL', 'Diboson', 'EWKV2Jets',
+                                        'G1Jet', 'QCD', 'SingleTop', 'TTJets',
+                                        'VGamma', 'WJetsToLNu', 'ZJetsToNuNu']]
                 except KeyError:
-                    for mc_dataset_name in ['DYJetsToLL', 'Diboson', 'EWKV2Jets',
-                                            'G1Jet', 'QCD', 'SingleTop', 'TTJets',
-                                            'VGamma', 'WJetsToLNu', 'ZJetsToNuNu']:
-                        key = (mc_dataset_name, histname, cutflow)
-                        if key not in data:
-                            print "{} not in output".format(key)
+                    for mc_parent in ['DYJetsToLL', 'Diboson', 'EWKV2Jets',
+                                      'G1Jet', 'QCD', 'SingleTop', 'TTJets',
+                                      'VGamma', 'WJetsToLNu', 'ZJetsToNuNu']:
+                        key = (cutflow, mc_parent, histname)
+                        if key not in histograms:
+                            logger.warning("{} not in output".format(key))
                     continue
 
-                if not os.path.exists(os.path.join(self.outdir, cutflow, "plots")):
-                    os.makedirs(os.path.join(self.outdir, cutflow, "plots"))
+                path = os.path.join(self.outdir, cutflow, "plots", data_parent)
+                if not os.path.exists(path):
+                    os.makedirs(path)
 
                 dist_ratio(
                     hist_data,
                     hists_mc,
-                    os.path.join(self.outdir, cutflow, "plots", dataset_name+"_"+histname),
+                    os.path.join(path, histname),
                     cfg,
                 )
 
     def reread(self, outdir):
-        data = {}
-        histname_cutflows = []
+        logger = logging.getLogger(__name__)
+        histograms = {}
         for cutflow in os.listdir(outdir):
             for parent in os.listdir(os.path.join(outdir, cutflow)):
                 if parent == "plots":
                     continue
-                for hist_path in os.listdir(os.path.join(outdir, cutflow, parent)):
-                    hist_name = os.path.splitext(os.path.basename(hist_path))[0]
-                    if (hist_name, cutflow) not in histname_cutflows:
-                        histname_cutflows.append((hist_name, cutflow))
-                    with open(os.path.join(outdir, cutflow, parent, hist_path), 'r') as f:
-                        data[(parent, hist_name, cutflow)] = pickle.load(f)
-        self.draw(histname_cutflows, data)
-        return data
+                for histpath in os.listdir(os.path.join(outdir, cutflow, parent)):
+                    histname = os.path.splitext(os.path.basename(histpath))[0]
+                    key = (cutflow, parent, histname)
+                    if key in histograms:
+                        logger.warning("{} already loaded".format(key))
+                        continue
+                    with open(os.path.join(outdir, cutflow, parent, histpath), 'r') as f:
+                        histograms[key] = pickle.load(f)
+        self.draw(histograms)
+        return histograms
