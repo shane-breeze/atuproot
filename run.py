@@ -16,6 +16,7 @@ logging.getLogger("atuproot.SGEJobSubmitter").setLevel(logging.INFO)
 logging.getLogger(__name__).propagate = False
 logging.getLogger("alphatwirl").propagate = False
 logging.getLogger("atuproot.SGEJobSubmitter").propagate = False
+logging.getLogger("atuproot.AtUproot").propagate = False
 
 import argparse
 def parse_args():
