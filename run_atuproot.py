@@ -1,19 +1,20 @@
-from alphatwirl.loop import NullCollector
+#! /usr/bin/env python3
 from atuproot.AtUproot import AtUproot
 
-from sequence.sequence import sequence
-from sequence.collectors import reader_collectors
 from datasets.datasets import get_datasets
-from sequence.Modules import ScribblerWrapper
+from sequence.config import build_sequence
 
 import logging
 logging.getLogger(__name__).setLevel(logging.INFO)
 logging.getLogger("alphatwirl").setLevel(logging.INFO)
 logging.getLogger("atuproot.SGEJobSubmitter").setLevel(logging.INFO)
 
+
 import argparse
 def parse_args():
     parser = argparse.ArgumentParser()
+    parser.add_argument("dataset_cfg", type=str, help="Dataset config to run over")
+    parser.add_argument("sequence_cfg", type=str, help="Config for how to process events")
     parser.add_argument("--outdir", default="output", type=str,
                         help="Where to save the results")
     parser.add_argument("--mode", default="multiprocessing", type=str,
@@ -34,10 +35,11 @@ def parse_args():
                         help="Select some sample")
     return parser.parse_args()
 
+
 if __name__ == "__main__":
     options = parse_args()
 
-    datasets = get_datasets()
+    datasets = get_datasets(options.dataset_cfg)
 
     datasets = [dataset
                 for dataset in datasets
@@ -48,6 +50,8 @@ if __name__ == "__main__":
                     if d.name==options.sample or \
                        d.parent==options.sample]
 
+    sequence =  build_sequence(options.sequence_cfg)
+
     process = AtUproot(options.outdir,
         quiet = options.quiet,
         parallel_mode = options.mode,
@@ -57,5 +61,4 @@ if __name__ == "__main__":
         profile = options.profile,
         profile_out_path = "profile.txt",
     )
-    process.run(datasets, [(ScribblerWrapper(module), NullCollector())
-                           for module in sequence] + reader_collectors)
+    process.run(datasets, sequence)
