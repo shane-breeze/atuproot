@@ -10,7 +10,7 @@ class WeightQcdEwk(object):
         if self.parent not in self.input_paths:
             return
 
-        inputs = read_input(self.input_paths[self.parent], "vvj_pTV_kappa_EW")
+        inputs = read_input(*self.input_paths[self.parent])
         self.bin_min, self.bin_max, self.correction, self.errdown, self.errup = inputs
 
     def event(self, event):
@@ -21,9 +21,7 @@ class WeightQcdEwk(object):
                                       self.bin_min, self.bin_max,
                                       self.correction)
         event.WeightEW = 1. + weights
-
-        for boson_pt, weight in zip(event.GenPartBoson_pt, weights):
-            print boson_pt, 1. + weight
+        event.Weight *= event.WeightEW
 
 @njit
 def get_corrections(boson_pts, bin_mins, bin_maxs, corrections):
