@@ -8,11 +8,13 @@ datapath = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file_
 #print(datapath)
 
 certified_lumi_checker = Readers.CertifiedLumiChecker(
+    name = "certified_lumi_checker",
     lumi_json_path = datapath + "/json/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt",
     mc = False,
 )
 
 trigger_checker = Readers.TriggerChecker(
+    name = "trigger_checker",
     mc = False,
 )
 
@@ -40,29 +42,41 @@ tau_cross_cleaning = Readers.ObjectCrossCleaning(
 )
 
 jec_variations = Readers.JecVariations(
+    name = "jec_variations",
     jes_unc_file = datapath + "/jecs/Summer16_23Sep2016V4_MC_Uncertainty_AK4PFchs.txt",
     variation = None,
 )
 
-event_sums_producer = Readers.EventSumsProducer()
-signal_region_blinder = Readers.SignalRegionBlinder(
-    blind = True,
-    apply_to_mc = True,
+event_sums_producer = Readers.EventSumsProducer(
+    name = "event_sums_producer",
 )
-inv_mass_producer = Readers.InvMassProducer()
+signal_region_blinder = Readers.SignalRegionBlinder(
+    name = "signal_region_blinder",
+    blind = True,
+    apply_to_mc = False,
+)
+inv_mass_producer = Readers.InvMassProducer(
+    name = "inv_mass_producer",
+)
 gen_boson_producer = Readers.GenBosonProducer(
+    name = "gen_boson_producer",
     data = False,
 )
 
-weight_creator = Readers.WeightCreator()
+weight_creator = Readers.WeightCreator(
+    name = "weight_creator",
+)
 weight_xsection_lumi = Readers.WeightXsLumi(
+    name = "weight_xsection_lumi",
     data = False,
 )
 weight_pu = Readers.WeightPileup(
+    name = "weight_pu",
     correction_file = datapath + "/pileup/nTrueInt_corrections.txt",
     overflow = True, data = False,
 )
 weight_met_trigger = Readers.WeightMetTrigger(
+    name = "weight_met_trigger",
     correction_files = {
         0: datapath + "/mettrigger/met_trigger_correction_0mu.txt",
         1: datapath + "/mettrigger/met_trigger_correction_1mu.txt",
@@ -71,6 +85,7 @@ weight_met_trigger = Readers.WeightMetTrigger(
     data = False,
 )
 weight_muons = Readers.WeightMuons(
+    name = "weight_muons",
     correction_id_paths = [
         (19.7, datapath + "/muons/muon_id_runBCDEF.txt"),
         (16.2, datapath + "/muons/muon_id_runGH.txt"),
@@ -89,6 +104,7 @@ weight_muons = Readers.WeightMuons(
     data = False,
 )
 weight_qcd_ewk = Readers.WeightQcdEwk(
+    name = "weight_qcd_ewk",
     input_paths = {
         "ZJetsToNuNu": ("/vols/build/cms/sdb15/atuproot/data/qcd_ewk/vvj.dat", "vvj_pTV_kappa_EW"),
         "WJetsToLNu": ("/vols/build/cms/sdb15/atuproot/data/qcd_ewk/evj.dat", "evj_pTV_kappa_EW"),
@@ -96,19 +112,25 @@ weight_qcd_ewk = Readers.WeightQcdEwk(
     },
 )
 
-selection_producer = Readers.SelectionProducer()
+selection_producer = Readers.SelectionProducer(
+    name = "selection_producer",
+)
 
 hist_reader = Collectors.HistReader(
+    name = "hist_reader",
     cfg = Collectors.Histogrammer_cfg,
 )
 hist_collector = Collectors.HistCollector(
+    name = "hist_collector",
     cfg = Collectors.Histogrammer_cfg,
 )
 
 qcdewk_reader = Collectors.HistReader(
+    name = "qcdewk_reader",
     cfg = Collectors.QcdEwk_cfg,
 )
 qcdewk_collector = Collectors.QcdEwkCollector(
+    name = "qcdewk_collector",
     cfg = Collectors.QcdEwk_cfg,
 )
 
