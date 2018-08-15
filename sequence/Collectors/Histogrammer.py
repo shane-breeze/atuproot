@@ -1,31 +1,50 @@
+from collections import namedtuple
+import logging
 import numpy as np
 import os
 import pickle
-import logging
 
 from utils.Lambda import Lambda
 from drawing.dist_ratio import dist_ratio
 
+# Take the cfg module and drop unpicklables
+Config = namedtuple("Config", "histogrammer_cfgs sample_colours axis_label")
+
 class HistReader(object):
-    def __init__(self, cfg=None):
+    def __init__(self, **kwargs):
         """
         Get the list of histogram configs and expand them for 1 histogram per
         entry (i.e. unroll the cutflows)
 
         Also create empty dict for lambda functions later
         """
-        self.histogrammer_cfgs = cfg.histogrammer_cfgs
+        cfg = kwargs.pop("cfg")
+        self.cfg = Config(
+            histogrammer_cfgs = cfg.histogrammer_cfgs,
+            sample_colours = cfg.sample_colours,
+            axis_label = cfg.axis_label,
+        )
+        self.__dict__.update(kwargs)
 
         self.histogram_cfgs = []
         self.functions = []
-        for hist_cfg in self.histogrammer_cfgs:
+        for hist_cfg in self.cfg.histogrammer_cfgs:
             for cutflow in hist_cfg["cutflows"]:
-                self.histogram_cfgs.append({
-                    "name": (cutflow, hist_cfg["name"]),
-                    "variables": hist_cfg["variables"],
-                    "bins": hist_cfg["bins"],
-                    "weight": hist_cfg["weight"],
-                })
+                if "parents" in hist_cfg:
+                    self.histogram_cfgs.append({
+                        "name": (cutflow, hist_cfg["name"]),
+                        "parents": hist_cfg["parents"],
+                        "variables": hist_cfg["variables"],
+                        "bins": hist_cfg["bins"],
+                        "weight": hist_cfg["weight"],
+                    })
+                else:
+                    self.histogram_cfgs.append({
+                        "name": (cutflow, hist_cfg["name"]),
+                        "variables": hist_cfg["variables"],
+                        "bins": hist_cfg["bins"],
+                        "weight": hist_cfg["weight"],
+                    })
                 for variable in hist_cfg["variables"]+[hist_cfg["weight"]]:
                     if variable not in self.functions:
                         self.functions.append(variable)
@@ -39,6 +58,7 @@ class HistReader(object):
         Create the lambda functions
         """
         self.dataset = event.config.dataset
+        self.parent = self.dataset.parent
         self.histograms = {}
 
         for function in self.functions:
@@ -57,6 +77,13 @@ class HistReader(object):
         Add together the histograms from different blocks.
         """
         for histogram_cfg in self.histogram_cfgs:
+
+            # Skip specified parents
+            if "parents" in histogram_cfg:
+                restricted_parents = histogram_cfg["parents"]
+                if self.parent not in restricted_parents:
+                    continue
+
             cutflow = histogram_cfg["name"][0]
             weight = histogram_cfg["weight"]
 
@@ -113,7 +140,15 @@ class HistReader(object):
 
 class HistCollector(object):
     def __init__(self, **kwargs):
+        # drop unpicklables
+        cfg = kwargs.pop("cfg")
+        self.cfg = Config(
+            histogrammer_cfgs = cfg.histogrammer_cfgs,
+            sample_colours = cfg.sample_colours,
+            axis_label = cfg.axis_label,
+        )
         self.__dict__.update(kwargs)
+
         self.outdir = "output"
         if not os.path.exists(self.outdir):
             os.makedirs(self.outdir)
@@ -146,7 +181,7 @@ class HistCollector(object):
                     }
 
         for (cutflow, parent, histname), histogram in histograms.items():
-            outdir = os.path.join(self.outdir, cutflow, parent)
+            outdir = os.path.join(self.outdir, self.name, cutflow, parent)
             if not os.path.exists(outdir):
                 os.makedirs(outdir)
 
@@ -201,7 +236,7 @@ class HistCollector(object):
                             logger.warning("{} not in output".format(key))
                     continue
 
-                path = os.path.join(self.outdir, cutflow, "plots", data_parent)
+                path = os.path.join(self.outdir, self.name, cutflow, "plots", data_parent)
                 if not os.path.exists(path):
                     os.makedirs(path)
 
@@ -219,17 +254,17 @@ class HistCollector(object):
         """
         logger = logging.getLogger(__name__)
         histograms = {}
-        for cutflow in os.listdir(outdir):
-            for parent in os.listdir(os.path.join(outdir, cutflow)):
+        for cutflow in os.listdir(os.path.join(outdir, self.name)):
+            for parent in os.listdir(os.path.join(outdir, self.name, cutflow)):
                 if parent == "plots":
                     continue
-                for histpath in os.listdir(os.path.join(outdir, cutflow, parent)):
+                for histpath in os.listdir(os.path.join(outdir, self.name, cutflow, parent)):
                     histname = os.path.splitext(os.path.basename(histpath))[0]
                     key = (cutflow, parent, histname)
                     if key in histograms:
                         logger.warning("{} already loaded".format(key))
                         continue
-                    with open(os.path.join(outdir, cutflow, parent, histpath), 'r') as f:
+                    with open(os.path.join(outdir, self.name, cutflow, parent, histpath), 'r') as f:
                         histograms[key] = pickle.load(f)
         self.draw(histograms)
         return histograms

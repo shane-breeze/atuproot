@@ -150,6 +150,12 @@ histogrammer_cfgs = [
         "bins": [[-inf]+list(np.linspace(0., 5., 6))+[inf]],
         "weight": "ev: ev.Weight",
     }, {
+        "name": "nTauVeto",
+        "cutflows": ["Monojet", "SingleMuon", "DoubleMuon", "SingleElectron", "DoubleElectron", "MonojetQCD"],
+        "variables": ["ev: ev.TauVeto.size"],
+        "bins": [[-inf]+list(np.linspace(0., 5., 6))+[inf]],
+        "weight": "ev: ev.Weight",
+    }, {
         "name": "nTauSelection",
         "cutflows": ["Monojet", "SingleMuon", "DoubleMuon", "SingleElectron", "DoubleElectron", "MonojetQCD"],
         "variables": ["ev: ev.TauSelection.size"],
@@ -284,6 +290,7 @@ axis_label = {
     "nElectronSelection": "No. electron selected",
     "nPhotonSelection": "No. photon selected",
     "nTauSelection": "No. #tau selected clean",
+    "nTauVeto": "No. #tau veto clean",
     "nBJetSelectionMedium": "No. b-jets selected clean (medium WP)",
     "LeadMuonSelection_pt": "p_{T}(#mu_{0}) (GeV)",
     "LeadMuonSelection_eta": "#eta(#mu_{0})",
