@@ -181,7 +181,7 @@ class HistCollector(object):
                     }
 
         for (cutflow, parent, histname), histogram in histograms.items():
-            outdir = os.path.join(self.outdir, cutflow, parent)
+            outdir = os.path.join(self.outdir, self.name, cutflow, parent)
             if not os.path.exists(outdir):
                 os.makedirs(outdir)
 
