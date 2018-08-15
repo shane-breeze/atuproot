@@ -3,7 +3,7 @@ import uproot
 
 EventBuilderConfig = collections.namedtuple(
     'EventBuilderConfig',
-    'inputPaths treeName maxBlocks start blocksize dataset name'
+    'inputPaths treeName start stop blocksize dataset name'
 )
 
 class EventBuilderConfigMaker(object):
@@ -16,8 +16,8 @@ class EventBuilderConfigMaker(object):
         config = EventBuilderConfig(
             inputPaths = files,
             treeName = dataset.tree,
-            maxBlocks = length,
             start = start,
+            stop = length,
             blocksize = self.blocksize,
             dataset = dataset,
             name = dataset.name,
