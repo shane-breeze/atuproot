@@ -54,8 +54,8 @@ def dist_ratio(hist_data_cfg, hists_mc_cfg, filepath, cfg):
     for hist_mc in hists_mc:
         hist_mc.hist = convert_to_hist(hist_mc)
         set_hist_style(hist_mc.hist, kind="mc")
-        hist_mc.hist.linecolor = cfg.sample_colours[hist_mc.sample]
-        hist_mc.hist.fillcolor = cfg.sample_colours[hist_mc.sample]
+        hist_mc.hist.linecolor = cfg.sample_colours[hist_mc.sample] if hist_mc.sample in cfg.sample_colours else "black"
+        hist_mc.hist.fillcolor = cfg.sample_colours[hist_mc.sample] if hist_mc.sample in cfg.sample_colours else "black"
         hist_mc.hist.fillstyle = 1001
     hists_mc_sum.hist = convert_to_hist(hists_mc_sum)
     set_hist_style(hists_mc_sum.hist, kind="mc")
@@ -152,7 +152,7 @@ def dist_ratio(hist_data_cfg, hists_mc_cfg, filepath, cfg):
         [ratio],
         pad = padbot,
         ylimits = (0.45, 1.55),
-        xtitle = cfg.axis_label[hist_data.name],
+        xtitle = cfg.axis_label[hist_data.name] if hist_data.name in cfg.axis_label else hist_data.name,
         ytitle = "Data / SM total",
     )
 
