@@ -73,7 +73,7 @@ class SGEJobSubmitter(object):
         "ZGToLLG": 12,
     }
     walltime_dict = {}
-    def __init__(self, queue="hep.q", walltime=3600, vmem=6):
+    def __init__(self, queue="hep.q", walltime=7200, vmem=6):
         self.job_desc_template = "qsub -N {name} -t 1-{njobs}:1 -o /dev/null -e /dev/null -cwd -V -q {queue} -l h_rt={walltime} -l h_vmem={vmem}G {job_script}"
         self.clusterprocids_outstanding = [ ]
         self.clusterprocids_finished = [ ]
