@@ -3,3 +3,4 @@
 externals/pip
 **/__pycache__
 output*
+.*sw[op]

@@ -103,7 +103,7 @@ class WeightMuons(object):
         corrs_trig_up = np.sqrt(corrs_trig_up**2 + (0.005)**2)
         corrs_trig_down = np.sqrt(corrs_trig_down**2 + (0.005)**2)
 
-        event.Weight *= corrs_id * corrs_iso * corrs_track * corrs_trig
+        event.Weight *= corrs_id * corrs_iso * corrs_track #* corrs_trig
 
 def get_correction_eta(muons, weights, corrections, any_pass=False):
     etabins, corrs, corrs_up, corrs_down = [x for x in zip(*corrections)]

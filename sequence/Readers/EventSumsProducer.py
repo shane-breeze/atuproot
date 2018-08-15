@@ -12,7 +12,7 @@ class EventSumsProducer(object):
         event.METnoX = Collection("METnoX", event)
         event.DiMuon = Collection("DiMuon", event)
         event.MHT40 = Collection("MHT40", event)
-        event.LeadJetSelectionClean = Collection("LeadJetSelectionClean", event)
+        event.LeadJetSelection = Collection("LeadJetSelection", event)
 
         # MET
         met, mephi = create_metnox(
@@ -36,7 +36,7 @@ class EventSumsProducer(object):
 
         # MHT
         ht, mht, mhphi = create_mht(
-            event.JetSelectionClean,
+            event.JetSelection,
         )
         event.HT40 = ht
         event.MHT40_pt = mht
@@ -49,33 +49,50 @@ class EventSumsProducer(object):
         )
 
         event.MinDPhiJ1234METnoX = create_minDPhiJ1234METnoX(
-            event.JetSelectionClean,
+            event.JetSelection,
         )
 
         # nbjet
-        event.nBJetSelectionCleanMedium = count_nbjet(
-            event.JetSelectionClean.btagCSVV2.content,
-            event.JetSelectionClean.starts,
-            event.JetSelectionClean.stops,
+        event.nBJetSelectionMedium = count_nbjet(
+            event.JetSelection.btagCSVV2.content,
+            event.JetSelection.starts,
+            event.JetSelection.stops,
             0.8484,
         )
 
-        # Lead jet variables
-        event.LeadJetSelectionClean_pt = create_lead_jet(
-            event.JetSelectionClean.pt.content,
-            event.JetSelectionClean.starts,
-            event.JetSelectionClean.stops,
-            pos = 0,
-        )
-        event.LeadJetSelectionClean_chHEF = create_lead_jet(
-            event.JetSelectionClean.chHEF.content,
-            event.JetSelectionClean.starts,
-            event.JetSelectionClean.stops,
-            pos = 0,
-        )
+        for collection in ["LeadMuonSelection", "SecondMuonSelection",
+                           "LeadElectronSelection", "SecondElectronSelection"]:
+            for attr in ["pt", "eta", "phi"]:
+                ref_collection = collection.replace("Lead", "").replace("Second", "")
+                pos = 0 if "Lead" in collection else 1
+                setattr(
+                    event,
+                    collection+"_"+attr,
+                    create_lead_object(
+                        getattr(getattr(event, ref_collection), attr).content,
+                        getattr(event, ref_collection).starts,
+                        getattr(event, ref_collection).stops,
+                        pos = pos,
+                    ),
+                )
+
+        for collection in ["LeadJetSelection"]:
+            for attr in ["pt", "eta", "phi", "chEmEF", "chHEF", "neEmEF", "neHEF"]:
+                ref_collection = collection.replace("Lead", "").replace("Second", "")
+                pos = 0 if "Lead" in collection else 1
+                setattr(
+                    event,
+                    collection+"_"+attr,
+                    create_lead_object(
+                        getattr(getattr(event, ref_collection), attr).content,
+                        getattr(event, ref_collection).starts,
+                        getattr(event, ref_collection).stops,
+                        pos = pos,
+                    ),
+                )
 
 @njit
-def create_lead_jet(collection, starts, stops, pos=0):
+def create_lead_object(collection, starts, stops, pos=0):
     nev = stops.shape[0]
     collection_1d = np.zeros(nev, dtype=float32)
     for iev, (start, stop) in enumerate(zip(starts, stops)):

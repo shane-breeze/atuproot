@@ -1,6 +1,7 @@
 path: /vols/cms/ZinvWidth/NanoAOD/201806_Jun/data/{}/info.yaml
-lumi: 35860
-energy: 13000
+default:
+    lumi: 35860
+    energy: 13000
 datasets:
     - MET_Run2016B_v1
     - MET_Run2016B_v2
@@ -20,15 +21,15 @@ datasets:
     - SingleMuon_Run2016G_v1
     - SingleMuon_Run2016H_v2
     - SingleMuon_Run2016H_v3
-    - SingleElectron_Run2016B_v1
-    - SingleElectron_Run2016B_v2
-    - SingleElectron_Run2016C_v1
-    - SingleElectron_Run2016D_v1
-    - SingleElectron_Run2016E_v1
-    - SingleElectron_Run2016F_v1
-    - SingleElectron_Run2016G_v1
-    - SingleElectron_Run2016H_v2
-    - SingleElectron_Run2016H_v3
+#    - SingleElectron_Run2016B_v1
+#    - SingleElectron_Run2016B_v2
+#    - SingleElectron_Run2016C_v1
+#    - SingleElectron_Run2016D_v1
+#    - SingleElectron_Run2016E_v1
+#    - SingleElectron_Run2016F_v1
+#    - SingleElectron_Run2016G_v1
+#    - SingleElectron_Run2016H_v2
+#    - SingleElectron_Run2016H_v3
     - TTJets_Inclusive
     - WJetsToLNu_Pt-0To50
     - WJetsToLNu_Pt-50To100
@@ -42,42 +43,6 @@ datasets:
     - WJetsToLNu_Pt-400To600_ext1
     - WJetsToLNu_Pt-600ToInf
     - WJetsToLNu_Pt-600ToInf_ext1
-#    - WJetsToENu_Pt-0To50
-#    - WJetsToENu_Pt-50To100
-#    - WJetsToENu_Pt-100To250
-#    - WJetsToENu_Pt-100To250_ext1
-#    - WJetsToENu_Pt-100To250_ext2
-#    - WJetsToENu_Pt-250To400
-#    - WJetsToENu_Pt-250To400_ext1
-#    - WJetsToENu_Pt-250To400_ext2
-#    - WJetsToENu_Pt-400To600
-#    - WJetsToENu_Pt-400To600_ext1
-#    - WJetsToENu_Pt-600ToInf
-#    - WJetsToENu_Pt-600ToInf_ext1
-#    - WJetsToMuNu_Pt-0To50
-#    - WJetsToMuNu_Pt-50To100
-#    - WJetsToMuNu_Pt-100To250
-#    - WJetsToMuNu_Pt-100To250_ext1
-#    - WJetsToMuNu_Pt-100To250_ext2
-#    - WJetsToMuNu_Pt-250To400
-#    - WJetsToMuNu_Pt-250To400_ext1
-#    - WJetsToMuNu_Pt-250To400_ext2
-#    - WJetsToMuNu_Pt-400To600
-#    - WJetsToMuNu_Pt-400To600_ext1
-#    - WJetsToMuNu_Pt-600ToInf
-#    - WJetsToMuNu_Pt-600ToInf_ext1
-#    - WJetsToTauNu_Pt-0To50
-#    - WJetsToTauNu_Pt-50To100
-#    - WJetsToTauNu_Pt-100To250
-#    - WJetsToTauNu_Pt-100To250_ext1
-#    - WJetsToTauNu_Pt-100To250_ext2
-#    - WJetsToTauNu_Pt-250To400
-#    - WJetsToTauNu_Pt-250To400_ext1
-#    - WJetsToTauNu_Pt-250To400_ext2
-#    - WJetsToTauNu_Pt-400To600
-#    - WJetsToTauNu_Pt-400To600_ext1
-#    - WJetsToTauNu_Pt-600ToInf
-#    - WJetsToTauNu_Pt-600ToInf_ext1
     - ZJetsToNuNu_Pt-0To50
     - ZJetsToNuNu_Pt-50To100
     - ZJetsToNuNu_Pt-100To250
@@ -132,57 +97,6 @@ datasets:
     - DYJetsToLL_Pt-650ToInf
     - DYJetsToLL_Pt-650ToInf_ext1
     - DYJetsToLL_Pt-650ToInf_ext2
-#    - DYJetsToEE_Pt-0To50
-#    - DYJetsToEE_Pt-50To100
-#    - DYJetsToEE_Pt-50To100_ext1
-#    - DYJetsToEE_Pt-100To250
-#    - DYJetsToEE_Pt-100To250_ext1
-#    - DYJetsToEE_Pt-100To250_ext2
-#    - DYJetsToEE_Pt-100To250_ext3
-#    - DYJetsToEE_Pt-250To400
-#    - DYJetsToEE_Pt-250To400_ext1
-#    - DYJetsToEE_Pt-250To400_ext2
-#    - DYJetsToEE_Pt-250To400_ext3
-#    - DYJetsToEE_Pt-400To650
-#    - DYJetsToEE_Pt-400To650_ext1
-#    - DYJetsToEE_Pt-400To650_ext2
-#    - DYJetsToEE_Pt-650ToInf
-#    - DYJetsToEE_Pt-650ToInf_ext1
-#    - DYJetsToEE_Pt-650ToInf_ext2
-#    - DYJetsToMuMu_Pt-0To50
-#    - DYJetsToMuMu_Pt-50To100
-#    - DYJetsToMuMu_Pt-50To100_ext1
-#    - DYJetsToMuMu_Pt-100To250
-#    - DYJetsToMuMu_Pt-100To250_ext1
-#    - DYJetsToMuMu_Pt-100To250_ext2
-#    - DYJetsToMuMu_Pt-100To250_ext3
-#    - DYJetsToMuMu_Pt-250To400
-#    - DYJetsToMuMu_Pt-250To400_ext1
-#    - DYJetsToMuMu_Pt-250To400_ext2
-#    - DYJetsToMuMu_Pt-250To400_ext3
-#    - DYJetsToMuMu_Pt-400To650
-#    - DYJetsToMuMu_Pt-400To650_ext1
-#    - DYJetsToMuMu_Pt-400To650_ext2
-#    - DYJetsToMuMu_Pt-650ToInf
-#    - DYJetsToMuMu_Pt-650ToInf_ext1
-#    - DYJetsToMuMu_Pt-650ToInf_ext2
-#    - DYJetsToTauTau_Pt-0To50
-#    - DYJetsToTauTau_Pt-50To100
-#    - DYJetsToTauTau_Pt-50To100_ext1
-#    - DYJetsToTauTau_Pt-100To250
-#    - DYJetsToTauTau_Pt-100To250_ext1
-#    - DYJetsToTauTau_Pt-100To250_ext2
-#    - DYJetsToTauTau_Pt-100To250_ext3
-#    - DYJetsToTauTau_Pt-250To400
-#    - DYJetsToTauTau_Pt-250To400_ext1
-#    - DYJetsToTauTau_Pt-250To400_ext2
-#    - DYJetsToTauTau_Pt-250To400_ext3
-#    - DYJetsToTauTau_Pt-400To650
-#    - DYJetsToTauTau_Pt-400To650_ext1
-#    - DYJetsToTauTau_Pt-400To650_ext2
-#    - DYJetsToTauTau_Pt-650ToInf
-#    - DYJetsToTauTau_Pt-650ToInf_ext1
-#    - DYJetsToTauTau_Pt-650ToInf_ext2
     - WWTo1L1Nu2Q
     - WWTo2L2Nu
     - WWTo4Q

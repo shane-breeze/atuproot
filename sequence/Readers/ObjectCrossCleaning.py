@@ -19,10 +19,14 @@ class ObjectCrossCleaning(object):
                 ref_collection = getattr(event, ref_collection_name)
                 selections = selections & comp(clean_collection, ref_collection)
 
-            output_collection = clean_collection_name+"Clean"
-            setattr(event, output_collection,
-                    Collection(output_collection, event,
-                               clean_collection_name, selections))
+            for name in ["Veto", "Selection"]:
+                old_selection = getattr(event, clean_collection_name+name).selection
+                new_selection = old_selection & selections
+                getattr(event, clean_collection_name).selection = new_selection
+            #output_collection = clean_collection_name+"Clean"
+            #setattr(event, output_collection,
+            #        Collection(output_collection, event,
+            #                   clean_collection_name, selections))
 
 def comp(coll1, coll2):
     return comp_jit(coll1.eta.content, coll1.phi.content,

@@ -6,6 +6,8 @@ import time
 import textwrap
 import getpass
 import re
+import gzip
+import pickle
 import logging
 
 logger = logging.getLogger(__name__)
@@ -15,7 +17,6 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 import alphatwirl
-
 from alphatwirl.concurrently.exec_util import try_executing_until_succeed, compose_shortened_command_for_logging
 
 ##__________________________________________________________________||
@@ -55,13 +56,32 @@ SGE_JOBSTATE_CODES = {
 
 ##__________________________________________________________________||
 class SGEJobSubmitter(object):
-    def __init__(self, queue="hep.q", walltime=10800):
-        self.job_desc_template = "qsub -t 1-{njobs}:1 -o /dev/null -e /dev/null -cwd -V -q {queue} -l h_rt={walltime} -l h_vmem=12G {job_script}"
+    vmem_dict = {
+        "MET_Run2016B_v2": 12,
+        "SingleMuon_Run2016B_v2": 12,
+        "SingleMuon_Run2016C_v1": 12,
+        "SingleMuon_Run2016D_v1": 12,
+        "SingleMuon_Run2016E_v1": 12,
+        "SingleMuon_Run2016F_v1": 12,
+        "SingleMuon_Run2016G_v1": 12,
+        "SingleMuon_Run2016H_v2": 12,
+        "SingleElectron_Run2016H_v2": 12,
+        "TTJets_Inclusive": 12,
+        "QCD_Pt-1400To1800_ext1": 12,
+        "WZTo2Q2Nu": 12,
+        "SingleTop_s-channel_InclusiveDecays": 12,
+        "ZGToLLG": 12,
+    }
+    walltime_dict = {}
+    def __init__(self, queue="hep.q", walltime=3600, vmem=6):
+        self.job_desc_template = "qsub -N {name} -t 1-{njobs}:1 -o /dev/null -e /dev/null -cwd -V -q {queue} -l h_rt={walltime} -l h_vmem={vmem}G {job_script}"
         self.clusterprocids_outstanding = [ ]
         self.clusterprocids_finished = [ ]
         self.queue = queue
-        self.walltime = walltime # 3h
+        self.walltime = walltime # 1h
+        self.vmem = vmem
         self.wallmax = 172800 # 48h
+        self.vmemmax = 32
 
     def run(self, workingArea, package_index):
         return self.run_multiple(workingArea, [package_index])[0]
@@ -82,11 +102,24 @@ class SGEJobSubmitter(object):
         for d in resultdirs:
             alphatwirl.mkdir_p(d)
 
+        # Get list of task names
+        task_name = None
+        for p in package_paths:
+            with gzip.open(p, 'rb') as f:
+                package = pickle.load(f)
+            if task_name is None:
+                task_name = package.task.name
+            elif package.task.name != task_name:
+                logger = logging.getLogger(__name__)
+                logger.warning("Task name changed somehow")
+
         job_desc = self.job_desc_template.format(
+            name = task_name,
             job_script = 'job_script.sh',
             njobs = len(package_paths),
             queue = self.queue,
-            walltime = self.walltime,
+            walltime = self.walltime_dict[task_name] if task_name in self.walltime_dict else self.walltime,
+            vmem = self.vmem_dict[task_name] if task_name in self.vmem_dict else self.vmem,
         )
 
         s = "#!/bin/bash\n\nulimit -c 0\n\n"
@@ -118,10 +151,16 @@ class SGEJobSubmitter(object):
         )
         stdout, stderr = proc.communicate()
 
-        regex = re.compile("Your job-array (\d+).1-(\d+):1 \(\"job_script.sh\"\) has been submitted")
-        njobs = int(regex.search(stdout).groups()[1])
-        clusterid = regex.search(stdout).groups()[0]
-        # e.g., '2448770'
+        regex = re.compile("Your job-array (\d+).1-(\d+):1 \(\"{}\"\) has been submitted".format(task_name))
+        try:
+            njobs = int(regex.search(stdout).groups()[1])
+            clusterid = regex.search(stdout).groups()[0]
+            # e.g., '2448770'
+        except Exception as e:
+            logger = logging.getLogger(__name__)
+            logger.error(stdout)
+            logger.error(stderr)
+            raise AttributeError(e)
 
         #change_job_priority([clusterid], 10) ## need to make configurable
 

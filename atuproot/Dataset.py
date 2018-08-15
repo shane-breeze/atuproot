@@ -2,8 +2,10 @@ import collections
 
 class Dataset(object):
     args = ["name", "parent", "isdata", "xsection", "lumi", "energy",
-            "sumweights", "files", "associates"]
+            "sumweights", "files", "associates", "tree"]
     def __init__(self, **kwargs):
+        kwargs.setdefault("associates", [])
+        kwargs.setdefault("tree", "Events")
         for arg in self.args:
             setattr(self, arg, kwargs[arg])
 
