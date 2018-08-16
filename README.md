@@ -25,9 +25,9 @@ The code uses input files located at Imperial. Currently can't chain multiple
 files together. Run the code like so:
 
 ```
-python run_atuproot.py --data MET --blocksize 500000 --ncores 4
+python run_atuproot.py --blocksize 100000 --ncores 4
 ```
 
-to run over the MET dataset (and associated MC samples) loading in 500k events
+to run over the MET dataset (and associated MC samples) loading in 100k events
 at a time into numpy arrays over 4 cores. You might need to reduce the
 blocksize depending on memory use.

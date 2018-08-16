@@ -1,25 +1,29 @@
 import logging
 
 class BEvents(object):
-    def __init__(self, tree, blocksize=1000000, maxBlocks=-1, start=0):
+    def __init__(self, tree,
+                 nevents_per_block=100000,
+                 start_block=0, stop_block=-1):
         self.tree = tree
-        self.nEvents = len(tree)
-        self.blocksize = int(blocksize) if blocksize >= 0 else self.nEvents
+        self.nevents_in_tree = len(tree)
+        self.nevents_per_block = int(nevents_per_block) \
+                if nevents_per_block >= 0 \
+                else self.nevents_in_tree
 
-        nBlocks = int((self.nEvents-1) / self.blocksize + 1)
-        start = min(nBlocks, start)
-        if maxBlocks > -1:
-            self.nBlocks = min(nBlocks-start, maxBlocks)
+        nblocks = int((self.nevents_in_tree-1)/self.nevents_per_block + 1)
+        start_block = min(nblocks, start_block)
+        if stop_block > -1:
+            self.nblocks = min(nblocks-start_block, stop_block)
         else:
-            self.nBlocks = nBlocks-start
-        self.maxBlocks = maxBlocks
-        self.start = start
-        self.iBlock = -1
+            self.nblocks = nblocks-start_block
+        self.stop_block = stop_block
+        self.start_block = start_block
+        self.iblock = -1
 
         self._branch_cache = {}
 
     def __len__(self):
-        return self.nBlocks
+        return self.nblocks
 
     def __repr__(self):
         return '{}({})'.format(
@@ -28,25 +32,27 @@ class BEvents(object):
         )
 
     def _repr_content(self):
-        return 'tree = {!r}, nEvents = {!r}, nBlocks = {!r}, blocksize = {!r}, iBlock = {!r}'.format(
+        return 'tree = {!r}, nevents_in_tree = {!r}, nevents_per_block = {!r}, nblocks = {!r}, iblock = {!r}, start_block = {!r}, stop_block = {!r}'.format(
             self.tree,
-            self.nEvents,
-            self.nBlocks,
-            self.blocksize,
-            self.iBlock,
+            self.nevents_in_tree,
+            self.nevents_per_block,
+            self.nblocks,
+            self.iblock,
+            self.start_block,
+            self.stop_block,
         )
 
     def __getitem__(self, i):
-        if i >= self.nBlocks:
-            self.iBlock = -1
+        if i >= self.nblocks:
+            self.iblock = -1
             raise IndexError("The index is out of range: " + str(i))
         self._branch_cache = {}
 
-        self.iBlock = i
+        self.iblock = i
         return self
 
     def __iter__(self):
-        for self.iBlock in range(self.nBlocks):
+        for self.iblock in range(self.nblocks):
             #sizes = {}
             #for k, v in self._branch_cache.items():
             #    size = 0
@@ -65,19 +71,19 @@ class BEvents(object):
 
             self._branch_cache = {}
             yield self
-        self.iBlock = -1
+        self.iblock = -1
 
     def __getattr__(self, attr):
-        if attr in ["tree", "nEvents", "blocksize", "nBlocks", "maxBlocks",
-                    "start", "iBlock", "_branch_cache", "entrystart",
-                    "entrystop", "size"]:
+        if attr in ["tree", "nevents_in_tree", "nevents_per_block",
+                    "nblocks", "start_block", "stop_block", "iblock",
+                    "start_entry", "stop_entry", "_branch_cache", "size"]:
             return getattr(self, attr)
         return self._get_branch(attr)
 
     def __setattr__(self, attr, val):
-        if attr in ["tree", "nEvents", "blocksize", "nBlocks", "maxBlocks",
-                    "start", "iBlock", "_branch_cache", "entrystart",
-                    "entrystop", "size"]:
+        if attr in ["tree", "nevents_in_tree", "nevents_per_block",
+                    "nblocks", "start_block", "stop_block", "iblock",
+                    "start_entry", "stop_entry", "_branch_cache", "size"]:
             super(BEvents, self).__setattr__(attr, val)
         else:
             self._branch_cache[attr] = val
@@ -86,16 +92,16 @@ class BEvents(object):
         if name in self._branch_cache:
             branch = self._branch_cache[name]
         else:
-            self.entrystart = (self.start + self.iBlock) * self.blocksize
-            self.entrystop = min(
-                (self.start + self.iBlock + 1) * self.blocksize,
-                (self.start + self.nBlocks) * self.blocksize,
-                self.nEvents,
+            self.start_entry = (self.start_block + self.iblock) * self.nevents_per_block
+            self.stop_entry= min(
+                (self.start_block + self.iblock + 1) * self.nevents_per_block,
+                (self.start_block + self.nblocks) * self.nevents_per_block,
+                self.nevents_in_tree,
             )
-            self.size = self.entrystop - self.entrystart
+            self.size = self.stop_entry - self.start_entry
             branch = self.tree.array(name,
-                                     entrystart = self.entrystart,
-                                     entrystop = self.entrystop)
+                                     entrystart = self.start_entry,
+                                     entrystop = self.stop_entry)
             self._branch_cache[name] = branch
         return branch
 
