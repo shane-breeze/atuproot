@@ -31,13 +31,13 @@ skim_collections = Readers.SkimCollections(
 
 jet_cross_cleaning = Readers.ObjectCrossCleaning(
     name = "jet_cross_cleaning",
-    clean_collections = ("Jet",),
+    collections = ("Jet",),
     ref_collections = ("MuonVeto", "ElectronVeto", "PhotonVeto"),
 )
 
 tau_cross_cleaning = Readers.ObjectCrossCleaning(
     name = "tau_cross_cleaning",
-    clean_collections = ("Tau",),
+    collections = ("Tau",),
     ref_collections = ("MuonVeto", "ElectronVeto"),
 )
 
