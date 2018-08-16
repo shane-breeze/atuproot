@@ -4,6 +4,9 @@ class ScribblerWrapper(object):
         self.data = getattr(self.scribbler, "data", True)
         self.mc = getattr(self.scribbler, "mc", True)
 
+    def __repr__(self):
+        return repr(self.scribbler)
+
     def __getattr__(self, attr):
         if attr in ["scribbler", "data", "mc"]:
             raise AttributeError("{} should be assigned but isn't".format(attr))
