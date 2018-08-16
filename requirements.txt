@@ -1,8 +1,8 @@
 numpy
 icc-rt
 numba
-alphatwirl==0.16.0
+alphatwirl==0.20.1
 pandas
 pyyaml
-uproot
+uproot==2.9.7
 rootpy
