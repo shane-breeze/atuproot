@@ -108,8 +108,8 @@ class SGEJobSubmitter(object):
             with gzip.open(p, 'rb') as f:
                 package = pickle.load(f)
             if task_name is None:
-                task_name = package.task.name
-            elif package.task.name != task_name:
+                task_name = package.task.progressbar_label
+            elif package.task.progressbar_label != task_name:
                 logger = logging.getLogger(__name__)
                 logger.warning("Task name changed somehow")
 
