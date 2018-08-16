@@ -20,8 +20,8 @@ trigger_checker = Readers.TriggerChecker(
 
 collection_creator = Readers.CollectionCreator(
     name = "collection_creator",
-    collections = ["CaloMET", "MET", "Jet", "Electron", "Muon", "Photon",
-                   "Tau", "GenMET", "GenPart", "GenJet", "GenDressedLepton"],
+    collections = ["CaloMET", "MET", "Jet", "Electron", "Muon", "Photon", "Tau",
+                   "GenMET", "GenPart", "GenJet", "GenDressedLepton", "LHEPart"],
 )
 
 skim_collections = Readers.SkimCollections(
@@ -60,6 +60,10 @@ inv_mass_producer = Readers.InvMassProducer(
 )
 gen_boson_producer = Readers.GenBosonProducer(
     name = "gen_boson_producer",
+    data = False,
+)
+lhe_part_assigner = Readers.LHEPartAssigner(
+    name = "lhe_part_assigner",
     data = False,
 )
 
@@ -143,6 +147,7 @@ sequence = [
     # and is deleted after use. Don't want to add the memory consumption of
     # this with all other branches
     (gen_boson_producer, NullCollector()),
+    (lhe_part_assigner, NullCollector()),
     (jec_variations, NullCollector()),
     (skim_collections, NullCollector()),
     # Cross cleaning must be placed after the veto and selection collections
