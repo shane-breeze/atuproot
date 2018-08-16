@@ -1,6 +1,10 @@
 import logging
 
 class BEvents(object):
+    non_branch_attrs = ["tree", "nevents_in_tree", "nevents_per_block",
+                        "nblocks", "start_block", "stop_block", "iblock",
+                        "start_entry", "stop_entry", "_branch_cache", "size",
+                        "config"]
     def __init__(self, tree,
                  nevents_per_block=100000,
                  start_block=0, stop_block=-1):
@@ -74,16 +78,12 @@ class BEvents(object):
         self.iblock = -1
 
     def __getattr__(self, attr):
-        if attr in ["tree", "nevents_in_tree", "nevents_per_block",
-                    "nblocks", "start_block", "stop_block", "iblock",
-                    "start_entry", "stop_entry", "_branch_cache", "size"]:
+        if attr in self.non_branch_attrs:
             return getattr(self, attr)
         return self._get_branch(attr)
 
     def __setattr__(self, attr, val):
-        if attr in ["tree", "nevents_in_tree", "nevents_per_block",
-                    "nblocks", "start_block", "stop_block", "iblock",
-                    "start_entry", "stop_entry", "_branch_cache", "size"]:
+        if attr in self.non_branch_attrs:
             super(BEvents, self).__setattr__(attr, val)
         else:
             self._branch_cache[attr] = val
