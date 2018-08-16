@@ -71,6 +71,7 @@ class SGEJobSubmitter(object):
         "WZTo2Q2Nu": 12,
         "SingleTop_s-channel_InclusiveDecays": 12,
         "ZGToLLG": 12,
+        "DYJetsToLL_Pt-0To50": 12,
     }
     walltime_dict = {}
     def __init__(self, queue="hep.q", walltime=7200, vmem=6):
