@@ -31,13 +31,13 @@ skim_collections = Readers.SkimCollections(
 
 jet_cross_cleaning = Readers.ObjectCrossCleaning(
     name = "jet_cross_cleaning",
-    clean_collections = ("Jet",),
+    collections = ("Jet",),
     ref_collections = ("MuonVeto", "ElectronVeto", "PhotonVeto"),
 )
 
 tau_cross_cleaning = Readers.ObjectCrossCleaning(
     name = "tau_cross_cleaning",
-    clean_collections = ("Tau",),
+    collections = ("Tau",),
     ref_collections = ("MuonVeto", "ElectronVeto"),
 )
 
@@ -53,7 +53,7 @@ event_sums_producer = Readers.EventSumsProducer(
 signal_region_blinder = Readers.SignalRegionBlinder(
     name = "signal_region_blinder",
     blind = True,
-    apply_to_mc = False,
+    apply_to_mc = True,
 )
 inv_mass_producer = Readers.InvMassProducer(
     name = "inv_mass_producer",

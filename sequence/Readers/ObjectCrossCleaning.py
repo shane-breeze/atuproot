@@ -11,19 +11,19 @@ class ObjectCrossCleaning(object):
         self.__dict__.update(kwargs)
 
     def event(self, event):
-        for clean_collection_name in self.clean_collections:
-            clean_collection = getattr(event, clean_collection_name)
+        for collection_name in self.collections:
+            collection = getattr(event, collection_name)
 
-            selections = np.ones(clean_collection.stops[-1], dtype=bool)
+            selections = np.ones(collection.stops[-1], dtype=bool)
             for ref_collection_name in self.ref_collections:
                 ref_collection = getattr(event, ref_collection_name)
-                selections = selections & comp(clean_collection, ref_collection)
+                selections = selections & comp(collection, ref_collection)
 
-
-            for name in ["Veto", "Selection"]:
-                old_selection = getattr(event, clean_collection_name+name).selection
+            for cat in ["Veto", "Selection"]:
+                new_collection_name = collection_name + cat
+                old_selection = getattr(event, new_collection_name).selection
                 new_selection = old_selection & selections
-                getattr(event, clean_collection_name+name).selection = new_selection
+                getattr(event, new_collection_name).selection = new_selection
 
 def comp(coll1, coll2):
     return comp_jit(coll1.eta.content, coll1.phi.content,
