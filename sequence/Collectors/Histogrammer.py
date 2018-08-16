@@ -24,6 +24,7 @@ class HistReader(object):
             sample_colours = cfg.sample_colours,
             axis_label = cfg.axis_label,
         )
+        self.split_lepton_decays = True
         self.__dict__.update(kwargs)
 
         self.histogram_cfgs = []
@@ -88,40 +89,55 @@ class HistReader(object):
             weight = histogram_cfg["weight"]
 
             selection = getattr(event, "Cutflow_{}".format(cutflow))
-            weights = self.string_conv_func[weight](event)[selection]
 
-            variables = [self.string_conv_func[variable](event)[selection]
-                         for variable in histogram_cfg["variables"]]
-            bins = histogram_cfg["bins"]
-            weights1 = [weights]*len(variables)
-            weights2 = [weights**2]*len(variables)
-
-            if len(variables) == 1:
-                variables = variables[0]
-                bins = bins[0]
-                weights1 = weights1[0]
-                weights2 = weights2[0]
-
-            hist_counts, hist_bins = np.histogram(variables, bins=bins)
-            hist_yields = np.histogram(variables, bins=bins, weights=weights1)[0]
-            hist_variance = np.histogram(variables, bins=bins, weights=weights2)[0]
-
-            identifier = histogram_cfg["name"]
-            if identifier not in self.histograms:
-                self.histograms[identifier] = {
-                    "bins": hist_bins,
-                    "counts": hist_counts,
-                    "yields": hist_yields,
-                    "variance": hist_variance,
+            # adjust selection for DYJetsToLL and WJetsToLNu to select the
+            # lepton's flavour
+            if self.parent in ["DYJetsToLL", "WJetsToLNu"] and self.split_lepton_decays:
+                selections = {
+                    self.parent.replace("L", "E"): (selection & event.LeptonIsElectron),
+                    self.parent.replace("L", "Mu"): (selection & event.LeptonIsMuon),
+                    self.parent.replace("L", "Tau"): (selection & event.LeptonIsTau),
                 }
             else:
-                histogram = self.histograms[identifier]
-                self.histograms[identifier] = {
-                    "bins": histogram["bins"],
-                    "counts": histogram["counts"] + hist_counts,
-                    "yields": histogram["yields"] + hist_yields,
-                    "variance": histogram["variance"] + hist_variance,
+                selections = {
+                    self.parent: selection,
                 }
+
+            for p, s in selections.items():
+                weights = self.string_conv_func[weight](event)[s]
+
+                variables = [self.string_conv_func[variable](event)[s]
+                             for variable in histogram_cfg["variables"]]
+                bins = histogram_cfg["bins"]
+                weights1 = [weights]*len(variables)
+                weights2 = [weights**2]*len(variables)
+
+                if len(variables) == 1:
+                    variables = variables[0]
+                    bins = bins[0]
+                    weights1 = weights1[0]
+                    weights2 = weights2[0]
+
+                hist_counts, hist_bins = np.histogram(variables, bins=bins)
+                hist_yields = np.histogram(variables, bins=bins, weights=weights1)[0]
+                hist_variance = np.histogram(variables, bins=bins, weights=weights2)[0]
+
+                identifier = histogram_cfg["name"][0], p, histogram_cfg["name"][1]
+                if identifier not in self.histograms:
+                    self.histograms[identifier] = {
+                        "bins": hist_bins,
+                        "counts": hist_counts,
+                        "yields": hist_yields,
+                        "variance": hist_variance,
+                    }
+                else:
+                    histogram = self.histograms[identifier]
+                    self.histograms[identifier] = {
+                        "bins": histogram["bins"],
+                        "counts": histogram["counts"] + hist_counts,
+                        "yields": histogram["yields"] + hist_yields,
+                        "variance": histogram["variance"] + hist_variance,
+                    }
 
     def merge(self, other):
         """
@@ -160,20 +176,17 @@ class HistCollector(object):
         """
         histograms = {}
         for dataset, readers in dataset_readers_list:
-            parent = readers[0].dataset.parent
-
             for identifier, old_histogram in readers[0].histograms.items():
-                new_identifier = (identifier[0], parent, identifier[1])
-                if new_identifier in histograms:
-                    histogram = histograms[new_identifier]
-                    histograms[new_identifier] = {
+                if identifier in histograms:
+                    histogram = histograms[identifier]
+                    histograms[identifier] = {
                         "bins": histogram["bins"],
                         "counts": old_histogram["counts"] + histogram["counts"],
                         "yields": old_histogram["yields"] + histogram["yields"],
                         "variance": old_histogram["variance"] + histogram["variance"],
                     }
                 else:
-                    histograms[new_identifier] = {
+                    histograms[identifier] = {
                         "bins": old_histogram["bins"],
                         "counts": old_histogram["counts"],
                         "yields": old_histogram["yields"],
@@ -224,13 +237,17 @@ class HistCollector(object):
                         "counts": histograms[(cutflow, mc_parent, histname)]["counts"],
                         "yields": histograms[(cutflow, mc_parent, histname)]["yields"],
                         "variance": histograms[(cutflow, mc_parent, histname)]["variance"],
-                    } for mc_parent in ['DYJetsToLL', 'Diboson', 'EWKV2Jets',
-                                        'G1Jet', 'QCD', 'SingleTop', 'TTJets',
-                                        'VGamma', 'WJetsToLNu', 'ZJetsToNuNu']]
+                    } for mc_parent in ['DYJetsToEE', 'DYJetsToMuMu', 'DYJetsToTauTau',
+                                        'WJetsToENu', 'WJetsToMuNu', 'WJetsToTauNu',
+                                        'ZJetsToNuNu', 'TTJets', 'SingleTop',
+                                        'QCD', 'Diboson', 'EWKV2Jets',
+                                        'G1Jet', 'VGamma']]
                 except KeyError:
-                    for mc_parent in ['DYJetsToLL', 'Diboson', 'EWKV2Jets',
-                                      'G1Jet', 'QCD', 'SingleTop', 'TTJets',
-                                      'VGamma', 'WJetsToLNu', 'ZJetsToNuNu']:
+                    for mc_parent in ['DYJetsToEE', 'DYJetsToMuMu', 'DYJetsToTauTau',
+                                      'WJetsToENu', 'WJetsToMuNu', 'WJetsToTauNu',
+                                      'ZJetsToNuNu', 'TTJets', 'SingleTop',
+                                      'QCD', 'Diboson', 'EWKV2Jets',
+                                      'G1Jet', 'VGamma']:
                         key = (cutflow, mc_parent, histname)
                         if key not in histograms:
                             logger.warning("{} not in output".format(key))
