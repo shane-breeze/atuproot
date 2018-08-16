@@ -21,7 +21,9 @@ class WeightQcdEwk(object):
                                       self.bin_min, self.bin_max,
                                       self.correction)
         event.WeightEW = 1. + weights
-        event.Weight *= event.WeightEW
+        event.Weight_MET *= event.WeightEW
+        event.Weight_SingleMuon *= event.WeightEW
+        event.Weight_SingleElectron *= event.WeightEW
 
 @njit
 def get_corrections(boson_pts, bin_mins, bin_maxs, corrections):

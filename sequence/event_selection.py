@@ -23,7 +23,6 @@ tau_veto = "ev: (ev.TauSelection.size == ev.TauVeto.size) & (ev.TauVeto.size == 
 mtw_selection = "ev: (ev.MTW >= 30.) & (ev.MTW < 125.)"
 mll_selection = "ev: (ev.MLL >= 71.) & (ev.MLL < 111.)"
 
-large_weight_selection = "ev: (ev.Weight < 100.)"
 ngen_boson_selection = "ev: True if ev.config.parent not in 'EWKV2Jets' else (ev.nGenBosons==1)"
 
 blind_mask = "ev: ev.BlindMask"
@@ -34,9 +33,7 @@ data_selection = [
     trigger_selection,
 ]
 
-mc_selection = [
-    large_weight_selection,
-]
+mc_selection = []
 
 baseline_selection = [
     filter_selection,

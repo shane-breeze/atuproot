@@ -9,4 +9,7 @@ class WeightXsLumi(object):
                                for associates in event.config.dataset.associates])
 
     def event(self, event):
-        event.Weight *= (self.xs * self.lumi / self.sumweights) * event.genWeight
+        corrs = (self.xs * self.lumi / self.sumweights) * event.genWeight
+        event.Weight_MET *= corrs
+        event.Weight_SingleMuon *= corrs
+        event.Weight_SingleElectron *= corrs

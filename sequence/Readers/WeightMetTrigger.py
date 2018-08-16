@@ -25,7 +25,7 @@ class WeightMetTrigger(object):
             self.cats, self.bins, self.corr, self.corr_up, self.corr_down,
             nmuons, met,
         )
-        event.Weight *= corrs
+        event.Weight_MET *= corrs
         event.Weight_metTrigSFUp = np.divide(corrs_up, corrs,
                                              out=np.zeros_like(corrs_up),
                                              where=corrs!=0)

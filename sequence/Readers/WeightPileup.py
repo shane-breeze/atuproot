@@ -27,7 +27,9 @@ class WeightPileup(object):
         event.Weight_pileupUp = corr_up
         event.Weight_pileupDown = corr_down
 
-        event.Weight *= corr
+        event.Weight_MET *= corr
+        event.Weight_SingleMuon *= corr
+        event.Weight_SingleElectron *= corr
 
 @njit
 def get_correction(indices, corrections):
