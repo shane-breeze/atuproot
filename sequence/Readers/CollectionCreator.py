@@ -3,18 +3,20 @@ import uproot
 from numba import njit, int32
 
 @njit
-def create_new_stops(selection, starts, lens):
-    nev = lens.shape[0]
+def create_boundaries(selection, starts, stops):
+    nev = stops.shape[0]
+    new_starts = np.zeros(nev, dtype=int32)
     new_stops = np.zeros(nev, dtype=int32)
 
     count = 0
-    for iev in range(nev):
-        for ij in range(lens[iev]):
-            rij = starts[iev]+ij
-            if selection[rij]:
+    for iev, (start, stop) in enumerate(zip(starts, stops)):
+        new_starts[iev] = count
+        for iobj in range(start, stop):
+            if selection[iobj]:
                 count += 1
         new_stops[iev] = count
-    return new_stops
+
+    return new_starts, new_stops
 
 class Collection(object):
     def __init__(self, name, event, ref_name=None, selection=None):
@@ -49,11 +51,9 @@ class Collection(object):
         ref_branch = getattr(getattr(self.event, self.ref_name), attr)
 
         if hasattr(ref_branch, "starts"):
-            new_stops = create_new_stops(
-                self.selection, ref_branch.starts, ref_branch.stops-ref_branch.starts,
+            new_starts, new_stops = create_boundaries(
+                self.selection, ref_branch.starts, ref_branch.stops,
             )
-            new_starts = np.roll(new_stops, 1)
-            new_starts[0] = 0
 
             array = uproot.interp.jagged.JaggedArray(
                 ref_branch.content[self.selection],
@@ -69,7 +69,7 @@ class Collection(object):
         return self.apply_selection(func)
 
     def __repr__(self):
-        return "{}({!r}, {!r}, {!r})".format(
+        return "{}(name = {!r}, ref_name = {!r}, selection = {!r})".format(
             self.__class__.__name__,
             self.name,
             self.ref_name,
