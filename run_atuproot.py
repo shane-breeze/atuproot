@@ -62,8 +62,8 @@ def run(sequence, datasets, options):
 
 def redraw(sequence, datasets, options):
     for (reader, collector) in sequence:
-        if hasattr(collector, "reread"):
-            collector.reread(options.outdir)
+        if hasattr(collector, "reload"):
+            collector.reload(options.outdir)
 
 if __name__ == "__main__":
     options = parse_args()

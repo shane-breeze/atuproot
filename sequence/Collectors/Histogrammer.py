@@ -1,22 +1,17 @@
 from collections import namedtuple
-import logging
-import numpy as np
 import os
-import pickle
 
-from utils.Lambda import Lambda
 from drawing.dist_ratio import dist_ratio
-
 from utils.Histogramming import Histogram, Histograms
 
 # Take the cfg module and drop unpicklables
-Config = namedtuple("Config", "histogrammer_cfgs sample_colours axis_label")
+Config = namedtuple("Config", "sample_names sample_colours axis_label")
 
 class HistReader(object):
     def __init__(self, **kwargs):
         cfg = kwargs.pop("cfg")
         self.cfg = Config(
-            histogrammer_cfgs = cfg.histogrammer_cfgs,
+            sample_names = cfg.sample_names,
             sample_colours = cfg.sample_colours,
             axis_label = cfg.axis_label,
         )
@@ -25,14 +20,12 @@ class HistReader(object):
 
         # convert cfg to histogram classes
         configs = []
-        for cfg in self.cfg.histogrammer_cfgs:
+        for cfg in cfg.histogrammer_cfgs:
             # expand categories
             for dataset, cutflow in cfg["categories"]:
                 cutflow_restriction = "ev: ev.Cutflow_{}".format(cutflow)
                 selection = [cutflow_restriction]
-                weight = "ev: ev.Weight_{}".format(dataset)
-                if "additional_weights" in cfg:
-                    weight += " * ".join(cfg["additional_weights"])
+                weight = cfg["weight"].format(dataset=dataset)
                 identifier = (dataset, cutflow, None, cfg["name"])
 
                 configs.append({
@@ -69,7 +62,7 @@ class HistCollector(object):
         # drop unpicklables
         cfg = kwargs.pop("cfg")
         self.cfg = Config(
-            histogrammer_cfgs = cfg.histogrammer_cfgs,
+            sample_names = cfg.sample_names,
             sample_colours = cfg.sample_colours,
             axis_label = cfg.axis_label,
         )
@@ -87,70 +80,49 @@ class HistCollector(object):
             else:
                 histograms.merge(readers[0].histograms)
         histograms.save(self.outdir)
-        #self.draw(histograms)
+        if self.plot:
+            self.draw(histograms)
         return dataset_readers_list
 
-#    def draw(self, histograms):
-#        """
-#        Setup everything required for the drawing function
-#        """
-#        logger = logging.getLogger(__name__)
-#        cutflow_histnames = list(set([(k[0], k[2]) for k in histograms]))
-#
-#        for cutflow, histname in cutflow_histnames:
-#            for data_parent in ["MET", "SingleMuon"]:
-#                key = (cutflow, data_parent, histname)
-#                if key not in histograms:
-#                    logger.warning("{} not in output".format(key))
-#                    continue
-#                histogram = histograms[key]
-#
-#                hist_data = {
-#                    "name": histname,
-#                    "sample": data_parent,
-#                    "bins": histogram["bins"],
-#                    "counts": histogram["counts"],
-#                    "yields": histogram["yields"],
-#                    "variance": histogram["variance"],
-#                }
-#
-#                try:
-#                    hists_mc = [{
-#                        "name": histname,
-#                        "sample": mc_parent,
-#                        "bins": histograms[(cutflow, mc_parent, histname)]["bins"],
-#                        "counts": histograms[(cutflow, mc_parent, histname)]["counts"],
-#                        "yields": histograms[(cutflow, mc_parent, histname)]["yields"],
-#                        "variance": histograms[(cutflow, mc_parent, histname)]["variance"],
-#                    } for mc_parent in ['DYJetsToEE', 'DYJetsToMuMu', 'DYJetsToTauTau',
-#                                        'WJetsToENu', 'WJetsToMuNu', 'WJetsToTauNu',
-#                                        'ZJetsToNuNu', 'TTJets', 'SingleTop',
-#                                        'QCD', 'Diboson', 'EWKV2Jets',
-#                                        'G1Jet', 'VGamma']]
-#                except KeyError:
-#                    for mc_parent in ['DYJetsToEE', 'DYJetsToMuMu', 'DYJetsToTauTau',
-#                                      'WJetsToENu', 'WJetsToMuNu', 'WJetsToTauNu',
-#                                      'ZJetsToNuNu', 'TTJets', 'SingleTop',
-#                                      'QCD', 'Diboson', 'EWKV2Jets',
-#                                      'G1Jet', 'VGamma']:
-#                        key = (cutflow, mc_parent, histname)
-#                        if key not in histograms:
-#                            logger.warning("{} not in output".format(key))
-#                    continue
-#
-#                path = os.path.join(self.outdir, self.name, cutflow, "plots", data_parent)
-#                if not os.path.exists(path):
-#                    os.makedirs(path)
-#
-#                #dist_ratio(
-#                #    hist_data,
-#                #    hists_mc,
-#                #    os.path.join(path, histname),
-#                #    self.cfg,
-#                #)
+    def draw(self, histograms):
+        datasets = list(set(n[0] for n, h in histograms.histograms))
+        for dataset, cutflow, histname in set((n[0], n[1], n[3]) for n, h in histograms.histograms):
+            hist_data = None
+            hists_mc = []
+            for n, h in histograms.histograms:
+                if (n[0], n[1], n[3]) != (dataset, cutflow, histname):
+                    continue
+
+                if n[2] in datasets and dataset != n[2]:
+                    continue
+
+                plot_item = {
+                    "name": n[3],
+                    "sample": n[2],
+                    "bins": h.histogram["bins"],
+                    "counts": h.histogram["counts"],
+                    "yields": h.histogram["yields"],
+                    "variance": h.histogram["variance"],
+                }
+                if n[2] == dataset:
+                    hist_data = plot_item
+                else:
+                    hists_mc.append(plot_item)
+
+            path = os.path.join(self.outdir, self.name, dataset, cutflow, "plots")
+            if not os.path.exists(path):
+                os.makedirs(path)
+
+            dist_ratio(
+                hist_data,
+                hists_mc,
+                os.path.join(path, histname),
+                self.cfg,
+            )
+        return histograms
 
     def reload(self, outdir):
-        self.histograms = Histograms()
-        self.histograms.reload(outdir)
-        #self.draw(histograms)
-        return self.histograms
+        histograms = Histograms()
+        histograms.reload(os.path.join(outdir, self.name))
+        self.draw(histograms)
+        return histograms

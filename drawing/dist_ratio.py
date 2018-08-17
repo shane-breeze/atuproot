@@ -1,170 +1,133 @@
 from misc.cms_tdr_style import cms_tdr_style
-from misc.cms_header import cms_header
-from misc.set_hist_style import set_hist_style
-from misc.draw_line import draw_line
+#from misc.cms_header import cms_header
+#from misc.set_hist_style import set_hist_style
+#from misc.draw_line import draw_line
 import numpy as np
-from random import getrandbits
+import matplotlib.pyplot as plt
 
-try:
-    from rootpy.plotting import Canvas, Pad, Legend, Hist, HistStack
-    from rootpy.plotting.utils import draw
-    has_rootpy = True
-except ImportError:
-    has_rootpy = False
+def taper_and_drop(hist):
+    hist["counts"][-2] += hist["counts"][-1]
+    hist["yields"][-2] += hist["yields"][-1]
+    hist["variance"][-2] += hist["variance"][-1]
 
-class Histogram(object):
-    def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
+    hist["bins"] = hist["bins"][1:-1]
+    hist["counts"] = hist["counts"][1:-1]
+    hist["yields"] = hist["yields"][1:-1]
+    hist["variance"] = hist["variance"][1:-1]
 
-def convert_to_hist(histogram):
-    bins = histogram.bins[1:-1]
-    new_hist = Hist(bins)
-    new_hist.Sumw2(True)
-    for idx in range(len(new_hist)):
-        new_hist[idx].value = histogram.yields[idx]
-        new_hist[idx].error = np.sqrt(histogram.variance[idx])
+    return hist
 
-    new_hist[-2].value += new_hist[-1].value
-    new_hist[-2].error = np.sqrt(new_hist[-2].error**2 + new_hist[-1].error**2)
-
-    return new_hist
-
-def dist_ratio(hist_data_cfg, hists_mc_cfg, filepath, cfg):
-    if not has_rootpy:
-        return
-    cms_tdr_style()
-
-    hist_data = Histogram(**hist_data_cfg)
-    hists_mc = [Histogram(**hist_mc_cfg) for hist_mc_cfg in hists_mc_cfg]
-
-    hists_mc_sum = Histogram(name = hists_mc[0].name,
-                             sample = hists_mc[0].sample,
-                             bins = hists_mc[0].bins,
-                             counts = sum([hist_mc.counts
-                                           for hist_mc in hists_mc]),
-                             yields = sum([hist_mc.yields
-                                           for hist_mc in hists_mc]),
-                             variance = sum([hist_mc.variance
-                                             for hist_mc in hists_mc]))
-
-    hist_data.hist = convert_to_hist(hist_data)
-    set_hist_style(hist_data.hist, kind="data")
-    hist_data.hist.linecolor = "black"
-    hist_data.hist.markercolor = "black"
-    for hist_mc in hists_mc:
-        hist_mc.hist = convert_to_hist(hist_mc)
-        set_hist_style(hist_mc.hist, kind="mc")
-        hist_mc.hist.linecolor = cfg.sample_colours[hist_mc.sample] if hist_mc.sample in cfg.sample_colours else "black"
-        hist_mc.hist.fillcolor = cfg.sample_colours[hist_mc.sample] if hist_mc.sample in cfg.sample_colours else "black"
-        hist_mc.hist.fillstyle = 1001
-    hists_mc_sum.hist = convert_to_hist(hists_mc_sum)
-    set_hist_style(hists_mc_sum.hist, kind="mc")
-    hists_mc_sum.hist.linecolor = "black"
-    hists_mc_sum.hist.markercolor = "black"
-
-    hists_mc = sorted(hists_mc, key=lambda x: x.hist.integral(overflow=True))
-    stack_mc = HistStack([h.hist for h in hists_mc], drawstyle='hist')
-
-    try:
-        data_mini = min([hbin.value
-                         for hbin in hist_data.hist
-                         if hbin.value>0.])
-        data_maxi = max([hbin.value
-                         for hbin in hist_data.hist
-                         if hbin.value>0.])
-    except ValueError:
-        data_mini, data_maxi = 1., 100.
-    try:
-        mc_sum_mini = min([hbin.value
-                           for hbin in hists_mc_sum.hist
-                           if hbin.value>0.])
-        mc_sum_maxi = max([hbin.value
-                           for hbin in hists_mc_sum.hist
-                           if hbin.value>0.])
-    except ValueError:
-        mc_sum_mini, mc_sum_maxi = 1., 100.
-
-    try:
-        mc_sep_mini = min([hbin.value
-                           for hbin in hists_mc[0].hist
-                           if hbin.value>0.])
-    except ValueError:
-        mc_sep_mini = data_mini
-
-    mini = max(min(mc_sum_mini, data_mini, mc_sep_mini), 0.5)
-    maxi = max(mc_sum_maxi, data_maxi)
-
-    # legend boundary
-
-    new_ymin = pow(10, 1.1*np.log10(mini) - 0.1*np.log10(maxi))
-    new_ymax = pow(10, 1.1*np.log10(maxi) - 0.1*np.log10(mini))
-
-    canvas = Canvas(height=750, width=650)
-    padtop = Pad(0., 0.3, 1.0, 1.0)
-    padbot = Pad(0., 0., 1.0, 0.3)
-
-    canvas.margin = 0.12, 0.06, 0.35, 0.1
-    padtop.margin = 0.12, 0.06, 0.01, 0.1
-    padbot.margin = 0.12, 0.06, 0.35, 0.01
-
-    canvas.cd()
-    padtop.Draw()
-    padbot.Draw()
-
-    xaxis, yaxis = hist_data.hist.xaxis, hist_data.hist.yaxis
-    xaxis.set_tick_length(0.03*10./7.)
-    xaxis.set_label_size(0.030*10./7.)
-    xaxis.set_title_size(0.035*10./7.)
-    yaxis.set_label_size(0.030*10./7.)
-    yaxis.set_title_size(0.035*10./7.)
-
-    (xaxis, yaxis), ranges = draw(
-        [hist_data.hist, stack_mc, hists_mc_sum.hist, hist_data.hist],
-        pad = padtop,
-        ylimits = (new_ymin, new_ymax),
-        logy = True,
-        ytitle = "",
+def dist_ratio(hist_data, hists_mc, filepath, cfg):
+    #cms_tdr_style()
+    fig, (axtop, axbot) = plt.subplots(
+        nrows=2, ncols=1, sharex='col', sharey=False,
+        gridspec_kw={'height_ratios': [3, 1]},
+        figsize = (4.8, 6.4),
     )
 
-    ratio = hist_data.hist.clone("rand{:0x}".format(getrandbits(6*4)))
-    ratio.set_directory(None)
+    if hist_data is not None:
+        hist_data = taper_and_drop(hist_data)
+    hists_mc = [taper_and_drop(h) for h in hists_mc]
 
-    for idx in range(len(ratio)):
-        try:
-            ratio[idx].value = hist_data.hist[idx].value / \
-                               hists_mc_sum.hist[idx].value
-            ratio[idx].error = hist_data.hist[idx].error / \
-                               hists_mc_sum.hist[idx].value
-        except ZeroDivisionError:
-            ratio[idx].value = 0.
-            ratio[idx].error = 0.
+    hist_mc_sum = {
+        "name": hists_mc[0]["name"],
+        "sample": hists_mc[0]["sample"],
+        "bins": hists_mc[0]["bins"],
+        "counts": sum(h["counts"] for h in hists_mc),
+        "yields": sum(h["yields"] for h in hists_mc),
+        "variance": sum(h["variance"] for h in hists_mc),
+    }
+    hists_mc = sorted(hists_mc, key=lambda x: x["yields"].sum())
 
-    xaxis, yaxis = ratio.xaxis, ratio.yaxis
-    xaxis.set_tick_length(0.03*10./7.)
-    xaxis.set_label_size(0.030*10./3.)
-    xaxis.set_title_size(0.035*10./3.)
-    xaxis.set_title_offset(1.2)
-    yaxis.set_label_size(0.030*10./3.)
-    yaxis.set_title_size(0.035*10./3.)
-    yaxis.set_title_offset(0.5)
-
-    (xaxis, yaxis), ranges = draw(
-        [ratio],
-        pad = padbot,
-        ylimits = (0.45, 1.55),
-        xtitle = cfg.axis_label[hist_data.name] if hist_data.name in cfg.axis_label else hist_data.name,
-        ytitle = "Data / SM total",
+    bins = hist_data["bins"]
+    axtop.hist(
+        [h["yields"] for h in hists_mc],
+        bins = hists_mc[0]["bins"],
+        log = True,
+        stacked = True,
+        color = [cfg.sample_colours[h["sample"]]
+                 if h["sample"] in cfg.sample_colours
+                 else "blue"
+                 for h in hists_mc],
+        label = [cfg.sample_names[h["sample"]]
+                 if h["sample"] in cfg.sample_names
+                 else h["sample"]
+                 for h in hists_mc],
     )
 
-    padbot.cd()
-    draw_line(ranges[0], 1., ranges[1], 1.)
+    axtop.errorbar(
+        (bins[1:] + bins[:-1])/2,
+        hist_data["yields"],
+        yerr = np.sqrt(hist_data["variance"]),
+        fmt = 'o',
+        markersize = 3,
+        linewidth = 1,
+        capsize = 1.8,
+        color = cfg.sample_colours[hist_data["sample"]] \
+                if hist_data["sample"] in cfg.sample_colours \
+                else "black",
+        label = cfg.sample_names[hist_data["sample"]] \
+                 if hist_data["sample"] in cfg.sample_names \
+                 else hist_data["sample"],
+    )
+    axtop.set_xlim(bins[0], bins[-1])
+    ymin = max(axtop.get_ylim()[0], 0.5)
+    axtop.set_ylim(ymin, None)
 
-    padtop.cd()
-    cms_header(size=0.035*10./7.)
+    axtop.text(0, 1, r'$\mathbf{CMS}\ \mathit{Preliminary}$',
+               horizontalalignment='left',
+               verticalalignment='bottom',
+               transform=axtop.transAxes,
+               fontsize='large')
 
-    canvas.save_as(filepath + ".pdf")
-    #canvas.save_as(filepath + ".png")
+    axtop.text(1, 1, r'$35.9\ \mathrm{fb}^{-1}(13\ \mathrm{TeV})$',
+               horizontalalignment='right',
+               verticalalignment='bottom',
+               transform=axtop.transAxes,
+               fontsize='large')
 
-    padtop.close()
-    padbot.close()
-    canvas.close()
+    handles, labels = axtop.get_legend_handles_labels()
+    mc_sum = hist_mc_sum["yields"].sum()
+    labels = [l+" {:.1f}%".format(100.*h["yields"].sum()/mc_sum) for l, h in zip(labels[:-1], hists_mc)]+[labels[-1]+" {:.1f}%".format(100.*hist_data["yields"].sum()/mc_sum)]
+    axtop.legend(handles[::-1], labels[::-1])
+
+    axbot.errorbar(
+        (bins[1:] + bins[:-1])/2,
+        hist_data["yields"] / hist_mc_sum["yields"],
+        yerr = np.sqrt(hist_data["variance"]) / hist_mc_sum["yields"],
+        fmt = 'o',
+        markersize = 3,
+        linewidth = 1,
+        capsize = 1.8,
+        color = 'black',
+    )
+
+    axbot.fill_between(
+        bins,
+        list(1. - (np.sqrt(hist_mc_sum["variance"]) / hist_mc_sum["yields"])) + [1.],
+        list(1. + (np.sqrt(hist_mc_sum["variance"]) / hist_mc_sum["yields"])) + [1.],
+        step = 'post',
+        color = "#aaaaaa",
+    )
+
+    axbot.set_xlim(bins[0], bins[-1])
+    axbot.set_ylim(0.5, 1.5)
+
+    axbot.set_xlabel(cfg.axis_label[hist_data["name"]]
+                     if hist_data["name"] in cfg.axis_label
+                     else hist_data["name"],
+                     fontsize='large')
+    axbot.set_ylabel("Data / SM Total",
+                     fontsize='large')
+
+    axbot.plot(
+        [bins[0], bins[-1]],
+        [1., 1.],
+        color = 'black',
+        linestyle = ':',
+    )
+
+    print("Creating {}".format(filepath+".pdf"))
+    plt.tight_layout()
+    fig.savefig(filepath+".pdf", bbox_inches="tight")
+    plt.close(fig)

@@ -156,8 +156,8 @@ class Histograms(object):
             if "plot" in dirpath or len(filenames)==0:
                 continue
 
-            for filename in filesnames:
-                identifier = tuple(dirpath.split("/")[1:] + [os.splitext(filename)[0]])
+            for filename in filenames:
+                identifier = tuple(dirpath.split("/")[2:] + [os.path.splitext(filename)[0]])
                 histogram = Histogram(identifier[-1])
                 histogram.reload(os.path.join(dirpath, filename))
                 self.append(identifier, histogram)
