@@ -4,13 +4,16 @@ from utils.Colours import colours_dict
 inf = np.infty
 pi = np.pi+0.00001
 
-monojet_categories = [("MET", "Monojet"), ("MET", "MonojetQCDSB"), ("MET", "MonojetQCDSR")]
+monojet_categories = [("MET", "Monojet"), ("MET", "MonojetSB"), ("MET", "MonojetSR"),
+                      ("MET", "MonojetQCD"), ("MET", "MonojetQCDSB"), ("MET", "MonojetQCDSR")]
 
-muon_categories = [("MET", "SingleMuon"), ("SingleMuon", "SingleMuon")]
-dimuon_categories = [("MET", "DoubleMuon"), ("SingleMuon", "DoubleMuon")]
+muon_categories = [("MET", "SingleMuon"), ("MET", "SingleMuonSB"), ("MET", "SingleMuonSR"),
+                   ("SingleMuon", "SingleMuon"), ("SingleMuon", "SingleMuonSB"), ("SingleMuon", "SingleMuonSR")]
+dimuon_categories = [("MET", "DoubleMuon"), ("MET", "DoubleMuonSB"), ("MET", "DoubleMuonSR"),
+                     ("SingleMuon", "DoubleMuon"),("SingleMuon", "DoubleMuonSB"), ("SingleMuon", "DoubleMuonSR")]
 
-ele_categories = [("MET", "SingleElectron")]#, ("SingleElectron", "DoubleElectron")]
-diele_categories = [("MET", "DoubleElectron")]#, ("SingleElectron", "DoubleElectron")]
+ele_categories = [("MET", "SingleElectron"), ("MET", "SingleElectronSB"), ("MET", "SingleElectronSR")]
+diele_categories = [("MET", "DoubleElectron"), ("MET", "DoubleElectronSB"), ("MET", "DoubleElectronSR")]
 
 categories = monojet_categories + muon_categories + dimuon_categories + \
                                   ele_categories + diele_categories
