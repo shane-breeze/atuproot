@@ -17,7 +17,7 @@ def taper_and_drop(hist):
 
     return hist
 
-def dist_ratio(hist_data, hists_mc, filepath, cfg):
+def dist_ratio((hist_data, hists_mc, filepath, cfg)):
     #cms_tdr_style()
     fig, (axtop, axbot) = plt.subplots(
         nrows=2, ncols=1, sharex='col', sharey=False,
@@ -88,8 +88,11 @@ def dist_ratio(hist_data, hists_mc, filepath, cfg):
 
     handles, labels = axtop.get_legend_handles_labels()
     mc_sum = hist_mc_sum["yields"].sum()
-    labels = [l+" {:.1f}%".format(100.*h["yields"].sum()/mc_sum) for l, h in zip(labels[:-1], hists_mc)]+[labels[-1]+" {:.1f}%".format(100.*hist_data["yields"].sum()/mc_sum)]
-    axtop.legend(handles[::-1], labels[::-1])
+    labels = [l+" {:.2f}".format(h["yields"].sum()/mc_sum)
+              for l, h in zip(labels[:-1], hists_mc)] + \
+             [labels[-1]+" {:.2f}".format(hist_data["yields"].sum()/mc_sum)]
+    axtop.legend(handles[::-1], labels[::-1],
+                 labelspacing = 0.1)
 
     axbot.errorbar(
         (bins[1:] + bins[:-1])/2,
@@ -108,7 +111,11 @@ def dist_ratio(hist_data, hists_mc, filepath, cfg):
         list(1. + (np.sqrt(hist_mc_sum["variance"]) / hist_mc_sum["yields"])) + [1.],
         step = 'post',
         color = "#aaaaaa",
+        label = "MC stat. unc.",
     )
+
+    handles, labels = axbot.get_legend_handles_labels()
+    axbot.legend(handles, labels)
 
     axbot.set_xlim(bins[0], bins[-1])
     axbot.set_ylim(0.5, 1.5)
@@ -127,7 +134,8 @@ def dist_ratio(hist_data, hists_mc, filepath, cfg):
         linestyle = ':',
     )
 
-    print("Creating {}".format(filepath+".pdf"))
+    print("Creating {}".format(filepath))
+
     plt.tight_layout()
-    fig.savefig(filepath+".pdf", bbox_inches="tight")
+    fig.savefig(filepath+".pdf", format="pdf", bbox_inches="tight")
     plt.close(fig)
