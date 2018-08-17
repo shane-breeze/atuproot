@@ -31,13 +31,21 @@ class Histogram(object):
             for s in self.selection
         ])
 
-        weights = self.string_to_func[self.weight](event)[selection]
-        variables = [self.string_to_func[v](event)[selection]
-                     for v in self.variables]
+        weight = self.string_to_func[self.weight](event)[selection]
+
+        variables = []
+        weights = []
+        for v in self.variables:
+            try:
+                variables.append(self.string_to_func[v](event)[selection])
+                weights.append(weight)
+            except AttributeError:
+                variables.append(np.array([]))
+                weights.append(np.array([]))
 
         bins = self.bins
-        weights1 = [weights]*len(variables)
-        weights2 = [weights**2]*len(variables)
+        weights1 = weights
+        weights2 = [w**2 for w in weights]
 
         if len(variables) == 1:
             variables = variables[0]
