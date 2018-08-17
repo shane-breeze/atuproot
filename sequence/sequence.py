@@ -126,17 +126,9 @@ hist_reader = Collectors.HistReader(
 )
 hist_collector = Collectors.HistCollector(
     name = "hist_collector",
+    plot = True,
     cfg = Collectors.Histogrammer_cfg,
 )
-
-#qcdewk_reader = Collectors.HistReader(
-#    name = "qcdewk_reader",
-#    cfg = Collectors.QcdEwk_cfg,
-#)
-#qcdewk_collector = Collectors.QcdEwkCollector(
-#    name = "qcdewk_collector",
-#    cfg = Collectors.QcdEwk_cfg,
-#)
 
 sequence = [
     # Creates object collections accessible through the event variable. e.g.
@@ -176,5 +168,4 @@ sequence = [
     # Add collectors (with accompanying readers) at the end so that all
     # event attributes are available to them
     (hist_reader, hist_collector),
-    #(qcdewk_reader, qcdewk_collector),
 ]
