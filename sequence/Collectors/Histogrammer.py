@@ -1,5 +1,6 @@
 from collections import namedtuple
 import os
+from multiprocessing import Pool
 
 from drawing.dist_ratio import dist_ratio
 from utils.Histogramming import Histogram, Histograms
@@ -86,7 +87,25 @@ class HistCollector(object):
 
     def draw(self, histograms):
         datasets = list(set(n[0] for n, h in histograms.histograms))
-        for dataset, cutflow, histname in set((n[0], n[1], n[3]) for n, h in histograms.histograms):
+
+        dataset_cutflow_histnames = set((n[0], n[1], n[3]) for n, h in histograms.histograms)
+        dataset_cutflow_histnames = sorted(
+            sorted(
+                sorted(
+                    dataset_cutflow_histnames,
+                    key = lambda x: x[2],
+                ),
+                key = lambda x: x[1],
+            ),
+            key = lambda x: x[0],
+        )
+
+        args = []
+        for dataset, cutflow, histname in dataset_cutflow_histnames:
+            path = os.path.join(self.outdir, dataset, cutflow, "plots")
+            if not os.path.exists(path):
+                os.makedirs(path)
+
             hist_data = None
             hists_mc = []
             for n, h in histograms.histograms:
@@ -109,16 +128,11 @@ class HistCollector(object):
                 else:
                     hists_mc.append(plot_item)
 
-            path = os.path.join(self.outdir, self.name, dataset, cutflow, "plots")
-            if not os.path.exists(path):
-                os.makedirs(path)
+            args.append([hist_data, hists_mc, os.path.join(path, histname), self.cfg])
 
-            dist_ratio(
-                hist_data,
-                hists_mc,
-                os.path.join(path, histname),
-                self.cfg,
-            )
+        pool = Pool(processes=8)
+        pool.map(dist_ratio, args)
+
         return histograms
 
     def reload(self, outdir):
