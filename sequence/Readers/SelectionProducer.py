@@ -15,7 +15,8 @@ class SelectionProducer(object):
         baseline = es.data_selection if self.isdata else es.mc_selection
         self.selections = {
             "Monojet": baseline + es.baseline_selection + es.monojet_selection,
-            "MonojetQCD": baseline + es.baseline_selection + es.monojetqcd_selection,
+            "MonojetQCDSB": baseline + es.baseline_selection + es.monojetqcdsb_selection,
+            "MonojetQCDSR": baseline + es.baseline_selection + es.monojetqcdsr_selection,
             "SingleMuon": baseline + es.baseline_selection + es.singlemuon_selection,
             "DoubleMuon": baseline + es.baseline_selection + es.doublemuon_selection,
             "SingleElectron": baseline + es.baseline_selection + es.singleelectron_selection,

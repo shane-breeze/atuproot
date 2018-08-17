@@ -26,6 +26,8 @@ mll_selection = "ev: (ev.MLL >= 71.) & (ev.MLL < 111.)"
 ngen_boson_selection = "ev: True if ev.config.parent not in 'EWKV2Jets' else (ev.nGenBosons==1)"
 
 blind_mask = "ev: ev.BlindMask"
+metsb_selection = "ev: ev.METnoX.pt <= 250."
+metsr_selection = "ev: ev.METnoX.pt > 250."
 
 # Selections
 data_selection = [
@@ -81,7 +83,15 @@ doubleelectron_selection = [
     mll_selection,
 ]
 
+monojetqcdsb_selection = [
+    metsr_selection,
+    dphi_jet_met_inv_selection,
+    muon_selection.format(0),
+    ele_selection.format(0),
+]
+
 monojetqcd_selection = [
+    metsr_selection,
     dphi_jet_met_inv_selection,
     muon_selection.format(0),
     ele_selection.format(0),
