@@ -25,9 +25,12 @@ def dist_ratio((hist_data, hists_mc, filepath, cfg)):
         figsize = (4.8, 6.4),
     )
 
+    hists_mc = [taper_and_drop(h) for h in hists_mc]
     if hist_data is not None:
         hist_data = taper_and_drop(hist_data)
-    hists_mc = [taper_and_drop(h) for h in hists_mc]
+        bins = hist_data["bins"]
+    else:
+        bins = hists_mc[0]["bins"]
 
     hist_mc_sum = {
         "name": hists_mc[0]["name"],
@@ -39,7 +42,6 @@ def dist_ratio((hist_data, hists_mc, filepath, cfg)):
     }
     hists_mc = sorted(hists_mc, key=lambda x: x["yields"].sum())
 
-    bins = hist_data["bins"]
     axtop.hist(
         [h["yields"] for h in hists_mc],
         bins = hists_mc[0]["bins"],
@@ -55,22 +57,23 @@ def dist_ratio((hist_data, hists_mc, filepath, cfg)):
                  for h in hists_mc],
     )
 
-    axtop.errorbar(
-        (bins[1:] + bins[:-1])/2,
-        hist_data["yields"],
-        yerr = np.sqrt(hist_data["variance"]),
-        fmt = 'o',
-        markersize = 3,
-        linewidth = 1,
-        capsize = 1.8,
-        color = cfg.sample_colours[hist_data["sample"]] \
-                if hist_data["sample"] in cfg.sample_colours \
-                else "black",
-        label = cfg.sample_names[hist_data["sample"]] \
-                 if hist_data["sample"] in cfg.sample_names \
-                 else hist_data["sample"],
-    )
-    axtop.set_xlim(bins[0], bins[-1])
+    if hist_data is not None:
+        axtop.errorbar(
+            (bins[1:] + bins[:-1])/2,
+            hist_data["yields"],
+            yerr = np.sqrt(hist_data["variance"]),
+            fmt = 'o',
+            markersize = 3,
+            linewidth = 1,
+            capsize = 1.8,
+            color = cfg.sample_colours[hist_data["sample"]] \
+                    if hist_data["sample"] in cfg.sample_colours \
+                    else "black",
+            label = cfg.sample_names[hist_data["sample"]] \
+                     if hist_data["sample"] in cfg.sample_names \
+                     else hist_data["sample"],
+        )
+        axtop.set_xlim(bins[0], bins[-1])
     ymin = max(axtop.get_ylim()[0], 0.5)
     axtop.set_ylim(ymin, None)
 
@@ -89,21 +92,23 @@ def dist_ratio((hist_data, hists_mc, filepath, cfg)):
     handles, labels = axtop.get_legend_handles_labels()
     mc_sum = hist_mc_sum["yields"].sum()
     labels = [l+" {:.2f}".format(h["yields"].sum()/mc_sum)
-              for l, h in zip(labels[:-1], hists_mc)] + \
-             [labels[-1]+" {:.2f}".format(hist_data["yields"].sum()/mc_sum)]
+              for l, h in zip(labels[:-1], hists_mc)]
+    if hist_data is not None:
+        labels += [labels[-1]+" {:.2f}".format(hist_data["yields"].sum()/mc_sum)]
     axtop.legend(handles[::-1], labels[::-1],
                  labelspacing = 0.1)
 
-    axbot.errorbar(
-        (bins[1:] + bins[:-1])/2,
-        hist_data["yields"] / hist_mc_sum["yields"],
-        yerr = np.sqrt(hist_data["variance"]) / hist_mc_sum["yields"],
-        fmt = 'o',
-        markersize = 3,
-        linewidth = 1,
-        capsize = 1.8,
-        color = 'black',
-    )
+    if hist_data is not None:
+        axbot.errorbar(
+            (bins[1:] + bins[:-1])/2,
+            hist_data["yields"] / hist_mc_sum["yields"],
+            yerr = np.sqrt(hist_data["variance"]) / hist_mc_sum["yields"],
+            fmt = 'o',
+            markersize = 3,
+            linewidth = 1,
+            capsize = 1.8,
+            color = 'black',
+        )
 
     axbot.fill_between(
         bins,
@@ -120,10 +125,11 @@ def dist_ratio((hist_data, hists_mc, filepath, cfg)):
     axbot.set_xlim(bins[0], bins[-1])
     axbot.set_ylim(0.5, 1.5)
 
-    axbot.set_xlabel(cfg.axis_label[hist_data["name"]]
-                     if hist_data["name"] in cfg.axis_label
-                     else hist_data["name"],
-                     fontsize='large')
+    if hist_data is not None:
+        axbot.set_xlabel(cfg.axis_label[hist_data["name"]]
+                         if hist_data["name"] in cfg.axis_label
+                         else hist_data["name"],
+                         fontsize='large')
     axbot.set_ylabel("Data / SM Total",
                      fontsize='large')
 
