@@ -14,4 +14,4 @@ class Lambda(object):
         try:
             return self.lambda_function(*event)
         except Exception as e:
-            raise Exception(e, self.function)
+            raise AttributeError(e, self.function)
