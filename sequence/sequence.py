@@ -53,7 +53,7 @@ event_sums_producer = Readers.EventSumsProducer(
 signal_region_blinder = Readers.SignalRegionBlinder(
     name = "signal_region_blinder",
     blind = True,
-    apply_to_mc = True,
+    apply_to_mc = False,
 )
 inv_mass_producer = Readers.InvMassProducer(
     name = "inv_mass_producer",
