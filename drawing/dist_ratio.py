@@ -91,10 +91,20 @@ def dist_ratio((hist_data, hists_mc, filepath, cfg)):
 
     handles, labels = axtop.get_legend_handles_labels()
     mc_sum = hist_mc_sum["yields"].sum()
-    labels = [l+" {:.2f}".format(h["yields"].sum()/mc_sum)
-              for l, h in zip(labels[:-1], hists_mc)]
+    labels = ["{} {:.2f}".format(
+                  cfg.sample_names[h["sample"]] \
+                   if h["sample"] in cfg.sample_names \
+                   else h["sample"],
+                  h["yields"].sum()/mc_sum,
+              )
+              for h in hists_mc]
     if hist_data is not None:
-        labels += [labels[-1]+" {:.2f}".format(hist_data["yields"].sum()/mc_sum)]
+        labels += ["{} {:.2f}".format(
+                       cfg.sample_names[hist_data["sample"]] \
+                        if hist_data["sample"] in cfg.sample_names \
+                        else hist_data["sample"],
+                       hist_data["yields"].sum()/mc_sum,
+                   )]
     axtop.legend(handles[::-1], labels[::-1],
                  labelspacing = 0.1)
 
@@ -125,11 +135,10 @@ def dist_ratio((hist_data, hists_mc, filepath, cfg)):
     axbot.set_xlim(bins[0], bins[-1])
     axbot.set_ylim(0.5, 1.5)
 
-    if hist_data is not None:
-        axbot.set_xlabel(cfg.axis_label[hist_data["name"]]
-                         if hist_data["name"] in cfg.axis_label
-                         else hist_data["name"],
-                         fontsize='large')
+    axbot.set_xlabel(cfg.axis_label[hists_mc[0]["name"]]
+                     if hists_mc[0]["name"] in cfg.axis_label
+                     else hists_mc[0]["name"],
+                     fontsize='large')
     axbot.set_ylabel("Data / SM Total",
                      fontsize='large')
 
