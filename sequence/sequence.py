@@ -130,6 +130,16 @@ hist_collector = Collectors.HistCollector(
     cfg = Collectors.Histogrammer_cfg,
 )
 
+gen_stitching_reader = Collectors.GenStitchingReader(
+    name = "gen_stitching_reader",
+    cfg = Collectors.GenStitching_cfg,
+)
+gen_stitching_collector = Collectors.GenStitchingCollector(
+    name = "gen_stitching_collector",
+    plot = True,
+    cfg = Collectors.GenStitching_cfg,
+)
+
 sequence = [
     # Creates object collections accessible through the event variable. e.g.
     # event.Jet.pt rather than event.Jet_pt. Simpler to pass a collection to
@@ -168,4 +178,5 @@ sequence = [
     # Add collectors (with accompanying readers) at the end so that all
     # event attributes are available to them
     (hist_reader, hist_collector),
+    (gen_stitching_reader, gen_stitching_collector),
 ]
