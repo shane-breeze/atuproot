@@ -9,6 +9,18 @@ from utils.Histogramming import Histogram, Histograms
 Config = namedtuple("Config", "sample_names sample_colours axis_label")
 
 class HistReader(object):
+    split_samples = {
+        "DYJetsToLL": {
+            "DYJetsToEE": ["ev: ev.LeptonIsElectron"],
+            "DYJetsToMuMu": ["ev: ev.LeptonIsMuon"],
+            "DYJetsToTauTau": ["ev: ev.LeptonIsTau"],
+        },
+        "WJetsToLNu": {
+            "WJetsToENu": ["ev: ev.LeptonIsElectron"],
+            "WJetsToMuNu": ["ev: ev.LeptonIsMuon"],
+            "WJetsToTauNu": ["ev: ev.LeptonIsTau"],
+        },
+    }
     def __init__(self, **kwargs):
         cfg = kwargs.pop("cfg")
         self.cfg = Config(
@@ -16,7 +28,6 @@ class HistReader(object):
             sample_colours = cfg.sample_colours,
             axis_label = cfg.axis_label,
         )
-        self.split_lepton_decays = True
         self.__dict__.update(kwargs)
 
         # convert cfg to histogram classes
@@ -47,7 +58,14 @@ class HistReader(object):
         ])
 
     def begin(self, event):
-        self.histograms.begin(event)
+        parent = event.config.dataset.parent
+        self.parents = self.split_samples[parent].keys() \
+                       if parent in self.split_samples \
+                       else [parent]
+        selection = self.split_samples[parent] \
+                    if parent in self.split_samples \
+                    else {}
+        self.histograms.begin(event, self.parents, selection)
 
     def end(self):
         self.histograms.end()
@@ -115,6 +133,9 @@ class HistCollector(object):
                 if n[2] in datasets and dataset != n[2]:
                     continue
 
+                if n[2] in ["MET", "SingleMuon", "SingleElectron"] and dataset != n[2]:
+                    continue
+
                 plot_item = {
                     "name": n[3],
                     "sample": n[2],
@@ -132,6 +153,8 @@ class HistCollector(object):
 
         pool = Pool(processes=8)
         pool.map(dist_ratio, args)
+        #for arg in args:
+        #    dist_ratio(arg)
 
         return histograms
 
