@@ -1,3 +1,4 @@
+import copy
 import numpy as np
 import os
 import pickle
@@ -11,16 +12,12 @@ class Histogram(object):
         self.weight = weight
         self.selection = selection
 
-        self.functions = [var for var in variables+[weight]+selection]
         self.string_to_func = {}
-
         self.histogram = {}
 
     def begin(self, event):
-        self.string_to_func = {
-            f: Lambda(f)
-            for f in self.functions
-        }
+        functions = [var for var in self.variables+[self.weight]+self.selection]
+        self.string_to_func = {f: Lambda(f) for f in functions}
 
     def end(self):
         self.string_to_func = {}
@@ -29,7 +26,7 @@ class Histogram(object):
         selection = reduce(lambda x,y: x & y, [
             self.string_to_func[s](event)
             for s in self.selection
-        ])
+        ]) if len(self.selection)>0 else True
 
         weight = self.string_to_func[self.weight](event)[selection]
 
@@ -57,12 +54,21 @@ class Histogram(object):
         hist_yields = np.histogram(variables, bins=bins, weights=weights1)[0]
         hist_variance = np.histogram(variables, bins=bins, weights=weights2)[0]
 
-        self.histogram = {
-            "bins": hist_bins,
-            "counts": hist_counts,
-            "yields": hist_yields,
-            "variance": hist_variance,
-        }
+        if self.histogram == {}:
+            self.histogram = {
+                "bins": hist_bins,
+                "counts": hist_counts,
+                "yields": hist_yields,
+                "variance": hist_variance,
+            }
+        else:
+            if not np.array_equal(hist_bins, self.histogram["bins"]):
+                print(hist_bins)
+                print(self.histogram["bins"])
+            assert np.array_equal(hist_bins, self.histogram["bins"])
+            self.histogram["counts"] += hist_counts
+            self.histogram["yields"] += hist_yields
+            self.histogram["variance"] += hist_variance
 
     def merge(self, other):
         if self.name != other.name:
@@ -120,10 +126,13 @@ class Histograms(object):
         except StopIteration:
             raise KeyError("{} not found".format(identifier))
 
-    def begin(self, event):
-        p = event.config.dataset.parent
-        self.histograms = [((n[0], n[1], p, n[3]), h) for n, h in self.histograms]
+    def begin(self, event, parents, selection):
+        self.histograms = [((n[0], n[1], p, n[3]), copy.deepcopy(h))
+                           for n, h in self.histograms
+                           for p in parents]
         for n, h in self.histograms:
+            if n[2] in selection:
+                h.selection += selection[n[2]]
             h.begin(event)
         return self
 
