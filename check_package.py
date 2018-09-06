@@ -17,7 +17,6 @@ if __name__ == "__main__":
     path = options.input
     with gzip.open(path, 'rb') as f:
         package = pickle.load(f)
-    print(package)
 
     print("TaskPackage(")
     print("\tname = {}".format(package.task.progressbar_label))
