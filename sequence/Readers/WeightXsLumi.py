@@ -3,13 +3,15 @@ class WeightXsLumi(object):
         self.__dict__.update(kwargs)
 
     def begin(self, event):
-        self.xs = event.config.dataset.xsection
-        self.lumi = event.config.dataset.lumi
-        self.sumweights = sum([associates.sumweights
-                               for associates in event.config.dataset.associates])
+        dataset = event.config.dataset
+        sumweights = sum([associates.sumweights
+                          for associates in dataset.associates])
+
+        self.sf = (dataset.xsection * dataset.lumi / sumweights)
 
     def event(self, event):
-        corrs = (self.xs * self.lumi / self.sumweights) * event.genWeight
+        corrs = self.sf * event.genWeight
+        event.Weight_XsLumi = corrs
         event.Weight_MET *= corrs
         event.Weight_SingleMuon *= corrs
         event.Weight_SingleElectron *= corrs
