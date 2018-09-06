@@ -68,10 +68,14 @@ class SGEJobSubmitter(object):
         "SingleElectron_Run2016H_v2": 12,
         "TTJets_Inclusive": 12,
         "QCD_Pt-1400To1800_ext1": 12,
+        "QCD_Pt-1800To2400_ext1": 12,
         "WZTo2Q2Nu": 12,
         "SingleTop_s-channel_InclusiveDecays": 12,
         "ZGToLLG": 12,
         "DYJetsToLL_Pt-0To50": 12,
+        "DYJetsToLL_Pt-50To100": 12,
+        "DYJetsToLL_Pt-100To250": 12,
+        "WJetsToLNu_Pt-50To100": 12,
     }
     walltime_dict = {}
     def __init__(self, queue="hep.q", walltime=7200, vmem=6):
