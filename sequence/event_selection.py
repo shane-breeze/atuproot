@@ -40,7 +40,7 @@ mc_selection = []
 baseline_selection = [
     filter_selection,
     met_selection,
-    dcalo_pfmet_selection,
+#    dcalo_pfmet_selection,
     jet_selection,
     pho_veto,
     nbjet_veto,
@@ -159,7 +159,7 @@ monojetqcd_selection = [
     ele_selection.format(0),
 ]
 monojetqcdsb_selection = [
-    metsr_selection,
+    metsb_selection,
     dphi_jet_met_inv_selection,
     muon_selection.format(0),
     ele_selection.format(0),
