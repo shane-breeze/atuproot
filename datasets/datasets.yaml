@@ -21,15 +21,15 @@ datasets:
     - SingleMuon_Run2016G_v1
     - SingleMuon_Run2016H_v2
     - SingleMuon_Run2016H_v3
-#    - SingleElectron_Run2016B_v1
-#    - SingleElectron_Run2016B_v2
-#    - SingleElectron_Run2016C_v1
-#    - SingleElectron_Run2016D_v1
-#    - SingleElectron_Run2016E_v1
-#    - SingleElectron_Run2016F_v1
-#    - SingleElectron_Run2016G_v1
-#    - SingleElectron_Run2016H_v2
-#    - SingleElectron_Run2016H_v3
+    #- SingleElectron_Run2016B_v1
+    #- SingleElectron_Run2016B_v2
+    #- SingleElectron_Run2016C_v1
+    #- SingleElectron_Run2016D_v1
+    #- SingleElectron_Run2016E_v1
+    #- SingleElectron_Run2016F_v1
+    #- SingleElectron_Run2016G_v1
+    #- SingleElectron_Run2016H_v2
+    #- SingleElectron_Run2016H_v3
     - TTJets_Inclusive
     - WJetsToLNu_Pt-0To50
     - WJetsToLNu_Pt-50To100
