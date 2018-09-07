@@ -42,6 +42,27 @@ def dist_ratio((hist_data, hists_mc, filepath, cfg)):
     }
     hists_mc = sorted(hists_mc, key=lambda x: x["yields"].sum())
 
+    # merge small
+    hists_mc_lower_oneperc = [h
+        for h in hists_mc
+        if h["yields"].sum()/hist_mc_sum["yields"].sum() < 0.01 and h["sample"] != "QCD"
+    ]
+    hist_mc_minor = {
+        "name": hists_mc[0]["name"],
+        "sample": "Minor",
+        "bins": hists_mc[0]["bins"],
+        "counts": sum(h["counts"] for h in hists_mc_lower_oneperc),
+        "yields": sum(h["yields"] for h in hists_mc_lower_oneperc),
+        "variance": sum(h["variance"] for h in hists_mc_lower_oneperc),
+    }
+    new_hists_mc = [h
+        for h in hists_mc
+        if h["yields"].sum()/hist_mc_sum["yields"].sum() >= 0.01 or h["sample"] == "QCD"
+    ]
+    if not isinstance(hist_mc_minor["counts"], int):
+        hists_mc = [hist_mc_minor]
+    hists_mc += new_hists_mc[:]
+
     axtop.hist(
         [h["yields"] for h in hists_mc],
         bins = hists_mc[0]["bins"],
