@@ -153,6 +153,8 @@ class HistCollector(object):
 
         pool = Pool(processes=8)
         pool.map(dist_ratio, args)
+        pool.close()
+        pool.join()
         #for arg in args:
         #    dist_ratio(arg)
 

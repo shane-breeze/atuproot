@@ -94,6 +94,8 @@ class GenStitchingCollector(HistCollector):
 
         pool = Pool(processes=8)
         pool.map(dist_stitch, args)
+        pool.close()
+        pool.join()
         #for arg in args:
         #    dist_stitch(arg)
 
