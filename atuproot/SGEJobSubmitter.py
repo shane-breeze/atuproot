@@ -58,6 +58,7 @@ SGE_JOBSTATE_CODES = {
 class SGEJobSubmitter(object):
     vmem_dict = {
         "MET_Run2016B_v2": 12,
+        "MET_Run2016C_v1": 12,
         "SingleMuon_Run2016B_v2": 12,
         "SingleMuon_Run2016C_v1": 12,
         "SingleMuon_Run2016D_v1": 12,
@@ -76,6 +77,7 @@ class SGEJobSubmitter(object):
         "DYJetsToLL_Pt-50To100": 12,
         "DYJetsToLL_Pt-100To250": 12,
         "WJetsToLNu_Pt-50To100": 12,
+        "WJetsToLNu_Pt-100To250_ext2": 12,
     }
     walltime_dict = {}
     def __init__(self, queue="hep.q", walltime=7200, vmem=6):
