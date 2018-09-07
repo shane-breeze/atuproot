@@ -31,28 +31,21 @@ class Histogram(object):
         weight = self.string_to_func[self.weight](event)[selection]
 
         variables = []
-        weights = []
         for v in self.variables:
             try:
                 variables.append(self.string_to_func[v](event)[selection])
-                weights.append(weight)
             except AttributeError:
                 variables.append(np.array([]))
-                weights.append(np.array([]))
 
-        bins = self.bins
-        weights1 = weights
-        weights2 = [w**2 for w in weights]
+        weights1 = weight
+        weights2 = weight**2
 
-        if len(variables) == 1:
-            variables = variables[0]
-            bins = bins[0]
-            weights1 = weights1[0]
-            weights2 = weights2[0]
+        variables = np.transpose(np.array(variables))
+        bins = [np.array(b) for b in self.bins]
 
-        hist_counts, hist_bins = np.histogram(variables, bins=bins)
-        hist_yields = np.histogram(variables, bins=bins, weights=weights1)[0]
-        hist_variance = np.histogram(variables, bins=bins, weights=weights2)[0]
+        hist_counts, hist_bins = np.histogramdd(variables, bins=bins)
+        hist_yields = np.histogramdd(variables, bins=bins, weights=weights1)[0]
+        hist_variance = np.histogramdd(variables, bins=bins, weights=weights2)[0]
 
         if self.histogram == {}:
             self.histogram = {
