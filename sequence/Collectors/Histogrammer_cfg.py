@@ -358,9 +358,9 @@ sample_colours = {
     "SingleElectron": "black",
     "ZJetsToNuNu":    colours_dict["blue"],
     "WJetsToLNu":     colours_dict["green"],
-    "WJetsToENu":     colours_dict["green1"],
-    "WJetsToMuNu":    colours_dict["green2"],
-    "WJetsToTauNu":   colours_dict["green3"],
+    "WJetsToENu":     colours_dict["lgreen"],
+    "WJetsToMuNu":    colours_dict["green"],
+    "WJetsToTauNu":   colours_dict["teal"],
     "Diboson":        colours_dict["orange"],
     "DYJetsToLL":     colours_dict["gold"],
     "DYJetsToEE":     colours_dict["gold1"],
@@ -372,6 +372,7 @@ sample_colours = {
     "QCD":            colours_dict["red"],
     "G1Jet":          colours_dict["mint"],
     "VGamma":         colours_dict["yellow"],
+    "Minor":          colours_dict["gray"],
 }
 
 sample_names = {
@@ -394,6 +395,7 @@ sample_names = {
     "QCD":            r'Multijet',
     "G1Jet":          r'$\gamma$+jets',
     "VGamma":         r'$V+\gamma$',
+    "Minor":          r'Minors',
 }
 
 axis_label = {
