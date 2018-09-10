@@ -13,6 +13,7 @@ class GenStitchingReader(HistReader):
             sample_names = cfg.sample_names,
             sample_colours = cfg.sample_colours,
             axis_label = cfg.axis_label,
+            log = True,
         )
         self.split_lepton_decays = True
         self.__dict__.update(kwargs)

@@ -1,4 +1,3 @@
-from collections import namedtuple
 import os
 from multiprocessing import Pool
 
@@ -6,7 +5,12 @@ from drawing.dist_ratio import dist_ratio
 from utils.Histogramming import Histogram, Histograms
 
 # Take the cfg module and drop unpicklables
-Config = namedtuple("Config", "sample_names sample_colours axis_label")
+class Config(object):
+    def __init__(self, sample_names=[], sample_colours=[], axis_label=[], log=False):
+        self.sample_names = sample_names
+        self.sample_colours = sample_colours
+        self.axis_label = axis_label
+        self.log = log
 
 class HistReader(object):
     split_samples = {
@@ -27,6 +31,7 @@ class HistReader(object):
             sample_names = cfg.sample_names,
             sample_colours = cfg.sample_colours,
             axis_label = cfg.axis_label,
+            log = True,
         )
         self.__dict__.update(kwargs)
 
@@ -84,6 +89,7 @@ class HistCollector(object):
             sample_names = cfg.sample_names,
             sample_colours = cfg.sample_colours,
             axis_label = cfg.axis_label,
+            log = True,
         )
         self.__dict__.update(kwargs)
 
