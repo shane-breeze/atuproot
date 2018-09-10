@@ -21,6 +21,47 @@ def taper_and_drop(hist):
     return hist
 
 def dist_ratio((hist_data, hists_mc, filepath, cfg)):
+    """
+    Draw distributions with a ratio plot beneath.
+
+    Parameters
+    ----------
+
+    hist_data : Dictionary holding the histogrammed information for the data
+    {
+        "name" : name of the distribution being plotted
+        "sample" : name of the sample (presumable 'data' or similar)
+        "bins" : numpy array of the bins edges used (size = (nbins+1,)). The
+                 first bin is taken as the underflow and the last bin the
+                 overflow
+        "counts" : numpy array (size = (nbins,)) of the counts per bin (not
+                   used for plotting yet)
+        "yields" : numpy array (size = (nbins,)) of the yields per bin (what is
+                  plotted)
+        "variance" : numpy array (size = (nbins,)) of the variance per bin.
+                     Sqrt of this is used for the error on the data. Symmetric
+                     errors only so far.
+        "function" : optional. numpy array (size = (nbins,)) for the y values
+                     in each bin for a normalized (to 1) function to be
+                     plotted (which will be smoothed)
+    }
+    hists_mc : List of dictionaries holding the histogrammed information for
+               echo MC sample. Each dictionary is the same format as hist_data.
+    filepath : str for the output file destination (without the extension)
+    cfg : object with the following attributes:
+        log : boolean. If True then the y-axis will be on a log-scale
+        sample_colours : dict. Conversion between sample names and colours (for
+                         MC samples only)
+        sample_names : dict. Conversion between sample names and their labels
+                       shown in the plot.
+        axis_label : dict. Conversion between axis names and their labels shown
+                     in the plot
+
+    Returns
+    -------
+    None
+    """
+
     # Split axis into top and bottom with ratio 3:1
     # Share the x axis, not the y axis
     # Figure size is 4.8 by 6.4 inches
