@@ -123,7 +123,7 @@ histogrammer_cfgs = [
         "weight": "ev: ev.Weight_{dataset}",
     }, {
         "name": "MLL",
-        "categories": muon_categories,
+        "categories": dimuon_categories,
         "variables": ["ev: ev.MLL"],
         "bins": [[-inf]+list(np.linspace(65., 115., 51))+[inf]],
         "weight": "ev: ev.Weight_{dataset}",
