@@ -40,7 +40,7 @@ mc_selection = []
 baseline_selection = [
     filter_selection,
     met_selection,
-#    dcalo_pfmet_selection,
+    dcalo_pfmet_selection,
     jet_selection,
     pho_veto,
     nbjet_veto,
