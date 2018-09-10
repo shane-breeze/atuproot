@@ -81,6 +81,13 @@ def dist_ratio((hist_data, hists_mc, filepath, cfg)):
         label = [h["sample"]
                  for h in hists_mc],
     )
+    axtop.hist(
+        hist_mc_sum["yields"],
+        bins = bins,
+        log = cfg.log,
+        histtype = 'step',
+        color = "black",
+    )
 
     if hist_data is not None:
         axtop.errorbar(
