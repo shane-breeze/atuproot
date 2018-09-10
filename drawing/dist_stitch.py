@@ -1,4 +1,3 @@
-from misc.cms_tdr_style import cms_tdr_style
 import numpy as np
 import matplotlib.pyplot as plt
 
