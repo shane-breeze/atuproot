@@ -3,6 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 def taper_and_drop(hist):
+    if isinstance(hist["bins"], list):
+        hist["bins"] = hist["bins"][0]
     hist["bins"] = hist["bins"][1:-1]
     hist["counts"] = hist["counts"][1:-1]
     hist["yields"] = hist["yields"][1:-1]
