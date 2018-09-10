@@ -26,7 +26,7 @@ class Histogram(object):
         selection = reduce(lambda x,y: x & y, [
             self.string_to_func[s](event)
             for s in self.selection
-        ]) if len(self.selection)>0 else True
+        ]) if len(self.selection)>0 else np.array([True]*event.size)
 
         weight = self.string_to_func[self.weight](event)[selection]
 
@@ -55,10 +55,6 @@ class Histogram(object):
                 "variance": hist_variance,
             }
         else:
-            if not np.array_equal(hist_bins, self.histogram["bins"]):
-                print(hist_bins)
-                print(self.histogram["bins"])
-            assert np.array_equal(hist_bins, self.histogram["bins"])
             self.histogram["counts"] += hist_counts
             self.histogram["yields"] += hist_yields
             self.histogram["variance"] += hist_variance
