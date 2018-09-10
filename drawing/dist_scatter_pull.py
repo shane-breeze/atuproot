@@ -1,7 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.mlab as mlab
 from matplotlib.collections import PatchCollection
 from matplotlib.patches import Rectangle
+from scipy.stats import norm
+from scipy.interpolate import spline
 
 def make_error_boxes(ax, xdata, ydata, xerror, yerror, facecolor='r',
                      edgecolor='r', alpha=1.0):
@@ -21,11 +24,12 @@ def make_error_boxes(ax, xdata, ydata, xerror, yerror, facecolor='r',
     return errorboxes[0]
 
 def dist_scatter((results, filepath, cfg)):
-    fig, (axtop, axbot) = plt.subplots(
-        nrows=2, ncols=1, sharex='col', sharey=False,
-        gridspec_kw={'height_ratios': [3, 1]},
-        figsize = (4.8, 6.4),
+    fig, ((axtop, axnull), (axbot, axrig)) = plt.subplots(
+        nrows=2, ncols=2, sharex='col', sharey='row',
+        gridspec_kw={'height_ratios': [3, 1], 'width_ratios': [6, 1]},
+        figsize = (5.6, 6.4),
     )
+    axnull.axis('off')
     axtop.set_xscale('log')
 
     bins = list(results["bins"][1:])
@@ -37,12 +41,12 @@ def dist_scatter((results, filepath, cfg)):
 
     # top axes
     axtop.text(0, 1, r'$\mathbf{CMS}\ \mathit{Preliminary}$',
-            ha='left', va='bottom', transform=axtop.transAxes,
-            fontsize='large')
+               ha='left', va='bottom', transform=axtop.transAxes,
+               fontsize='large')
 
     axtop.text(1, 1, r'$35.9\ \mathrm{fb}^{-1}(13\ \mathrm{TeV})$',
-            ha='right', va='bottom', transform=axtop.transAxes,
-            fontsize='large')
+               ha='right', va='bottom', transform=axtop.transAxes,
+               fontsize='large')
 
     axtop.errorbar(
         (bins[1:] + bins[:-1])/2, data_yields,
@@ -91,6 +95,35 @@ def dist_scatter((results, filepath, cfg)):
     axbot.axhline(-1, ls='--', color='grey', lw=1)
     axbot.axhline(1, ls='--', color='grey', lw=1)
 
+    # bottom right axes
+    pull_bins = [-np.inf] + list(np.linspace(-5., 5., 21)) + [np.inf]
+    pull_hist, _ = np.histogram(pull, pull_bins)
+    pull_hist[1] += pull_hist[0]
+    pull_hist[-2] += pull_hist[-1]
+    pull_hist = pull_hist[1:-1]
+    pull_bins = pull_bins[1:-1]
+
+    axrig.hist(
+        pull_hist,
+        bins = pull_bins,
+        histtype = 'step',
+        orientation = 'horizontal',
+        color = "k",
+    )
+    axrig.set_xlim(0., pull_hist.max()+1)
+    axrig.set_ylim(-ylim, ylim)
+    axrig.axhline(-1, ls='--', color='grey', lw=1)
+    axrig.axhline(1, ls='--', color='grey', lw=1)
+
+    (mu, sigma) = norm.fit(pull)
+    pull_bins = np.array(pull_bins)
+    xs = (pull_bins[1:] + pull_bins[:-1])/2.
+    gaus = mlab.normpdf(xs, mu, sigma)
+    xnew = np.linspace(xs.min(), xs.max(), xs.shape[0]*4)
+    ynew = spline(xs, pull_hist.sum()*gaus/gaus.sum(), xnew)
+    axrig.plot(ynew, xnew, 'r--', lw=2)
+
+    # Create the damn plots
     print("Creating {}".format(filepath))
     plt.tight_layout()
     fig.savefig(filepath+".pdf", format="pdf", bbox_inches="tight")
