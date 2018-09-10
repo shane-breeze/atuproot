@@ -1,12 +1,12 @@
-from misc.cms_tdr_style import cms_tdr_style
-#from misc.cms_header import cms_header
-#from misc.set_hist_style import set_hist_style
-#from misc.draw_line import draw_line
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.interpolate import spline
 
 def taper_and_drop(hist):
+    """
+    Final bin is an overflow.
+    Remove underflow.
+    """
     hist["counts"][-2] += hist["counts"][-1]
     hist["yields"][-2] += hist["yields"][-1]
     hist["variance"][-2] += hist["variance"][-1]
@@ -21,13 +21,16 @@ def taper_and_drop(hist):
     return hist
 
 def dist_ratio((hist_data, hists_mc, filepath, cfg)):
-    #cms_tdr_style()
+    # Split axis into top and bottom with ratio 3:1
+    # Share the x axis, not the y axis
+    # Figure size is 4.8 by 6.4 inches
     fig, (axtop, axbot) = plt.subplots(
         nrows=2, ncols=1, sharex='col', sharey=False,
         gridspec_kw={'height_ratios': [3, 1]},
         figsize = (4.8, 6.4),
     )
 
+    # Remove under/overflow bins (add overflow into final bin)
     hists_mc = [taper_and_drop(h) for h in hists_mc]
     if hist_data is not None:
         hist_data = taper_and_drop(hist_data)
@@ -35,6 +38,7 @@ def dist_ratio((hist_data, hists_mc, filepath, cfg)):
     else:
         bins = hists_mc[0]["bins"]
 
+    # MC sum histograms
     hist_mc_sum = {
         "name": hists_mc[0]["name"],
         "sample": hists_mc[0]["sample"],
@@ -45,10 +49,13 @@ def dist_ratio((hist_data, hists_mc, filepath, cfg)):
     }
     if "function" in hists_mc[0]:
         hist_mc_sum["function"] = hists_mc[0]["function"]
+
+    # Total MC yield (integrated across the distribution)
+    # Also sort MC histograms
     mc_sum = hist_mc_sum["yields"].sum()
     hists_mc = sorted(hists_mc, key=lambda x: x["yields"].sum())
 
-    # merge small
+    # Merge the smaller histograms into "Minors", except for QCD
     hists_mc_lower_oneperc = [h
         for h in hists_mc
         if h["yields"].sum()/hist_mc_sum["yields"].sum() < 0.01 and h["sample"] != "QCD"
@@ -69,6 +76,7 @@ def dist_ratio((hist_data, hists_mc, filepath, cfg)):
         hists_mc = [hist_mc_minor]
     hists_mc += new_hists_mc[:]
 
+    # Draw stacked MC
     axtop.hist(
         [h["yields"] for h in hists_mc],
         bins = bins,
@@ -78,9 +86,10 @@ def dist_ratio((hist_data, hists_mc, filepath, cfg)):
                  if h["sample"] in cfg.sample_colours
                  else "blue"
                  for h in hists_mc],
-        label = [h["sample"]
-                 for h in hists_mc],
+        label = [h["sample"] for h in hists_mc],
     )
+
+    # Draw MC total line
     axtop.hist(
         hist_mc_sum["yields"],
         bins = bins,
@@ -90,6 +99,7 @@ def dist_ratio((hist_data, hists_mc, filepath, cfg)):
     )
 
     if hist_data is not None:
+        # Draw data error bars
         axtop.errorbar(
             (bins[1:] + bins[:-1])/2,
             hist_data["yields"],
@@ -103,8 +113,11 @@ def dist_ratio((hist_data, hists_mc, filepath, cfg)):
                     else "black",
             label = hist_data["sample"],
         )
+
+        # Push x axis to bin limits (matplotlib normally adds padding)
         axtop.set_xlim(bins[0], bins[-1])
 
+    # Draw functions if they exist
     if hist_data is not None and "function" in hist_data:
         xs, ys = hist_data["function"]
         ys = mc_sum*ys / sum(ys)
@@ -119,41 +132,45 @@ def dist_ratio((hist_data, hists_mc, filepath, cfg)):
         ynew = spline(xs, ys, xnew)
         axtop.plot(xnew, ynew, color="r", ls='--', label="MC fit")
 
+    # Set ymin limit to maximum matplotlib's chosen minimum and 0.5
     ymin = max(axtop.get_ylim()[0], 0.5)
     axtop.set_ylim(ymin, None)
 
+    # Add CMS text to top + energy + lumi
     axtop.text(0, 1, r'$\mathbf{CMS}\ \mathit{Preliminary}$',
                horizontalalignment='left',
                verticalalignment='bottom',
                transform=axtop.transAxes,
                fontsize='large')
-
     axtop.text(1, 1, r'$35.9\ \mathrm{fb}^{-1}(13\ \mathrm{TeV})$',
                horizontalalignment='right',
                verticalalignment='bottom',
                transform=axtop.transAxes,
                fontsize='large')
 
+    # Legend - reverse the labels
     handles, labels = axtop.get_legend_handles_labels()
     handles = handles[::-1]
     labels = labels[::-1]
 
+    # Add fraction of MC total to each legend label
     fractions = {
         h["sample"]: h["yields"].sum()/mc_sum
         for h in hists_mc
     }
     if hist_data is not None:
         fractions[hist_data["sample"]] = hist_data["yields"].sum()/mc_sum
-
     labels = ["{} {:.2f}".format(cfg.sample_names[label], fractions[label])
               if label in cfg.sample_names else label for label in labels]
 
+    # Additional text added to the legend title
     if not hasattr(cfg, "text"):
         axtop.legend(handles, labels, labelspacing=0.1)
     else:
         axtop.legend(handles, labels, title=cfg.text, labelspacing=0.1)
 
     if hist_data is not None:
+        # Data / MC in the ratio
         axbot.errorbar(
             (bins[1:] + bins[:-1])/2,
             hist_data["yields"] / hist_mc_sum["yields"],
@@ -165,6 +182,7 @@ def dist_ratio((hist_data, hists_mc, filepath, cfg)):
             color = 'black',
         )
 
+    # MC stat uncertainty in the ratio
     axbot.fill_between(
         bins,
         list(1. - (np.sqrt(hist_mc_sum["variance"]) / hist_mc_sum["yields"])) + [1.],
@@ -174,12 +192,15 @@ def dist_ratio((hist_data, hists_mc, filepath, cfg)):
         label = "MC stat. unc.",
     )
 
+    # Ratio legend
     handles, labels = axbot.get_legend_handles_labels()
     axbot.legend(handles, labels)
 
+    # x and y limits for the ratio plot
     axbot.set_xlim(bins[0], bins[-1])
     axbot.set_ylim(0.5, 1.5)
 
+    # x and y title labels for the ratio (axtop shares x-axis)
     axbot.set_xlabel(cfg.axis_label[hists_mc[0]["name"]]
                      if hists_mc[0]["name"] in cfg.axis_label
                      else hists_mc[0]["name"],
@@ -187,6 +208,7 @@ def dist_ratio((hist_data, hists_mc, filepath, cfg)):
     axbot.set_ylabel("Data / SM Total",
                      fontsize='large')
 
+    # Dashed line at 1. in the ratio plot
     axbot.plot(
         [bins[0], bins[-1]],
         [1., 1.],
@@ -194,8 +216,10 @@ def dist_ratio((hist_data, hists_mc, filepath, cfg)):
         linestyle = ':',
     )
 
+    # Report
     print("Creating {}".format(filepath))
 
+    # Actually save the figure
     plt.tight_layout()
     fig.savefig(filepath+".pdf", format="pdf", bbox_inches="tight")
     plt.close(fig)
