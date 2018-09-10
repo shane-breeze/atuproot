@@ -2,3 +2,5 @@ from .Histogrammer import HistReader, HistCollector
 import Histogrammer_cfg
 from .GenStitching import GenStitchingReader, GenStitchingCollector
 import GenStitching_cfg
+from .MetResponseResolution import MetResponseResolutionReader, MetResponseResolutionCollector
+import MetResponseResolution_cfg

@@ -140,6 +140,16 @@ gen_stitching_collector = Collectors.GenStitchingCollector(
     cfg = Collectors.GenStitching_cfg,
 )
 
+met_response_resolution_reader = Collectors.MetResponseResolutionReader(
+    name = "met_response_resolution_reader",
+    cfg = Collectors.MetResponseResolution_cfg,
+)
+met_response_resolution_collector = Collectors.MetResponseResolutionCollector(
+    name = "met_response_resolution_collector",
+    plot = True,
+    cfg = Collectors.MetResponseResolution_cfg,
+)
+
 sequence = [
     # Creates object collections accessible through the event variable. e.g.
     # event.Jet.pt rather than event.Jet_pt. Simpler to pass a collection to
@@ -179,4 +189,5 @@ sequence = [
     # event attributes are available to them
     (hist_reader, hist_collector),
     (gen_stitching_reader, gen_stitching_collector),
+    (met_response_resolution_reader, met_response_resolution_collector),
 ]
