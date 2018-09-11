@@ -157,10 +157,10 @@ class HistCollector(object):
 
             args.append([hist_data, hists_mc, os.path.join(path, histname), self.cfg])
 
-        pool = Pool(processes=8)
-        pool.map(dist_ratio, args)
-        pool.close()
-        pool.join()
+        #pool = Pool(processes=8)
+        #pool.map(dist_ratio, args)
+        #pool.close()
+        #pool.join()
         #for arg in args:
         #    dist_ratio(arg)
 

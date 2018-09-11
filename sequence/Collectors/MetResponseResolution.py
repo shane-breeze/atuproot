@@ -69,6 +69,9 @@ class MetResponseResolutionCollector(HistCollector):
                 else:
                     hists_mcs.append(plot_items)
 
+            if hist_datas is None or hists_mcs == []:
+                continue
+
             # Perform Voigtian fits
             results = self.analyze(hist_datas, hists_mcs)
 
@@ -118,17 +121,18 @@ class MetResponseResolutionCollector(HistCollector):
                 (widths, os.path.join(path, "{}__resolution".format(histname)), self.cfg),
             ])
 
-        pool = Pool(processes=8)
-        pool.map(dist_ratio, args)
-        pool.close()
-        pool.join()
+        #pool = Pool(processes=8)
+        #pool.map(dist_ratio, args)
+        #pool.close()
+        #pool.join()
         #for arg in args:
         #    dist_ratio(arg)
 
-        pool = Pool(processes=8)
-        pool.map(dist_scatter, args_response_resolution)
-        pool.close()
-        pool.join()
+        #del pool
+        #pool = Pool(processes=4)
+        #pool.map(dist_scatter, args_response_resolution)
+        #pool.close()
+        #pool.join()
         #for arg in args_response_resolution:
         #    dist_scatter(arg)
 
