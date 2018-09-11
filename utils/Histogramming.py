@@ -1,7 +1,7 @@
 import copy
 import numpy as np
 import os
-import pickle
+import cPickle as pickle
 from .Lambda import Lambda
 
 class Histogram(object):
@@ -70,21 +70,6 @@ class Histogram(object):
             "variance": self.histogram["variance"] + other.histogram["variance"],
         }
 
-    def save(self, outdir):
-        if not os.path.exists(outdir):
-            os.makedirs(outdir)
-
-        path = os.path.join(outdir, self.name + ".pkl")
-        with open(path, 'w') as f:
-            pickle.dump(self.histogram, f)
-
-    def reload(self, path):
-        if not os.path.exists(path):
-            raise ValueError("{} does not exist".format(path))
-
-        with open(path, 'r') as f:
-            self.histogram = pickle.load(f)
-
     def __add__(self, other):
         assert self.name == other.name
 
@@ -151,20 +136,16 @@ class Histograms(object):
         return self
 
     def save(self, outdir):
-        for n, h in self.histograms:
-            args = [outdir]+list(n)
-            path = os.path.join(*args)
-            h.save(os.path.dirname(path))
+        if not os.path.exists(outdir):
+            os.makedirs(outdir)
+
+        path = os.path.join(outdir, "results.pkl")
+        with open(path, 'w') as f:
+            pickle.dump(self.histograms, f, protocol=pickle.HIGHEST_PROTOCOL)
         return self
 
-    def reload(self, path):
-        for dirpath, dirnames, filenames in os.walk(path):
-            if "plot" in dirpath or len(filenames)==0:
-                continue
-
-            for filename in filenames:
-                identifier = tuple(dirpath.split("/")[2:] + [os.path.splitext(filename)[0]])
-                histogram = Histogram(identifier[-1])
-                histogram.reload(os.path.join(dirpath, filename))
-                self.append(identifier, histogram)
+    def reload(self, outdir):
+        path = os.path.join(outdir, "results.pkl")
+        with open(path, 'r') as f:
+            self.histograms = pickle.load(f)
         return self
