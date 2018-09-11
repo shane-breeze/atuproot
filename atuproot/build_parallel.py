@@ -7,6 +7,22 @@ from alphatwirl.misc.deprecation import _deprecated
 from alphatwirl.parallel import Parallel
 from .SGEJobSubmitter import SGEJobSubmitter
 
+def map(self, function, args):
+    self.begin()
+    ret = None
+    try:
+        self.communicationChannel.put_multiple([{
+            'task': function,
+            'args': arg,
+            'kwargs': {},
+        } for arg in args])
+        ret = self.communicationChannel.receive()
+    except KeyboardInterrupt:
+        self.terminate()
+    self.end()
+    return ret
+Parallel.map = map
+
 ##__________________________________________________________________||
 def build_parallel(parallel_mode, quiet=True, processes=4, user_modules=[ ],
                    dispatcher_options=[ ]):

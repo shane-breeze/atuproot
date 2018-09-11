@@ -114,11 +114,14 @@ class SGEJobSubmitter(object):
         for p in package_paths:
             with gzip.open(p, 'rb') as f:
                 package = pickle.load(f)
-            if task_name is None:
-                task_name = package.task.progressbar_label
-            elif package.task.progressbar_label != task_name:
-                logger = logging.getLogger(__name__)
-                logger.warning("Task name changed somehow")
+            if hasattr(package.task, 'progressbar_label'):
+                if task_name is None:
+                    task_name = package.task.progressbar_label
+                elif package.task.progressbar_label != task_name:
+                    logger = logging.getLogger(__name__)
+                    logger.warning("Task name changed somehow")
+            else:
+                task_name = "task"
 
         job_desc = self.job_desc_template.format(
             name = task_name,
