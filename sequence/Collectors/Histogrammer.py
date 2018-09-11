@@ -1,5 +1,5 @@
 import os
-from multiprocessing import Pool
+from atuproot.build_parallel import build_parallel
 
 from drawing.dist_ratio import dist_ratio
 from utils.Histogramming import Histogram, Histograms
@@ -97,6 +97,12 @@ class HistCollector(object):
         if not os.path.exists(self.outdir):
             os.makedirs(self.outdir)
 
+        self.parallel = build_parallel(
+            parallel_mode = 'sge',
+            quiet = False,
+            processes = 8,
+        )
+
     def collect(self, dataset_readers_list):
         histograms = None
         for dataset, readers in dataset_readers_list:
@@ -126,9 +132,13 @@ class HistCollector(object):
 
         args = []
         for dataset, cutflow, histname in dataset_cutflow_histnames:
-            path = os.path.join(self.outdir, dataset, cutflow, "plots")
+            if "remove" in cutflow:
+                path = os.path.join(self.outdir, dataset, cutflow.split("_remove_")[0], "removes")
+            else:
+                path = os.path.join(self.outdir, dataset, cutflow)
             if not os.path.exists(path):
                 os.makedirs(path)
+            filepath = os.path.abspath(os.path.join(path, histname))
 
             hist_data = None
             hists_mc = []
@@ -155,14 +165,10 @@ class HistCollector(object):
                 else:
                     hists_mc.append(plot_item)
 
-            args.append([hist_data, hists_mc, os.path.join(path, histname), self.cfg])
+            args.append([hist_data, hists_mc, filepath, self.cfg])
 
-        #pool = Pool(processes=8)
-        #pool.map(dist_ratio, args)
-        #pool.close()
-        #pool.join()
-        #for arg in args:
-        #    dist_ratio(arg)
+        # Submit to the batch
+        self.parallel.map(dist_ratio, args)
 
         return histograms
 
@@ -170,4 +176,3 @@ class HistCollector(object):
         histograms = Histograms()
         histograms.reload(os.path.join(outdir, self.name))
         self.draw(histograms)
-        return histograms

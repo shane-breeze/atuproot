@@ -2,10 +2,9 @@ import os
 import copy
 import numpy as np
 from scipy.special import wofz
-from multiprocessing import Pool
 
 from drawing.dist_ratio import dist_ratio
-from drawing.dist_scatter import dist_scatter
+from drawing.dist_scatter_pull import dist_scatter_pull
 
 # Take the cfg module and drop unpicklables
 from Histogrammer import HistReader, HistCollector
@@ -97,7 +96,7 @@ class MetResponseResolutionCollector(HistCollector):
                 args.append([
                     hist_data,
                     hists_mc,
-                    os.path.join(path, "{}_{}".format(histname, hists_mc[0]["category"])),
+                    os.path.abspath(os.path.join(path, "{}_{}".format(histname, hists_mc[0]["category"]))),
                     copy.deepcopy(self.cfg),
                 ])
 
@@ -117,24 +116,13 @@ class MetResponseResolutionCollector(HistCollector):
             }
 
             args_response_resolution.extend([
-                (means, os.path.join(path, "{}__response".format(histname)), self.cfg),
-                (widths, os.path.join(path, "{}__resolution".format(histname)), self.cfg),
+                (means, os.path.abspath(os.path.join(path, "{}__response".format(histname))), self.cfg),
+                (widths, os.path.abspath(os.path.join(path, "{}__resolution".format(histname))), self.cfg),
             ])
 
-        #pool = Pool(processes=8)
-        #pool.map(dist_ratio, args)
-        #pool.close()
-        #pool.join()
-        #for arg in args:
-        #    dist_ratio(arg)
-
-        #del pool
-        #pool = Pool(processes=4)
-        #pool.map(dist_scatter, args_response_resolution)
-        #pool.close()
-        #pool.join()
-        #for arg in args_response_resolution:
-        #    dist_scatter(arg)
+        self.parallel.parallel_mode = "multiprocessing"
+        self.parallel.map(dist_ratio, args)
+        self.parallel.map(dist_scatter_pull, args_response_resolution)
 
         return histograms
 

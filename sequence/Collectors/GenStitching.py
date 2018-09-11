@@ -1,5 +1,4 @@
 import os
-from multiprocessing import Pool
 
 from drawing.dist_stitch import dist_stitch
 from utils.Histogramming import Histogram, Histograms
@@ -72,6 +71,7 @@ class GenStitchingCollector(HistCollector):
             path = os.path.join(self.outdir, dataset, cutflow, "plots")
             if not os.path.exists(path):
                 os.makedirs(path)
+            filepath = os.path.abspath(os.path.join(path, histname))
 
             hists_mc = []
             for n, h in histograms.histograms:
@@ -91,13 +91,9 @@ class GenStitchingCollector(HistCollector):
                 }
                 hists_mc.append(plot_item)
 
-            args.append([hists_mc, os.path.join(path, histname), self.cfg])
+            args.append([hists_mc, filepath, self.cfg])
 
-        #pool = Pool(processes=8)
-        #pool.map(dist_stitch, args)
-        #pool.close()
-        #pool.join()
-        #for arg in args:
-        #    dist_stitch(arg)
+        self.parallel.parallel_mode = "multiprocessing"
+        self.parallel.map(dist_stitch, args)
 
         return histograms
