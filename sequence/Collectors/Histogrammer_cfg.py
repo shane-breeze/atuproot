@@ -4,6 +4,16 @@ from utils.Colours import colours_dict
 inf = np.infty
 pi = np.pi+0.00001
 
+# Sepearate cutflows and datasets
+all_cutflows = ["Monojet", "MonojetSB", "MonojetSR",
+                "MonojetQCD", "MonojetQCDSB", "MonojetQCDSR",
+                "SingleMuon", "SingleMuonSB", "SingleMuonSR",
+                "DoubleMuon", "DoubleMuonSB", "DoubleMuonSR",
+                "SingleElectron", "SingleElectronSB", "SingleElectronSR",
+                "DoubleElectron", "DoubleElectronSB", "DoubleElectronSR"]
+all_datasets = ["MET", "SingleMuon"]
+
+# dataset-cutflows split into regions
 monojet_categories = [("MET", "Monojet"), ("MET", "MonojetSB"), ("MET", "MonojetSR"),
                       ("MET", "MonojetQCD"), ("MET", "MonojetQCDSB"), ("MET", "MonojetQCDSR")]
 
@@ -105,19 +115,25 @@ histogrammer_cfgs = [
         "weight": "ev: ev.Weight_{dataset}",
     }, {
         "name": "MinDPhiJ1234METnoX",
-        "categories": categories,
+        "categories": categories + [(d, "{}_remove_dphi_jet_met_selection".format(c))
+                                    for c in all_cutflows if "QCD" not in c
+                                    for d in all_datasets],
         "variables": ["ev: ev.MinDPhiJ1234METnoX"],
         "bins": [[-inf]+list(np.linspace(0., pi, 51))+[inf]],
         "weight": "ev: ev.Weight_{dataset}",
     }, {
         "name": "MET_dCaloMET",
-        "categories": categories,
+        "categories": categories + [(d, "{}_remove_dcalo_pfmet_selection".format(c))
+                                    for c in all_cutflows
+                                    for d in all_datasets],
         "variables": ["ev: ev.MET_dCaloMET"],
         "bins": [[-inf]+list(np.linspace(0., 1., 51))+[inf]],
         "weight": "ev: ev.Weight_{dataset}",
     }, {
         "name": "MTW",
-        "categories": muon_categories,
+        "categories": muon_categories + [(d, "{}_remove_mtw_selection".format(c))
+                                         for c in all_cutflows if "SingleMuon" in c
+                                         for d in all_datasets],
         "variables": ["ev: ev.MTW"],
         "bins": [[-inf]+list(np.linspace(0., 200., 51))+[inf]],
         "weight": "ev: ev.Weight_{dataset}",
@@ -126,6 +142,14 @@ histogrammer_cfgs = [
         "categories": dimuon_categories,
         "variables": ["ev: ev.MLL"],
         "bins": [[-inf]+list(np.linspace(65., 115., 51))+[inf]],
+        "weight": "ev: ev.Weight_{dataset}",
+    }, {
+        "name": "MLL_wide",
+        "categories": dimuon_categories + [(d, "{}_remove_mll_selection".format(c))
+                                           for c in all_cutflows if "DoubleMuon" in c
+                                           for d in all_datasets],
+        "variables": ["ev: ev.MLL"],
+        "bins": [[-inf]+list(np.linspace(0., 200., 51))+[inf]],
         "weight": "ev: ev.Weight_{dataset}",
     }, {
         "name": "nJetVeto",
@@ -207,7 +231,9 @@ histogrammer_cfgs = [
         "weight": "ev: ev.Weight_{dataset}",
     }, {
         "name": "nPhotonVeto",
-        "categories": categories,
+        "categories": categories + [(d, "{}_remove_pho_veto".format(c))
+                                    for c in all_cutflows
+                                    for d in all_datasets],
         "variables": ["ev: ev.PhotonVeto.size"],
         "bins": [[-inf]+list(np.linspace(0., 5., 6))+[inf]],
         "weight": "ev: ev.Weight_{dataset}",
@@ -219,7 +245,9 @@ histogrammer_cfgs = [
         "weight": "ev: ev.Weight_{dataset}",
     }, {
         "name": "nTauVeto",
-        "categories": categories,
+        "categories": categories + [(d, "{}_remove_tau_veto".format(c))
+                                    for c in all_cutflows
+                                    for d in all_datasets],
         "variables": ["ev: ev.TauVeto.size"],
         "bins": [[-inf]+list(np.linspace(0., 5., 6))+[inf]],
         "weight": "ev: ev.Weight_{dataset}",
@@ -231,7 +259,9 @@ histogrammer_cfgs = [
         "weight": "ev: ev.Weight_{dataset}",
     }, {
         "name": "nBJetSelectionMedium",
-        "categories": categories,
+        "categories": categories + [(d, "{}_remove_nbjet_veto".format(c))
+                                    for c in all_cutflows
+                                    for d in all_datasets],
         "variables": ["ev: ev.nBJetSelectionMedium"],
         "bins": [[-inf]+list(np.linspace(0., 5., 6))+[inf]],
         "weight": "ev: ev.Weight_{dataset}",
@@ -418,6 +448,7 @@ axis_label = {
     "MET_dCaloMET": r'$|E_{T,PF}^{miss} - E_{T,Calo.}^{miss}| / E_{T}^{miss}$',
     "MTW": r'$m_{T}(l, E_{T,PF}^{miss})$ (GeV)',
     "MLL": r'$m(l, l)$ (GeV)',
+    "MLL_wide": r'$m(l, l)$ (GeV)',
     "nJetVeto": r'No. clean veto jets',
     "nJetSelection": r'No. clean selected jets',
     "LeadJetSelection_pt": r'$p_{T}(j_{0})$ (GeV)',

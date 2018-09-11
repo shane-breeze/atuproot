@@ -35,7 +35,19 @@ class SelectionProducer(object):
             "DoubleElectronSR": baseline + es.baseline_selection + es.doubleelectronsr_selection,
         }
 
-        self.selections_lambda = {cutflow: [Lambda(cut) for cut in selection]
+        # Create N-1 cutflows
+        additional_selections = {}
+        for cutflow, selection in self.selections.items():
+            for subselection in selection:
+                if subselection[0] == "blind_mask":
+                    continue
+                new_selection = selection[:]
+                new_selection.remove(subselection)
+                newcutflow = "{}_remove_{}".format(cutflow, subselection[0])
+                additional_selections[newcutflow] = new_selection
+        self.selections.update(additional_selections)
+
+        self.selections_lambda = {cutflow: [Lambda(cut) for name, cut in selection]
                                   for cutflow, selection in self.selections.items()}
 
     def event(self, event):
