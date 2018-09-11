@@ -11,7 +11,7 @@ def taper_and_drop(hist):
 
     return hist
 
-def dist_stitch((hists_mc, filepath, cfg)):
+def dist_stitch(hists_mc, filepath, cfg):
     if len(hists_mc) == 0:
         return
 
@@ -127,3 +127,5 @@ def dist_stitch((hists_mc, filepath, cfg)):
     plt.tight_layout()
     fig.savefig(filepath+".pdf", format="pdf", bbox_inches="tight")
     plt.close(fig)
+
+    return "Success"

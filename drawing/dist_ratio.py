@@ -20,7 +20,7 @@ def taper_and_drop(hist):
 
     return hist
 
-def dist_ratio((hist_data, hists_mc, filepath, cfg)):
+def dist_ratio(hist_data, hists_mc, filepath, cfg):
     """
     Draw distributions with a ratio plot beneath.
 
@@ -59,7 +59,7 @@ def dist_ratio((hist_data, hists_mc, filepath, cfg)):
 
     Returns
     -------
-    None
+    "Success"
     """
 
     # Split axis into top and bottom with ratio 3:1
@@ -264,3 +264,5 @@ def dist_ratio((hist_data, hists_mc, filepath, cfg)):
     plt.tight_layout()
     fig.savefig(filepath+".pdf", format="pdf", bbox_inches="tight")
     plt.close(fig)
+
+    return "Success"

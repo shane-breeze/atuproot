@@ -23,7 +23,7 @@ def make_error_boxes(ax, xdata, ydata, xerror, yerror, facecolor='r',
     ax.add_collection(pc)
     return errorboxes[0]
 
-def dist_scatter((results, filepath, cfg)):
+def dist_scatter_pull(results, filepath, cfg):
     fig, ((axtop, axnull), (axbot, axrig)) = plt.subplots(
         nrows=2, ncols=2, sharex='col', sharey='row',
         gridspec_kw={'height_ratios': [3, 1], 'width_ratios': [6, 1]},
@@ -128,3 +128,5 @@ def dist_scatter((results, filepath, cfg)):
     plt.tight_layout()
     fig.savefig(filepath+".pdf", format="pdf", bbox_inches="tight")
     plt.close(fig)
+
+    return "Success"
