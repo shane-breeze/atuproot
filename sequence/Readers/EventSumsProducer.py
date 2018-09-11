@@ -34,6 +34,9 @@ class EventSumsProducer(object):
         event.METnoX_diMuonParaProjPt = dimu_para
         event.METnoX_diMuonPerpProjPt = dimu_perp
         event.METnoX_diMuonParaProjPt_Minus_DiMuon_pt = dimu_para - dimu_pt
+        event.METnoX_diMuonPerpProjPt_Plus_DiMuon_pt = dimu_perp + dimu_pt
+        event.METnoX_diMuonParaProjPt_Div_DiMuon_pt = dimu_para / dimu_pt
+        event.METnoX_diMuonPerpProjPt_Plus_DiMuon_pt_Div_DiMuon_pt = (dimu_para + dimu_pt) / dimu_pt
 
         # MHT
         ht, mht, mhphi = create_mht(
