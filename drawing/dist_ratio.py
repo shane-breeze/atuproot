@@ -242,9 +242,9 @@ def dist_ratio(hist_data, hists_mc, filepath, cfg):
     axbot.set_ylim(0.5, 1.5)
 
     # x and y title labels for the ratio (axtop shares x-axis)
-    axbot.set_xlabel(cfg.axis_label[hists_mc[0]["name"]]
-                     if hists_mc[0]["name"] in cfg.axis_label
-                     else hists_mc[0]["name"],
+    name = hists_mc[0]["name"]
+    name = name[0] if isinstance(name, list) else name
+    axbot.set_xlabel(cfg.axis_label[name] if name in cfg.axis_label else name,
                      fontsize='large')
     axbot.set_ylabel("Data / SM Total",
                      fontsize='large')
