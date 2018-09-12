@@ -44,6 +44,10 @@ class GenStitchingReader(HistReader):
             for config in configs
         ])
 
+        # Normalisation factor (i.e. sum of weighted events). Sample dependent
+        # for the correct pre-selection XS
+        self.normalisation = {}
+
     def begin(self, event):
         parent = event.config.dataset.name.split("_ext")[0]
         self.parents = [parent]

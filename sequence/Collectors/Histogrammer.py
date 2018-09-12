@@ -56,11 +56,16 @@ class HistReader(object):
                     },
                 })
 
+        # Histograms collection
         self.histograms = Histograms()
         self.histograms.extend([
             (config["identifier"], Histogram(**config["hist_config"]))
             for config in configs
         ])
+
+        # Normalisation factor (i.e. sum of weighted events). Sample dependent
+        # for the correct pre-selection XS
+        self.normalisation = {}
 
     def begin(self, event):
         parent = event.config.dataset.parent
@@ -78,8 +83,22 @@ class HistReader(object):
     def event(self, event):
         self.histograms.event(event)
 
+        sum_weights = (event.genWeight * event.WeightQCDEWK).sum()
+        name_no_ext = event.config.dataset.name.split("_ext")[0]
+        if name_no_ext in self.normalisation:
+            self.normalisation[name_no_ext] += sum_weights
+        else:
+            self.normalisation[name_no_ext] = sum_weights
+
     def merge(self, other):
         self.histograms.merge(other.histograms)
+
+        # Add normalisations
+        for dataset in other.normalisation:
+            if dataset not in self.normalisation:
+                self.normalisation[dataset] = other.normalisation[dataset]
+            else:
+                self.normalisation[dataset] += other.normalisation[dataset]
 
 class HistCollector(object):
     def __init__(self, **kwargs):
@@ -104,12 +123,31 @@ class HistCollector(object):
         )
 
     def collect(self, dataset_readers_list):
-        histograms = None
+        histograms, normalisations = None, None
         for dataset, readers in dataset_readers_list:
+            # Get histograms
             if histograms is None:
                 histograms = readers[0].histograms
             else:
                 histograms.merge(readers[0].histograms)
+
+            # Get normalisations
+            norms = readers[0].normalisation
+            if normalisations is None:
+                normalisations = norms
+            else:
+                for dataset in norms:
+                    if dataset not in normalisations:
+                        normalisations[dataset] = norm[dataset]
+                    else:
+                        normalisations[dataset] += norms[dataset]
+
+        # Apply normalisation
+        for identifier, histogram in histograms:
+            norm = normalisations[identifier[2].split("_ext")[0]]
+            histogram["yields"] /= norm
+            histogram["variance"] /= norm
+
         histograms.save(self.outdir)
         if self.plot:
             self.draw(histograms)

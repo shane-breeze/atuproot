@@ -7,10 +7,10 @@ class WeightXsLumi(object):
         sumweights = sum([associates.sumweights
                           for associates in dataset.associates])
 
-        self.sf = (dataset.xsection * dataset.lumi / sumweights)
+        self.xslumi = (dataset.xsection * dataset.lumi)
 
     def event(self, event):
-        corrs = self.sf * event.genWeight
+        corrs = self.xslumi * event.genWeight
         event.Weight_XsLumi = corrs
         event.Weight_MET *= corrs
         event.Weight_SingleMuon *= corrs
