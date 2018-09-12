@@ -24,7 +24,12 @@ class SelectionProducer(object):
             "SingleMuonSB": baseline + es.baseline_selection + es.singlemuonsb_selection,
             "SingleMuonSR": baseline + es.baseline_selection + es.singlemuonsr_selection,
             "DoubleMuon": baseline + es.baseline_selection + es.doublemuon_selection,
-            "DoubleMuon_unblind": baseline + es.baseline_selection + es.doublemuon_selection[1:],
+            "DoubleMuon_unblind": [(n, s)
+                                   for (n, s) in baseline \
+                                   + es.baseline_selection \
+                                   + es.baseline_selection \
+                                   + es.doublemuon_selection
+                                   if n not in ["met_selection", "blind_mask"]],
             "DoubleMuonSB": baseline + es.baseline_selection + es.doublemuonsb_selection,
             "DoubleMuonSR": baseline + es.baseline_selection + es.doublemuonsr_selection,
             "SingleElectron": baseline + es.baseline_selection + es.singleelectron_selection,
