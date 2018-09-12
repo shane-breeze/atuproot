@@ -228,7 +228,7 @@ def get_correction_pt_abseta_jit(mupt, mueta, starts, stops, weights,
                 sf_up2 += sum_weightcorrup2 / sum_weightcorr**2
                 sf_down2 += sum_weightcorrdown2 / sum_weightcorr**2
 
-        if any_pass and start-stop>0:
+        if any_pass and stop-start>0:
             sf = 1. - sf
 
         # pass to output arrays
