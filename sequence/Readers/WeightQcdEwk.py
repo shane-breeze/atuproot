@@ -1,5 +1,6 @@
 import numpy as np
 from numba import njit, float32
+from utils.Lambda import Lambda
 
 class WeightQcdEwk(object):
     def __init__(self, **kwargs):
@@ -10,20 +11,30 @@ class WeightQcdEwk(object):
         if self.parent not in self.input_paths:
             return
 
-        inputs = read_input(*self.input_paths[self.parent])
-        self.bin_min, self.bin_max, self.correction, self.errdown, self.errup = inputs
+        self.lambda_formula = Lambda(self.formula)
+
+        # {correction_name : (bin_min, bin_max, correction, errdown, errup)}
+        self.input_dicts = {
+            name: read_input(path, key)
+            for name, (path, key) in self.input_paths[self.parent].items()
+        }
+
+    def end(self):
+        self.lambda_formula = None
 
     def event(self, event):
         if self.parent not in self.input_paths:
-            weights = np.zeros(event.size)
+            weights = np.ones(event.size)
         else:
-            weights = get_corrections(event.GenPartBoson_pt,
-                                      self.bin_min, self.bin_max,
-                                      self.correction)
-        event.WeightEW = 1. + weights
-        event.Weight_MET *= event.WeightEW
-        event.Weight_SingleMuon *= event.WeightEW
-        event.Weight_SingleElectron *= event.WeightEW
+            corrections = {
+                name: get_corrections(event.GenPartBoson_pt, binmin, binmax, corr)
+                for name, (binmin, binmax, corr, errdown, errup) in self.input_dicts.items()
+            }
+            weights = self.lambda_formula(**corrections)
+        event.WeightQCDEWK = weights
+        event.Weight_MET *= event.WeightQCDEWK
+        event.Weight_SingleMuon *= event.WeightQCDEWK
+        event.Weight_SingleElectron *= event.WeightQCDEWK
 
 @njit
 def get_corrections(boson_pts, bin_mins, bin_maxs, corrections):
