@@ -95,10 +95,10 @@ sample_names = {
 }
 
 axis_label = {
-    "DiMuon_pt": r'p_{T}(\mu\mu) GeV',
-    "METnoX_pt": r'$E_{T}^{miss} (GeV)',
+    "DiMuon_pt": r'$p_{T}(\mu\mu)$ (GeV)',
+    "METnoX_pt": r'$E_{T}^{miss}$ (GeV)',
     "METnoX_diMuonParaProjPt_Minus_DiMuon_pt": r'$E_{T,\parallel}^{miss} - p_{T}(\mu\mu)$ (GeV)',
     "METnoX_diMuonPerpProjPt": r'$E_{T,\perp}^{miss}$ (GeV)',
     "METnoX_diMuonParaProjPt_Div_DiMuon_pt": r'$E_{T,\parallel}^{miss} / p_{T}(\mu\mu)$',
-    "METnoX_diMuonPerpProjPt_Plus_DiMuon_pt_Div_DiMuon_pt": r'$(E_{T,\perp}^{miss}+p_{T}(\mu\mu)) / p_{T}(\mu\mu)',
+    "METnoX_diMuonPerpProjPt_Plus_DiMuon_pt_Div_DiMuon_pt": r'$(E_{T,\perp}^{miss}+p_{T}(\mu\mu)) / p_{T}(\mu\mu)$',
 }
