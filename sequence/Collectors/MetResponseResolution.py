@@ -1,5 +1,6 @@
 import os
 import copy
+import re
 import numpy as np
 from scipy.special import wofz
 
@@ -8,6 +9,8 @@ from drawing.dist_scatter_pull import dist_scatter_pull
 
 # Take the cfg module and drop unpicklables
 from Histogrammer import HistReader, HistCollector
+
+latex_eq_regex = re.compile("\$(.*)\$")
 
 class MetResponseResolutionReader(HistReader):
     def __init__(self, **kwargs):
@@ -84,13 +87,17 @@ class MetResponseResolutionCollector(HistCollector):
                 for h in hists_mc:
                     h["function"] = results["mc"][icat]["function"]
 
+                name = plot_items[icat]["name"][1]
+                name = self.cfg.axis_label.get(name, name)
                 if icat < len(hist_datas)-1:
-                    self.cfg.text = r'${:.0f} \leq E_{{T}}^{{miss}} < {:.0f}$ GeV'.format(
+                    self.cfg.text = r'${:.0f} \leq {} < {:.0f}$ GeV'.format(
                         plot_items[icat]["category"],
+                        latex_eq_regex.search(name).group(1),
                         plot_items[icat+1]["category"],
                     )
                 else:
-                    self.cfg.text = r'$E_{{T}}^{{miss}} \geq {:.0f}$ GeV'.format(
+                    self.cfg.text = r'${} \geq {:.0f}$ GeV'.format(
+                        latex_eq_regex.search(name).group(1),
                         plot_items[icat]["category"],
                     )
 
@@ -178,13 +185,21 @@ class MetResponseResolutionCollector(HistCollector):
             if errs == "sumw2":
                 hdata.SetBinError(ibin, np.sqrt(vars[ibin-1]))
 
-        x = ROOT.RooRealVar("x", "x", -250, 250)
+        x = ROOT.RooRealVar("x", "x", bins[0], bins[-1])
         l = ROOT.RooArgList(x)
         data = ROOT.RooDataHist("data", "data", l, hdata)
 
+        mean_guess = hdata.GetMean()
+        width_guess = hdata.GetStdDev()
+
+        mu_eq = "mu[{},{},{}]".format(mean_guess, bins[0], bins[-1])
+        gam_eq = "gam[{},{},{}]".format(width_guess, width_guess/20., width_guess*20.)
+        sig_eq = "sig[{},{},{}]".format(width_guess, width_guess/20., width_guess*20.)
+        voig_eq = "Voigtian:voig(x, {}, {}, {})".format(mu_eq, gam_eq, sig_eq)
+
         ws = ROOT.RooWorkspace("ws")
         getattr(ws, "import")(x)
-        ws.factory("Voigtian:voig(x, mu[10,-100,100], gam[3,0.01,20], sig[25,0.01,100])")
+        ws.factory(voig_eq)
         model = ws.pdf("voig")
 
         args = [ROOT.RooFit.Minimizer("Minuit", "Migrad"),
