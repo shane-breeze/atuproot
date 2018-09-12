@@ -1,4 +1,5 @@
 import os
+import operator
 from atuproot.build_parallel import build_parallel
 
 from drawing.dist_ratio import dist_ratio
@@ -63,10 +64,6 @@ class HistReader(object):
             for config in configs
         ])
 
-        # Normalisation factor (i.e. sum of weighted events). Sample dependent
-        # for the correct pre-selection XS
-        self.normalisation = {}
-
     def begin(self, event):
         parent = event.config.dataset.parent
         self.parents = self.split_samples[parent].keys() \
@@ -83,22 +80,8 @@ class HistReader(object):
     def event(self, event):
         self.histograms.event(event)
 
-        sum_weights = (event.genWeight * event.WeightQCDEWK).sum()
-        name_no_ext = event.config.dataset.name.split("_ext")[0]
-        if name_no_ext in self.normalisation:
-            self.normalisation[name_no_ext] += sum_weights
-        else:
-            self.normalisation[name_no_ext] = sum_weights
-
     def merge(self, other):
         self.histograms.merge(other.histograms)
-
-        # Add normalisations
-        for dataset in other.normalisation:
-            if dataset not in self.normalisation:
-                self.normalisation[dataset] = other.normalisation[dataset]
-            else:
-                self.normalisation[dataset] += other.normalisation[dataset]
 
 class HistCollector(object):
     def __init__(self, **kwargs):
@@ -122,7 +105,7 @@ class HistCollector(object):
         )
 
     def collect(self, dataset_readers_list):
-        histograms, normalisations = None, None
+        histograms = None
         for dataset, readers in dataset_readers_list:
             # Get histograms
             if histograms is None:
@@ -130,41 +113,22 @@ class HistCollector(object):
             else:
                 histograms.merge(readers[0].histograms)
 
-            # Get normalisations
-            norms = readers[0].normalisation
-            if normalisations is None:
-                normalisations = norms
-            else:
-                for dataset in norms:
-                    if dataset not in normalisations:
-                        normalisations[dataset] = norm[dataset]
-                    else:
-                        normalisations[dataset] += norms[dataset]
-
-        # Apply normalisation
-        for identifier, histogram in histograms:
-            norm = normalisations[identifier[2].split("_ext")[0]]
-            histogram["yields"] /= norm
-            histogram["variance"] /= norm
-
         histograms.save(self.outdir)
         if self.plot:
             self.draw(histograms)
         return dataset_readers_list
 
     def draw(self, histograms):
-        datasets = list(set(n[0] for n, h in histograms.histograms))
+        datasets = list(set(
+            map(operator.itemgetter(0), histograms.histograms[0]),
+        ))
 
-        dataset_cutflow_histnames = set((n[0], n[1], n[3]) for n, h in histograms.histograms)
+        # Set and sort to get all unique combinations of (dataset, cutflow, histname)
+        dataset_cutflow_histnames = set(
+            map(operator.itemgetter(0, 1, 3), histogram.histograms[0]),
+        )
         dataset_cutflow_histnames = sorted(
-            sorted(
-                sorted(
-                    dataset_cutflow_histnames,
-                    key = lambda x: x[2],
-                ),
-                key = lambda x: x[1],
-            ),
-            key = lambda x: x[0],
+            dataset_cutflow_histnames, key=operator.itemgetter(2, 1, 0),
         )
 
         args = []
