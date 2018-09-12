@@ -109,10 +109,24 @@ weight_muons = Readers.WeightMuons(
 )
 weight_qcd_ewk = Readers.WeightQcdEwk(
     name = "weight_qcd_ewk",
+    formula = "kappa_EW: (1+kappa_EW)",
+    #formula = "K_NLO, K_NNLO, kappa_EW: (K_NNLO/K_NLO)*(1+kappa_EW)",
     input_paths = {
-        "ZJetsToNuNu": ("/vols/build/cms/sdb15/atuproot/data/qcd_ewk/vvj.dat", "vvj_pTV_kappa_EW"),
-        "WJetsToLNu": ("/vols/build/cms/sdb15/atuproot/data/qcd_ewk/evj.dat", "evj_pTV_kappa_EW"),
-        "DYJetsToLL": ("/vols/build/cms/sdb15/atuproot/data/qcd_ewk/eej.dat", "eej_pTV_kappa_EW"),
+        "ZJetsToNuNu": {
+            #"K_NLO": (datapath + "/qcd_ewk/vvj.dat", "vvj_pTV_K_NLO"),
+            #"K_NNLO": (datapath + "/qcd_ewk/eej.dat", "eej_pTV_K_NNLO"),
+            "kappa_EW": (datapath + "/qcd_ewk/vvj.dat", "vvj_pTV_kappa_EW"),
+        },
+        "WJetsToLNu": {
+            #"K_NLO": (datapath + "/qcd_ewk/evj.dat", "evj_pTV_K_NLO"),
+            #"K_NNLO": (datapath + "/qcd_ewk/evj.dat", "evj_pTV_K_NNLO"),
+            "kappa_EW": (datapath + "/qcd_ewk/evj.dat", "evj_pTV_kappa_EW"),
+        },
+        "DYJetsToLL": {
+            #"K_NLO": (datapath + "/qcd_ewk/eej.dat", "eej_pTV_K_NLO"),
+            #"K_NNLO": (datapath + "/qcd_ewk/eej.dat", "eej_pTV_K_NNLO"),
+            "kappa_EW": (datapath + "/qcd_ewk/eej.dat", "eej_pTV_kappa_EW"),
+        },
     },
 )
 
@@ -148,6 +162,16 @@ met_response_resolution_collector = Collectors.MetResponseResolutionCollector(
     name = "met_response_resolution_collector",
     plot = True,
     cfg = Collectors.MetResponseResolution_cfg,
+)
+
+qcd_ewk_corrections_reader = Collectors.QcdEwkCorrectionsReader(
+    name = "qcd_ewk_corrections_reader",
+    cfg = Collectors.QcdEwkCorrections_cfg,
+)
+qcd_ewk_corrections_collector = Collectors.QcdEwkCorrectionsCollector(
+    name = "qcd_ewk_corrections_collector",
+    plot = True,
+    cfg = Collectors.QcdEwkCorrections_cfg,
 )
 
 sequence = [
@@ -190,4 +214,5 @@ sequence = [
     (hist_reader, hist_collector),
     (gen_stitching_reader, gen_stitching_collector),
     (met_response_resolution_reader, met_response_resolution_collector),
+    (qcd_ewk_corrections_reader, qcd_ewk_corrections_collector),
 ]

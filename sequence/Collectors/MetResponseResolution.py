@@ -1,4 +1,5 @@
 import os
+import operator
 import copy
 import re
 import numpy as np
@@ -23,19 +24,16 @@ class MetResponseResolutionCollector(HistCollector):
         self.cfg.log = False
 
     def draw(self, histograms):
-        datasets = list(set(n[0] for n, h in histograms.histograms))
+        datasets = list(set(
+            n[0] for n, _ in histograms.histograms
+        ))
 
-        dataset_cutflow_histnames = set((n[0], n[1], tuple(n[3]))
-                                        for n, h in histograms.histograms)
+        # Set and sort to get all unique combinations of (dataset, cutflow, histname)
+        dataset_cutflow_histnames = set(
+            (n[0], n[1], tuple(n[3])) for n, _ in histograms.histograms
+        )
         dataset_cutflow_histnames = sorted(
-            sorted(
-                sorted(
-                    dataset_cutflow_histnames,
-                    key = lambda x: x[2],
-                ),
-                key = lambda x: x[1],
-            ),
-            key = lambda x: x[0],
+            dataset_cutflow_histnames, key=operator.itemgetter(2, 1, 0),
         )
 
         args = []

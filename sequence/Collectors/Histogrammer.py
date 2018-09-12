@@ -1,4 +1,5 @@
 import os
+import operator
 from atuproot.build_parallel import build_parallel
 
 from drawing.dist_ratio import dist_ratio
@@ -56,6 +57,7 @@ class HistReader(object):
                     },
                 })
 
+        # Histograms collection
         self.histograms = Histograms()
         self.histograms.extend([
             (config["identifier"], Histogram(**config["hist_config"]))
@@ -105,28 +107,28 @@ class HistCollector(object):
     def collect(self, dataset_readers_list):
         histograms = None
         for dataset, readers in dataset_readers_list:
+            # Get histograms
             if histograms is None:
                 histograms = readers[0].histograms
             else:
                 histograms.merge(readers[0].histograms)
+
         histograms.save(self.outdir)
         if self.plot:
             self.draw(histograms)
         return dataset_readers_list
 
     def draw(self, histograms):
-        datasets = list(set(n[0] for n, h in histograms.histograms))
+        datasets = list(set(
+            n[0] for n, _ in histograms.histograms
+        ))
 
-        dataset_cutflow_histnames = set((n[0], n[1], n[3]) for n, h in histograms.histograms)
+        # Set and sort to get all unique combinations of (dataset, cutflow, histname)
+        dataset_cutflow_histnames = set(
+            (n[0], n[1], n[3]) for n, _ in histograms.histograms
+        )
         dataset_cutflow_histnames = sorted(
-            sorted(
-                sorted(
-                    dataset_cutflow_histnames,
-                    key = lambda x: x[2],
-                ),
-                key = lambda x: x[1],
-            ),
-            key = lambda x: x[0],
+            dataset_cutflow_histnames, key=operator.itemgetter(2, 1, 0),
         )
 
         args = []

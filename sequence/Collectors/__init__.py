@@ -4,3 +4,5 @@ from .GenStitching import GenStitchingReader, GenStitchingCollector
 import GenStitching_cfg
 from .MetResponseResolution import MetResponseResolutionReader, MetResponseResolutionCollector
 import MetResponseResolution_cfg
+from .QcdEwkCorrections import QcdEwkCorrectionsReader, QcdEwkCorrectionsCollector
+import QcdEwkCorrections_cfg

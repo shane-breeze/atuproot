@@ -44,6 +44,10 @@ class GenStitchingReader(HistReader):
             for config in configs
         ])
 
+        # Normalisation factor (i.e. sum of weighted events). Sample dependent
+        # for the correct pre-selection XS
+        self.normalisation = {}
+
     def begin(self, event):
         parent = event.config.dataset.name.split("_ext")[0]
         self.parents = [parent]
@@ -52,18 +56,16 @@ class GenStitchingReader(HistReader):
 
 class GenStitchingCollector(HistCollector):
     def draw(self, histograms):
-        datasets = list(set(n[0] for n, h in histograms.histograms))
+        datasets = list(set(
+            n[0] for n, _ in histograms.histograms
+        ))
 
-        dataset_cutflow_histnames = set((n[0], n[1], n[3]) for n, h in histograms.histograms)
+        # Set and sort to get all unique combinations of (dataset, cutflow, histname)
+        dataset_cutflow_histnames = set(
+            (n[0], n[1], n[3]) for n, _ in histograms.histograms
+        )
         dataset_cutflow_histnames = sorted(
-            sorted(
-                sorted(
-                    dataset_cutflow_histnames,
-                    key = lambda x: x[2],
-                ),
-                key = lambda x: x[1],
-            ),
-            key = lambda x: x[0],
+            dataset_cutflow_histnames, key=operator.itemgetter(2, 1, 0),
         )
 
         args = []
