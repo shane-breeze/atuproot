@@ -72,7 +72,7 @@ class GenStitchingCollector(HistCollector):
 
         args = []
         for dataset, cutflow, histname in dataset_cutflow_histnames:
-            path = os.path.join(self.outdir, dataset, cutflow, "plots")
+            path = os.path.join(self.outdir, dataset, cutflow)
             if not os.path.exists(path):
                 os.makedirs(path)
             filepath = os.path.abspath(os.path.join(path, histname))

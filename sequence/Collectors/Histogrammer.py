@@ -119,7 +119,6 @@ class HistCollector(object):
         self.parallel = build_parallel(
             parallel_mode = 'sge',
             quiet = False,
-            processes = 8,
         )
 
     def collect(self, dataset_readers_list):

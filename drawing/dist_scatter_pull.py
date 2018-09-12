@@ -69,9 +69,9 @@ def dist_scatter_pull(results, filepath, cfg):
     axtop.legend(handles, labels)
 
     variable = (
-        cfg.axis_label[results["name"]]
-        if results["name"] in cfg.axis_label
-        else results["name"]
+        cfg.axis_label[results["name"][0]]
+        if results["name"][0] in cfg.axis_label
+        else results["name"][0]
     ).replace("(GeV)","").replace("$","")
 
     if filepath.endswith("response"):
@@ -87,7 +87,7 @@ def dist_scatter_pull(results, filepath, cfg):
     pull = (data_yields - mc_yields) / np.sqrt(data_errors**2 + mc_errors**2)
     axbot.plot((bins[1:] + bins[:-1])/2, pull,
                'o', ms=3, mfc='black', mec='black')
-    axbot.set_xlabel(r'$E_{T}^{miss}$ (GeV)', fontsize='large')
+    axbot.set_xlabel(cfg.axis_label[results["name"][1]], fontsize='large')
     axbot.set_ylabel("Pull", fontsize='large')
 
     ylim = max(map(abs, axbot.get_ylim()))

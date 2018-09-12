@@ -22,7 +22,8 @@ class MetResponseResolutionCollector(HistCollector):
     def draw(self, histograms):
         datasets = list(set(n[0] for n, h in histograms.histograms))
 
-        dataset_cutflow_histnames = set((n[0], n[1], n[3]) for n, h in histograms.histograms)
+        dataset_cutflow_histnames = set((n[0], n[1], tuple(n[3]))
+                                        for n, h in histograms.histograms)
         dataset_cutflow_histnames = sorted(
             sorted(
                 sorted(
@@ -36,15 +37,15 @@ class MetResponseResolutionCollector(HistCollector):
 
         args = []
         args_response_resolution = []
-        for dataset, cutflow, histname in dataset_cutflow_histnames:
-            path = os.path.join(self.outdir, dataset, cutflow, "plots")
+        for dataset, cutflow, histnames in dataset_cutflow_histnames:
+            path = os.path.join(self.outdir, dataset, cutflow)
             if not os.path.exists(path):
                 os.makedirs(path)
 
             hist_datas = None
             hists_mcs = []
             for n, h in histograms.histograms:
-                if (n[0], n[1], n[3]) != (dataset, cutflow, histname):
+                if (n[0], n[1], tuple(n[3])) != (dataset, cutflow, histnames):
                     continue
 
                 if n[2] in datasets and dataset != n[2]:
@@ -96,7 +97,7 @@ class MetResponseResolutionCollector(HistCollector):
                 args.append([
                     hist_data,
                     hists_mc,
-                    os.path.abspath(os.path.join(path, "{}_{}".format(histname, hists_mc[0]["category"]))),
+                    os.path.abspath(os.path.join(path, "{}_{}".format("_vs_".join(histnames), hists_mc[0]["category"]))),
                     copy.deepcopy(self.cfg),
                 ])
 
@@ -116,11 +117,10 @@ class MetResponseResolutionCollector(HistCollector):
             }
 
             args_response_resolution.extend([
-                (means, os.path.abspath(os.path.join(path, "{}__response".format(histname))), self.cfg),
-                (widths, os.path.abspath(os.path.join(path, "{}__resolution".format(histname))), self.cfg),
+                (means, os.path.abspath(os.path.join(path, "{}__response".format("_vs_".join(histnames)))), self.cfg),
+                (widths, os.path.abspath(os.path.join(path, "{}__resolution".format("_vs_".join(histnames)))), self.cfg),
             ])
 
-        self.parallel.parallel_mode = "multiprocessing"
         self.parallel.map(dist_ratio, args)
         self.parallel.map(dist_scatter_pull, args_response_resolution)
 

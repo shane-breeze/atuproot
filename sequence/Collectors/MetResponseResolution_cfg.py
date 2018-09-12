@@ -10,19 +10,39 @@ bins = [200., 207., 214., 220., 226., 232., 238., 244., 250., 258., 268., 279.,
 
 histogrammer_cfgs = [
     {
-        "name": "METnoX_diMuonParaProjPt_Minus_DiMuon_pt",
+        "name": ["METnoX_diMuonParaProjPt_Minus_DiMuon_pt",
+                 "DiMuon_pt"],
         "categories": dimuon_categories,
         "variables": ["ev: ev.METnoX_diMuonParaProjPt_Minus_DiMuon_pt",
-                      "ev: ev.METnoX_pt"],
+                      "ev: ev.DiMuon_pt"],
         "bins": [[-inf]+list(np.linspace(-250, 250., 51))+[inf],
                  [-inf]+bins+[inf]],
         "weight": "ev: ev.Weight_{dataset}",
     }, {
-        "name": "METnoX_diMuonPerpProjPt",
+        "name": ["METnoX_diMuonPerpProjPt",
+                 "DiMuon_pt"],
         "categories": dimuon_categories,
         "variables": ["ev: ev.METnoX_diMuonPerpProjPt",
-                      "ev: ev.METnoX_pt"],
+                      "ev: ev.DiMuon_pt"],
         "bins": [[-inf]+list(np.linspace(-250., 250., 51))+[inf],
+                 [-inf]+bins+[inf]],
+        "weight": "ev: ev.Weight_{dataset}",
+    }, {
+        "name": ["METnoX_diMuonParaProjPt_Div_DiMuon_pt",
+                 "DiMuon_pt"],
+        "categories": dimuon_categories,
+        "variables": ["ev: ev.METnoX_diMuonParaProjPt_Div_DiMuon_pt",
+                      "ev: ev.DiMuon_pt"],
+        "bins": [[-inf]+list(np.linspace(0., 2., 51))+[inf],
+                 [-inf]+bins+[inf]],
+        "weight": "ev: ev.Weight_{dataset}",
+    }, {
+        "name": ["METnoX_diMuonPerpProjPt_Plus_DiMuon_pt_Div_DiMuon_pt",
+                 "DiMuon_pt"],
+        "categories": dimuon_categories,
+        "variables": ["ev: ev.METnoX_diMuonPerpProjPt_Plus_DiMuon_pt_Div_DiMuon_pt",
+                      "ev: ev.DiMuon_pt"],
+        "bins": [[-inf]+list(np.linspace(0., 2., 51))+[inf],
                  [-inf]+bins+[inf]],
         "weight": "ev: ev.Weight_{dataset}",
     },
@@ -75,7 +95,10 @@ sample_names = {
 }
 
 axis_label = {
+    "DiMuon_pt": r'p_{T}(\mu\mu) GeV',
     "METnoX_pt": r'$E_{T}^{miss} (GeV)',
     "METnoX_diMuonParaProjPt_Minus_DiMuon_pt": r'$E_{T,\parallel}^{miss} - p_{T}(\mu\mu)$ (GeV)',
     "METnoX_diMuonPerpProjPt": r'$E_{T,\perp}^{miss}$ (GeV)',
+    "METnoX_diMuonParaProjPt_Div_DiMuon_pt": r'$E_{T,\parallel}^{miss} / p_{T}(\mu\mu)$',
+    "METnoX_diMuonPerpProjPt_Plus_DiMuon_pt_Div_DiMuon_pt": r'$(E_{T,\perp}^{miss}+p_{T}(\mu\mu)) / p_{T}(\mu\mu)',
 }
