@@ -22,12 +22,12 @@ class MetResponseResolutionCollector(HistCollector):
 
     def draw(self, histograms):
         datasets = list(set(
-            map(operator.itemgetter(0), histograms.histograms[0]),
+            n[0] for n, _ in histograms.histograms
         ))
 
         # Set and sort to get all unique combinations of (dataset, cutflow, histname)
         dataset_cutflow_histnames = set(
-            map(operator.itemgetter(0, 1, 3), histogram.histograms[0]),
+            (n[0], n[1], tuple(n[3])) for n, _ in histograms.histograms
         )
         dataset_cutflow_histnames = sorted(
             dataset_cutflow_histnames, key=operator.itemgetter(2, 1, 0),
