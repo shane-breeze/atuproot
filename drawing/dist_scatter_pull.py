@@ -62,17 +62,20 @@ def dist_scatter_pull(results, filepath, cfg):
         facecolor="#80b1d3",
         edgecolor="#5a9ac6",
     )
+    ylims = axtop.get_ylim()
+    dylims = ylims[1]-ylims[0]
+    if dylims < 0.1:
+        add_dylims = 0.5*(0.1 - dylims)
+        axtop.set_ylim((ylims[0]-add_dylims, ylims[1]+add_dylims))
 
     handles, labels = axtop.get_legend_handles_labels()
     handles += [rect_eg]
     labels += ["MC"]
     axtop.legend(handles, labels)
 
-    variable = (
-        cfg.axis_label[results["name"][0]]
-        if results["name"][0] in cfg.axis_label
-        else results["name"][0]
-    ).replace("(GeV)","").replace("$","")
+    variable = cfg.axis_label.get(results["name"][0], results["name"][0])\
+            .replace("(GeV)","")\
+            .replace("$","")
 
     if filepath.endswith("response"):
         ylabel = r'$\mu({})$ (GeV)'.format(variable)
