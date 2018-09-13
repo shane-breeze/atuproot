@@ -13,7 +13,13 @@ class JecVariations(object):
         self.jersfs = read_jersf_file(self.jer_sf_file, overflow=True)
         self.jers = read_jer_file(self.jer_file, overflow=True)
 
+    def begin(self, event):
+        self.isdata = event.config.dataset.isdata
+
     def event(self, event):
+        if self.isdata:
+            return True
+
         # JER
         jet_res = get_jet_ptresolution(
             self.jers, event.Jet, event.fixedGridRhoFastjetAll,
@@ -34,6 +40,9 @@ class JecVariations(object):
         event.Jet_jerCorrection = uproot.interp.jagged.JaggedArray(
             jer_corr, event.Jet.starts, event.Jet.stops,
         )
+
+        # Remove GenJets
+        event.delete_branches(["GenJet_pt", "GenJet_eta", "GenJet_phi"])
 
         event.Jet.pt.content *= jer_corr
         event.Jet.mass.content *= jer_corr
