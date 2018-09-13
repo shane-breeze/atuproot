@@ -14,6 +14,7 @@ class SelectionProducer(object):
 
         baseline = es.data_selection if self.isdata else es.mc_selection
         self.selections = {
+            "None": [],
             "Monojet": baseline + es.baseline_selection + es.monojet_selection,
             "MonojetSB": baseline + es.baseline_selection + es.monojetsb_selection,
             "MonojetSR": baseline + es.baseline_selection + es.monojetsr_selection,

@@ -2,16 +2,26 @@ import numpy as np
 from utils.Colours import colours_dict
 inf = np.infty
 
+categories = [("MET", "None"),
+              ("MET", "Monojet"), ("MET", "MonojetSB"), ("MET", "MonojetSR"),
+              ("MET", "MonojetQCD"), ("MET", "MonojetQCDSB"), ("MET", "MonojetQCDSR"),
+              ("MET", "SingleMuon"), ("MET", "SingleMuonSB"), ("MET", "SingleMuonSR"),
+              ("SingleMuon", "SingleMuon"), ("SingleMuon", "SingleMuonSB"), ("SingleMuon", "SingleMuonSR"),
+              ("MET", "DoubleMuon"), ("MET", "DoubleMuonSB"), ("MET", "DoubleMuonSR"),
+              ("SingleMuon", "DoubleMuon"),("SingleMuon", "DoubleMuonSB"), ("SingleMuon", "DoubleMuonSR"),
+              ("MET", "SingleElectron"), ("MET", "SingleElectronSB"), ("MET", "SingleElectronSR"),
+              ("MET", "DoubleElectron"), ("MET", "DoubleElectronSB"), ("MET", "DoubleElectronSR")]
+
 histogrammer_cfgs = [
     {
         "name": "GenPartBoson_pt",
-        "categories": [("MET", "Monojet")],
+        "categories": categories,
         "variables": ["ev: ev.GenPartBoson_pt"],
         "bins": [[-inf]+list(np.linspace(0., 2000., 51))+[inf]],
         "weight": "ev: ev.Weight_XsLumi",
     }, {
         "name": "GenPartBoson_pt_corrected",
-        "categories": [("MET", "Monojet")],
+        "categories": categories,
         "variables": ["ev: ev.GenPartBoson_pt"],
         "bins": [[-inf]+list(np.linspace(0., 2000., 51))+[inf]],
         "weight": "ev: ev.Weight_XsLumi*ev.WeightQCDEWK",

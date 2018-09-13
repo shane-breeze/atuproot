@@ -79,11 +79,10 @@ def dist_comp(hist_pairs, filepath, cfg):
         bins = bins,
         log = cfg.log,
         histtype = 'step',
-        color = [cfg.sample_colours[hs[0]["sample"]]
-                 if hs[0]["sample"] in cfg.sample_colours
-                 else "blue"
+        color = [cfg.sample_colours.get(hs[0]["sample"], "blue")
                  for hs in hist_pairs],
-        label = [hs[0]["sample"] for hs in hist_pairs],
+        label = [cfg.sample_names.get(hs[0]["sample"], hs[0]["sample"])
+                 for hs in hist_pairs],
         ls = '--',
     )
     axtop.hist(
@@ -91,11 +90,10 @@ def dist_comp(hist_pairs, filepath, cfg):
         bins = bins,
         log = cfg.log,
         histtype = 'step',
-        color = [cfg.sample_colours[hs[1]["sample"]]
-                 if hs[1]["sample"] in cfg.sample_colours
-                 else "blue"
+        color = [cfg.sample_colours.get(hs[1]["sample"], "blue")
                  for hs in hist_pairs],
-        label = [hs[1]["sample"] for hs in hist_pairs],
+        label = [cfg.sample_names.get(hs[1]["sample"], hs[1]["sample"])+" (nNLO EW)"
+                 for hs in hist_pairs],
     )
     axtop.set_xlim(bins[0], bins[-1])
 
@@ -135,11 +133,7 @@ def dist_comp(hist_pairs, filepath, cfg):
         [r["yields"] for r in ratios],
         bins = bins,
         histtype = 'step',
-        color = [cfg.sample_colours[r["sample"]]
-                 if r["sample"] in cfg.sample_colours
-                 else "blue"
-                 for r in ratios],
-        label = [r["sample"] for r in ratios],
+        color = [cfg.sample_colours.get(r["sample"], "blue") for r in ratios],
     )
 
     # x and y limits for the ratio plot
@@ -150,7 +144,7 @@ def dist_comp(hist_pairs, filepath, cfg):
     name = ratios[0]["name"]
     axbot.set_xlabel(cfg.axis_label[name] if name in cfg.axis_label else name,
                      fontsize='large')
-    axbot.set_ylabel("Ratio", fontsize='large')
+    axbot.set_ylabel(r'$1+\kappa_{nNLO EW}$', fontsize='large')
 
     # Dashed line at 1. in the ratio plot
     axbot.plot([bins[0], bins[-1]], [1., 1.], color='black', linestyle=':')
