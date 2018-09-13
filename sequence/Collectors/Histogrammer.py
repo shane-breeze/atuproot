@@ -34,8 +34,9 @@ class HistReader(object):
             log = True,
         )
         self.__dict__.update(kwargs)
+        self.histograms = self.create_histograms(cfg)
 
-        # convert cfg to histogram classes
+    def create_histograms(self, cfg):
         configs = []
         for cfg in cfg.histogrammer_cfgs:
             # expand categories
@@ -57,11 +58,12 @@ class HistReader(object):
                 })
 
         # Histograms collection
-        self.histograms = Histograms()
-        self.histograms.extend([
+        histograms = Histograms()
+        histograms.extend([
             (config["identifier"], Histogram(**config["hist_config"]))
             for config in configs
         ])
+        return histograms
 
     def begin(self, event):
         parent = event.config.dataset.parent

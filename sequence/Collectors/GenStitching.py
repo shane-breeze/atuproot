@@ -7,18 +7,9 @@ from utils.Histogramming import Histogram, Histograms
 from Histogrammer import Config, HistReader, HistCollector
 
 class GenStitchingReader(HistReader):
-    def __init__(self, **kwargs):
-        cfg = kwargs.pop("cfg")
-        self.cfg = Config(
-            sample_names = cfg.sample_names,
-            sample_colours = cfg.sample_colours,
-            axis_label = cfg.axis_label,
-            log = True,
-        )
-        self.split_lepton_decays = True
-        self.__dict__.update(kwargs)
-
+    def create_histograms(self, cfg):
         weight = "ev: ev.Weight_XsLumi"
+        self.split_lepton_decays = True
         self.split_samples = {}
 
         # convert cfg to histogram classes
@@ -44,10 +35,6 @@ class GenStitchingReader(HistReader):
             (config["identifier"], Histogram(**config["hist_config"]))
             for config in configs
         ])
-
-        # Normalisation factor (i.e. sum of weighted events). Sample dependent
-        # for the correct pre-selection XS
-        self.normalisation = {}
 
     def begin(self, event):
         parent = event.config.dataset.name.split("_ext")[0]
