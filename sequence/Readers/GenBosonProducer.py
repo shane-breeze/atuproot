@@ -141,7 +141,7 @@ def genpart_matched_dressedlepton_jit(gps_pdg, gps_eta, gps_phi,
         for igps in range(gps_start, gps_stop):
             for igds in range(gds_start, gds_stop):
                 if gps_pdg[igps] == gds_pdg[igds]:
-                   if DeltaR2(gps_phi[igps]-gds_phi[igds],
+                   if DeltaR2(gps_eta[igps]-gds_eta[igds],
                               gps_phi[igps]-gds_phi[igds]) < 0.01:
                         indices[igps] = igds - gds_start
                         break
