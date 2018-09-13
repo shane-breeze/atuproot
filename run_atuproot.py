@@ -4,6 +4,7 @@ warnings.filterwarnings('ignore')
 
 from atuproot.AtUproot import AtUproot
 from atuproot.build_parallel import build_parallel
+from atuproot.utils import grouped_run
 from datasets.datasets import get_datasets
 from sequence.config import build_sequence
 
@@ -70,25 +71,21 @@ def redraw(sequence, datasets, options):
 
 def parallel_draw(jobs, options):
     jobs = [job for subjobs in jobs for job in subjobs]
+    jobs = [jobs[i:i+len(jobs)/100]
+            for i in xrange(0, len(jobs), len(jobs)/100)]
+
     parallel = build_parallel(
         parallel_mode = options.mode,
         quiet = options.quiet,
         processes = options.ncores,
     )
-    grouped_jobs = {}
-    for job in jobs:
-        if job[0] in grouped_jobs:
-            grouped_jobs[job[0]].append(job[1])
-        else:
-            grouped_jobs[job[0]] = [job[1]]
-
     parallel.begin()
     try:
         parallel.communicationChannel.put_multiple([{
-            'task': function,
+            'task': grouped_run,
             'args': args,
             'kwargs': {},
-        } for function, args in jobs])
+        } for args in jobs])
         parallel.communicationChannel.receive()
     except KeyboardInterrupt:
         parallel.terminate()
@@ -108,4 +105,4 @@ if __name__ == "__main__":
         jobs = redraw(sequence, datasets, options)
     else:
         jobs = run(sequence, datasets, options)
-    draw(jobs, options)
+    parallel_draw(jobs, options)
