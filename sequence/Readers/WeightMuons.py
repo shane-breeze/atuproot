@@ -104,6 +104,14 @@ class WeightMuons(object):
         corrs_trig_down = np.sqrt(corrs_trig_down**2 + (0.005)**2)
 
         corrs = corrs_id * corrs_iso * corrs_track
+        event.Weight_muonIdUp = corrs_id_up
+        event.Weight_muonIdDown = corrs_id_down
+        event.Weight_muonIsoUp = corrs_iso_up
+        event.Weight_muonIsoDown = corrs_iso_down
+        event.Weight_muonTrackUp = corrs_track_up
+        event.Weight_muonTrackDown = corrs_track_down
+        event.Weight_muonTrigUp = corrs_trig_up
+        event.Weight_muonTrigDown = corrs_trig_down
         event.Weight_MET *= corrs
         event.Weight_SingleMuon *= corrs * corrs_trig
         event.Weight_SingleElectron *= corrs
