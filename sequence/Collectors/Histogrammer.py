@@ -110,10 +110,9 @@ class HistCollector(object):
         histograms.save(self.outdir)
         if self.plot:
             try:
-                self.draw(histograms)
+                return self.draw(histograms)
             except Exception as e:
                 print(e)
-        return dataset_readers_list
 
     def draw(self, histograms):
         datasets = list(set(
