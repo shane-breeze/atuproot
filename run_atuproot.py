@@ -70,9 +70,11 @@ def redraw(sequence, datasets, options):
     ]
 
 def parallel_draw(jobs, options):
+    if len(jobs)==0:
+        return
     jobs = [job for subjobs in jobs for job in subjobs]
     jobs = [jobs[i:i+len(jobs)/100]
-            for i in xrange(0, len(jobs), len(jobs)/100)]
+            for i in xrange(0, len(jobs), len(jobs)/100+1)]
 
     parallel = build_parallel(
         parallel_mode = options.mode,
