@@ -3,6 +3,7 @@ import warnings
 warnings.filterwarnings('ignore')
 
 from atuproot.AtUproot import AtUproot
+from atuproot.build_parallel import build_parallel
 from datasets.datasets import get_datasets
 from sequence.config import build_sequence
 
@@ -58,12 +59,40 @@ def run(sequence, datasets, options):
         profile = options.profile,
         profile_out_path = "profile.txt",
     )
-    process.run(datasets, sequence)
+    return process.run(datasets, sequence)
 
 def redraw(sequence, datasets, options):
-    for (reader, collector) in sequence:
-        if hasattr(collector, "reload"):
-            collector.reload(options.outdir)
+    return [
+        collector.reload(options.outdir)
+        for (reader, collector) in sequence
+        if hasattr(collector, "reload")
+    ]
+
+def parallel_draw(jobs, options):
+    jobs = [job for subjobs in jobs for job in subjobs]
+    parallel = build_parallel(
+        parallel_mode = options.mode,
+        quiet = options.quiet,
+        processes = options.ncores,
+    )
+    grouped_jobs = {}
+    for job in jobs:
+        if job[0] in grouped_jobs:
+            grouped_jobs[job[0]].append(job[1])
+        else:
+            grouped_jobs[job[0]] = [job[1]]
+
+    parallel.begin()
+    try:
+        parallel.communicationChannel.put_multiple([{
+            'task': function,
+            'args': args,
+            'kwargs': {},
+        } for function, args in jobs])
+        parallel.communicationChannel.receive()
+    except KeyboardInterrupt:
+        parallel.terminate()
+    parallel.end()
 
 if __name__ == "__main__":
     options = parse_args()
@@ -76,6 +105,7 @@ if __name__ == "__main__":
                        d.parent==options.sample]
 
     if options.redraw:
-        redraw(sequence, datasets, options)
+        jobs = redraw(sequence, datasets, options)
     else:
-        run(sequence, datasets, options)
+        jobs = run(sequence, datasets, options)
+    draw(jobs, options)

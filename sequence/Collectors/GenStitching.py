@@ -95,8 +95,4 @@ class GenStitchingCollector(HistCollector):
                 hists_mc.append(plot_item)
 
             args.append([hists_mc, filepath, self.cfg])
-
-        self.parallel.parallel_mode = "multiprocessing"
-        self.parallel.map(dist_stitch, args)
-
-        return histograms
+        return [(dist_stitch, arg) for arg in args]

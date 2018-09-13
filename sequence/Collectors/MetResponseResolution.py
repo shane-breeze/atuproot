@@ -126,10 +126,8 @@ class MetResponseResolutionCollector(HistCollector):
                 (widths, os.path.abspath(os.path.join(path, "{}__resolution".format("_vs_".join(histnames)))), self.cfg),
             ])
 
-        self.parallel.map(dist_ratio, args)
-        self.parallel.map(dist_scatter_pull, args_response_resolution)
-
-        return histograms
+        return [(dist_ratio, arg) for arg in args]\
+                + [(dist_scatter_pull, arg) for arg in args_response_resolution]
 
     def analyze(self, hist_datas, hists_mcs):
         results = []

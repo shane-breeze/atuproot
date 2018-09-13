@@ -1,6 +1,5 @@
 import os
 import operator
-from atuproot.build_parallel import build_parallel
 
 from drawing.dist_ratio import dist_ratio
 from utils.Histogramming import Histogram, Histograms
@@ -99,11 +98,6 @@ class HistCollector(object):
         if not os.path.exists(self.outdir):
             os.makedirs(self.outdir)
 
-        self.parallel = build_parallel(
-            parallel_mode = 'sge',
-            quiet = False,
-        )
-
     def collect(self, dataset_readers_list):
         histograms = None
         for dataset, readers in dataset_readers_list:
@@ -170,13 +164,9 @@ class HistCollector(object):
                     hists_mc.append(plot_item)
 
             args.append([hist_data, hists_mc, filepath, self.cfg])
-
-        # Submit to the batch
-        self.parallel.map(dist_ratio, args)
-
-        return histograms
+        return [(dist_ratio, arg) for arg in args]
 
     def reload(self, outdir):
         histograms = Histograms()
         histograms.reload(os.path.join(outdir, self.name))
-        self.draw(histograms)
+        return self.draw(histograms)

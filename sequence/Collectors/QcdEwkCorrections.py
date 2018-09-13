@@ -36,7 +36,6 @@ class QcdEwkCorrectionsCollector(HistCollector):
             hist_pairs = {}
             for hname in (histname, histname+"_corrected"):
                 for n, h in histograms.histograms:
-                    print(n[2])
                     if n[2] not in ["ZJetsToNuNu", "WJetsToLNu", "DYJetsToLL"]:
                         continue
 
@@ -68,8 +67,4 @@ class QcdEwkCorrectionsCollector(HistCollector):
                             "variance": h.histogram["variance"],
                         }]
             args.append([hist_pairs.values(), filepath, self.cfg])
-        #self.parallel.map(dist_comp, args)
-        for arg in args:
-            dist_comp(*arg)
-
-        return histograms
+        return [(dist_comp, arg) for arg in args]
