@@ -5,7 +5,10 @@ import operator
 from drawing.dist_comp import dist_comp
 from Histogrammer import HistReader, HistCollector, Config
 
-QcdEwkCorrectionsReader = HistReader
+class QcdEwkCorrectionsReader(HistReader):
+    def __init__(self, **kwargs):
+        super(QcdEwkCorrectionsReader, self).__init__(**kwargs)
+        self.split_samples = {}
 
 class QcdEwkCorrectionsCollector(HistCollector):
     def draw(self, histograms):
@@ -33,6 +36,10 @@ class QcdEwkCorrectionsCollector(HistCollector):
             hist_pairs = {}
             for hname in (histname, histname+"_corrected"):
                 for n, h in histograms.histograms:
+                    print(n[2])
+                    if n[2] not in ["ZJetsToNuNu", "WJetsToLNu", "DYJetsToLL"]:
+                        continue
+
                     if (n[0], n[1], n[3]) != (dataset, cutflow, hname):
                         continue
 

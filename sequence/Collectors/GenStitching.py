@@ -1,4 +1,5 @@
 import os
+import operator
 
 from drawing.dist_stitch import dist_stitch
 from utils.Histogramming import Histogram, Histograms
