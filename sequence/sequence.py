@@ -44,7 +44,7 @@ tau_cross_cleaning = Readers.ObjectCrossCleaning(
 jec_variations = Readers.JecVariations(
     name = "jec_variations",
     jes_unc_file = datapath + "/jecs/Summer16_23Sep2016V4_MC_Uncertainty_AK4PFchs.txt",
-    jer_sf_file = datapath + "/jecs/Spring16_25nsV10_MC_SF_AK4PFchs.txt",
+    jer_sf_file = datapath + "/jecs/Spring16_25nsV10a_MC_SF_AK4PFchs.txt",
     jer_file = datapath + "/jecs/Spring16_25nsV10_MC_PtResolution_AK4PFchs.txt",
     variation = None,
 )
