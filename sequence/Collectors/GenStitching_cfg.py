@@ -6,19 +6,22 @@ inf = np.infty
 histogrammer_cfgs = [
     {
         "name": "LHE_Vpt",
-        "categories": ["ZJetsToNuNu", "WJetsToLNu", "DYJetsToLL"],
+        "categories": [("MET", "None")],
         "variables": ["ev: ev.LHE_Vpt"],
         "bins": [[-inf]+list(np.linspace(0., 1000., 101))+[inf]],
+        "weights": [("xslumi", "ev: ev.Weight_XsLumi")],
     }, {
         "name": "Generator_scalePDF",
-        "categories": ["QCD"],
+        "categories": [("MET", "None")],
         "variables": ["ev: ev.Generator_scalePDF"],
         "bins": [[-inf]+list(np.linspace(0., 4000., 101))+[inf]],
+        "weights": [("xslumi", "ev: ev.Weight_XsLumi")],
     }, {
         "name": "GenPartBoson_pt",
-        "categories": ["ZJetsToNuNu", "WJetsToLNu", "DYJetsToLL"],
+        "categories": [("MET", "None")],
         "variables": ["ev: ev.GenPartBoson_pt"],
         "bins": [[-inf]+list(np.linspace(0., 1000., 101))+[inf]],
+        "weights": [("xslumi", "ev: ev.Weight_XsLumi")],
     },
 ]
 

@@ -43,19 +43,20 @@ class HistReader(object):
             for dataset, cutflow in cfg["categories"]:
                 cutflow_restriction = "ev: ev.Cutflow_{}".format(cutflow)
                 selection = [cutflow_restriction]
-                weight = cfg["weight"].format(dataset=dataset)
-                identifier = (dataset, cutflow, None, cfg["name"])
+                for weightname, weight in cfg["weights"]:
+                    weight = weight.format(dataset=dataset)
+                    identifier = (dataset, cutflow, None, cfg["name"], weightname)
 
-                configs.append({
-                    "identifier": identifier,
-                    "hist_config": {
-                        "name": cfg["name"],
-                        "variables": cfg["variables"],
-                        "bins": cfg["bins"],
-                        "weight": weight,
-                        "selection": selection,
-                    },
-                })
+                    configs.append({
+                        "identifier": identifier,
+                        "hist_config": {
+                            "name": cfg["name"],
+                            "variables": cfg["variables"],
+                            "bins": cfg["bins"],
+                            "weight": weight,
+                            "selection": selection,
+                        },
+                    })
 
         # Histograms collection
         histograms = Histograms()
@@ -115,6 +116,7 @@ class HistCollector(object):
                 return self.draw(histograms)
             except Exception as e:
                 print(e)
+        return []
 
     def draw(self, histograms):
         datasets = list(set(

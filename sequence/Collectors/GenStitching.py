@@ -7,40 +7,10 @@ from utils.Histogramming import Histogram, Histograms
 from Histogrammer import Config, HistReader, HistCollector
 
 class GenStitchingReader(HistReader):
-    def create_histograms(self, cfg):
-        weight = "ev: ev.Weight_XsLumi"
-        self.split_lepton_decays = True
-        self.split_samples = {}
-
-        # convert cfg to histogram classes
-        configs = []
-        for cfg in cfg.histogrammer_cfgs:
-            # expand categories
-            for parent in cfg["categories"]:
-                identifier = (parent, "None", None, cfg["name"])
-
-                configs.append({
-                    "identifier": identifier,
-                    "hist_config": {
-                        "name": cfg["name"],
-                        "variables": cfg["variables"],
-                        "bins": cfg["bins"],
-                        "weight": weight,
-                        "selection": [],
-                    },
-                })
-
-        self.histograms = Histograms()
-        self.histograms.extend([
-            (config["identifier"], Histogram(**config["hist_config"]))
-            for config in configs
-        ])
-
     def begin(self, event):
         parent = event.config.dataset.name.split("_ext")[0]
         self.parents = [parent]
-        selection = {}
-        self.histograms.begin(event, self.parents, selection)
+        self.histograms.begin(event, self.parents, {})
 
 class GenStitchingCollector(HistCollector):
     def draw(self, histograms):

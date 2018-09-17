@@ -79,7 +79,8 @@ weight_xsection_lumi = Readers.WeightXsLumi(
 weight_pu = Readers.WeightPileup(
     name = "weight_pu",
     correction_file = datapath + "/pileup/nTrueInt_corrections.txt",
-    overflow = True, data = False,
+    overflow = True,
+    data = False,
 )
 weight_met_trigger = Readers.WeightMetTrigger(
     name = "weight_met_trigger",
@@ -176,6 +177,16 @@ qcd_ewk_corrections_collector = Collectors.QcdEwkCorrectionsCollector(
     cfg = Collectors.QcdEwkCorrections_cfg,
 )
 
+systematics_reader = Collectors.SystematicsReader(
+    name = "systematics_reader",
+    cfg = Collectors.Systematics_cfg,
+)
+systematics_collector = Collectors.SystematicsCollector(
+    name = "systematics_collector",
+    plot = True,
+    cfg = Collectors.Systematics_cfg,
+)
+
 sequence = [
     # Creates object collections accessible through the event variable. e.g.
     # event.Jet.pt rather than event.Jet_pt. Simpler to pass a collection to
@@ -217,4 +228,5 @@ sequence = [
     (gen_stitching_reader, gen_stitching_collector),
     (met_response_resolution_reader, met_response_resolution_collector),
     (qcd_ewk_corrections_reader, qcd_ewk_corrections_collector),
+    (systematics_reader, systematics_collector),
 ]

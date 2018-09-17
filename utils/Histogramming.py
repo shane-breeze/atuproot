@@ -19,10 +19,15 @@ class Histogram(object):
         functions = [var for var in self.variables+[self.weight]+self.selection]
         self.string_to_func = {f: Lambda(f) for f in functions}
 
+        self.isdata = event.config.dataset.isdata
+
     def end(self):
         self.string_to_func = {}
 
     def event(self, event):
+        if self.isdata and ("Up" in self.weight or "Down" in self.weight):
+            return True
+
         selection = reduce(lambda x,y: x & y, [
             self.string_to_func[s](event)
             for s in self.selection
@@ -101,7 +106,7 @@ class Histograms(object):
             raise KeyError("{} not found".format(identifier))
 
     def begin(self, event, parents, selection):
-        self.histograms = [((n[0], n[1], p, n[3]), copy.deepcopy(h))
+        self.histograms = [((n[0], n[1], p, n[3], n[4]), copy.deepcopy(h))
                            for n, h in self.histograms
                            for p in parents]
         for n, h in self.histograms:

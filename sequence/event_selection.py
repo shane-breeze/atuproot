@@ -22,6 +22,7 @@ tau_veto = "ev: (ev.TauSelection.size == ev.TauVeto.size) & (ev.TauVeto.size == 
 mtw_selection = "ev: (ev.MTW >= 30.) & (ev.MTW < 125.)"
 mll_selection = "ev: (ev.MLL >= 71.) & (ev.MLL < 111.)"
 
+large_weight_removal = "ev: (ev.Weight_MET<100.) & (ev.Weight_SingleMuon<100.)"
 ngen_boson_selection = "ev: True if ev.config.parent not in 'EWKV2Jets' else (ev.nGenBosons==1)"
 
 blind_mask = "ev: ev.BlindMask"
@@ -44,6 +45,7 @@ baseline_selection = [
     ("pho_veto", pho_veto),
     ("nbjet_veto", nbjet_veto),
     ("tau_veto", tau_veto),
+    ("large_weight_removal", large_weight_removal),
 ]
 
 monojet_selection = [

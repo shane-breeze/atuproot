@@ -18,13 +18,13 @@ histogrammer_cfgs = [
         "categories": categories,
         "variables": ["ev: ev.GenPartBoson_pt"],
         "bins": [[-inf]+list(np.linspace(0., 2000., 51))+[inf]],
-        "weight": "ev: ev.Weight_XsLumi",
+        "weights": [("nominal", "ev: ev.Weight_XsLumi")],
     }, {
         "name": "GenPartBoson_pt_corrected",
         "categories": categories,
         "variables": ["ev: ev.GenPartBoson_pt"],
         "bins": [[-inf]+list(np.linspace(0., 2000., 51))+[inf]],
-        "weight": "ev: ev.Weight_XsLumi*ev.WeightQCDEWK",
+        "weights": [("nominal", "ev: ev.Weight_XsLumi*ev.WeightQCDEWK")],
     },
 ]
 

@@ -17,7 +17,7 @@ histogrammer_cfgs = [
                       "ev: ev.DiMuon_pt"],
         "bins": [[-inf]+list(np.linspace(-250, 250., 51))+[inf],
                  [-inf]+bins+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
     }, {
         "name": ["METnoX_diMuonPerpProjPt",
                  "DiMuon_pt"],
@@ -26,7 +26,7 @@ histogrammer_cfgs = [
                       "ev: ev.DiMuon_pt"],
         "bins": [[-inf]+list(np.linspace(-250., 250., 51))+[inf],
                  [-inf]+bins+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
     }, {
         "name": ["METnoX_diMuonParaProjPt_Div_DiMuon_pt",
                  "DiMuon_pt"],
@@ -35,7 +35,7 @@ histogrammer_cfgs = [
                       "ev: ev.DiMuon_pt"],
         "bins": [[-inf]+list(np.linspace(0., 2., 51))+[inf],
                  [-inf]+bins+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
     }, {
         "name": ["METnoX_diMuonPerpProjPt_Plus_DiMuon_pt_Div_DiMuon_pt",
                  "DiMuon_pt"],
@@ -44,7 +44,7 @@ histogrammer_cfgs = [
                       "ev: ev.DiMuon_pt"],
         "bins": [[-inf]+list(np.linspace(0., 2., 51))+[inf],
                  [-inf]+bins+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
     }, {
         "name": ["METnoX_diMuonParaProjPt_Minus_DiMuon_pt",
                  "METnoX_pt"],
@@ -53,7 +53,7 @@ histogrammer_cfgs = [
                       "ev: ev.METnoX_pt"],
         "bins": [[-inf]+list(np.linspace(-250, 250., 51))+[inf],
                  [-inf]+bins+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
     }, {
         "name": ["METnoX_diMuonPerpProjPt",
                  "METnoX_pt"],
@@ -62,7 +62,7 @@ histogrammer_cfgs = [
                       "ev: ev.METnoX_pt"],
         "bins": [[-inf]+list(np.linspace(-250., 250., 51))+[inf],
                  [-inf]+bins+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
     }, {
         "name": ["METnoX_diMuonParaProjPt_Div_DiMuon_pt",
                  "METnoX_pt"],
@@ -71,7 +71,7 @@ histogrammer_cfgs = [
                       "ev: ev.METnoX_pt"],
         "bins": [[-inf]+list(np.linspace(0., 2., 51))+[inf],
                  [-inf]+bins+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
     }, {
         "name": ["METnoX_diMuonPerpProjPt_Plus_DiMuon_pt_Div_DiMuon_pt",
                  "METnoX_pt"],
@@ -80,7 +80,7 @@ histogrammer_cfgs = [
                       "ev: ev.METnoX_pt"],
         "bins": [[-inf]+list(np.linspace(0., 2., 51))+[inf],
                  [-inf]+bins+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
     },
 ]
 

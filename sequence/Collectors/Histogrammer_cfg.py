@@ -22,11 +22,10 @@ muon_categories = [("MET", "SingleMuon"), ("MET", "SingleMuonSB"), ("MET", "Sing
 dimuon_categories = [("MET", "DoubleMuon"), ("MET", "DoubleMuonSB"), ("MET", "DoubleMuonSR"),
                      ("SingleMuon", "DoubleMuon"),("SingleMuon", "DoubleMuonSB"), ("SingleMuon", "DoubleMuonSR")]
 
-ele_categories = [("MET", "SingleElectron"), ("MET", "SingleElectronSB"), ("MET", "SingleElectronSR")]
-diele_categories = [("MET", "DoubleElectron"), ("MET", "DoubleElectronSB"), ("MET", "DoubleElectronSR")]
+ele_categories = [] #[("MET", "SingleElectron"), ("MET", "SingleElectronSB"), ("MET", "SingleElectronSR")]
+diele_categories = [] #[("MET", "DoubleElectron"), ("MET", "DoubleElectronSB"), ("MET", "DoubleElectronSR")]
 
-categories = monojet_categories + muon_categories + dimuon_categories + \
-                                  ele_categories + diele_categories
+categories = monojet_categories + muon_categories + dimuon_categories
 
 histogrammer_cfgs = [
     {
@@ -34,85 +33,85 @@ histogrammer_cfgs = [
         "categories": categories,
         "variables": ["ev: ev.METnoX_pt"],
         "bins": [[-inf]+list(np.linspace(0., 1000., 41))+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
     }, {
         "name": "METnoX_phi",
         "categories": categories,
         "variables": ["ev: ev.METnoX_phi"],
         "bins": [[-inf]+list(np.linspace(-pi, pi, 51))+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
     }, {
         "name": "METnoX_diMuonParaProjPt_Minus_DiMuon_pt",
         "categories": dimuon_categories,
         "variables": ["ev: ev.METnoX_diMuonParaProjPt_Minus_DiMuon_pt"],
         "bins": [[-inf]+list(np.linspace(-250, 250., 51))+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
     }, {
         "name": "METnoX_diMuonPerpProjPt",
         "categories": dimuon_categories,
         "variables": ["ev: ev.METnoX_diMuonPerpProjPt"],
         "bins": [[-inf]+list(np.linspace(-250., 250., 51))+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
     }, {
         "name": "DiMuon_pt",
         "categories": dimuon_categories,
         "variables": ["ev: ev.DiMuon_pt"],
         "bins": [[-inf]+list(np.linspace(0., 1000., 41))+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
     }, {
         "name": "DiMuon_phi",
         "categories": dimuon_categories,
         "variables": ["ev: ev.DiMuon_phi"],
         "bins": [[-inf]+list(np.linspace(-pi, pi, 51))+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
     }, {
         "name": "MET_pt",
         "categories": categories,
         "variables": ["ev: ev.MET_pt"],
         "bins": [[-inf]+list(np.linspace(0., 1000., 41))+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
     }, {
         "name": "MET_phi",
         "categories": categories,
         "variables": ["ev: ev.MET_phi"],
         "bins": [[-inf]+list(np.linspace(-pi, pi, 51))+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
     }, {
         "name": "CaloMET_pt",
         "categories": categories,
         "variables": ["ev: ev.CaloMET_pt"],
         "bins": [[-inf]+list(np.linspace(0., 500., 51))+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
     }, {
         "name": "CaloMET_phi",
         "categories": categories,
         "variables": ["ev: ev.CaloMET_phi"],
         "bins": [[-inf]+list(np.linspace(-pi, pi, 51))+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
     }, {
         "name": "HT40",
         "categories": categories,
         "variables": ["ev: ev.HT40"],
         "bins": [[-inf]+list(np.linspace(0., 3000., 61))+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
     }, {
         "name": "MHT40_pt",
         "categories": categories,
         "variables": ["ev: ev.MHT40_pt"],
         "bins": [[-inf]+list(np.linspace(0., 1000., 41))+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
     }, {
         "name": "MHT40_phi",
         "categories": categories,
         "variables": ["ev: ev.MHT40_phi"],
         "bins": [[-inf]+list(np.linspace(-pi, pi, 51))+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
     }, {
         "name": "MHT40_pt_div_METnoX_pt",
         "categories": categories,
         "variables": ["ev: ev.MHT40_pt / ev.METnoX_pt"],
         "bins": [[-inf]+list(np.linspace(0., 3., 61))+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
     }, {
         "name": "MinDPhiJ1234METnoX",
         "categories": categories + [(d, "{}_remove_dphi_jet_met_selection".format(c))
@@ -120,7 +119,7 @@ histogrammer_cfgs = [
                                     for d in all_datasets],
         "variables": ["ev: ev.MinDPhiJ1234METnoX"],
         "bins": [[-inf]+list(np.linspace(0., pi, 51))+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
     }, {
         "name": "MET_dCaloMET",
         "categories": categories + [(d, "{}_remove_dcalo_pfmet_selection".format(c))
@@ -128,7 +127,7 @@ histogrammer_cfgs = [
                                     for d in all_datasets],
         "variables": ["ev: ev.MET_dCaloMET"],
         "bins": [[-inf]+list(np.linspace(0., 1., 51))+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
     }, {
         "name": "MTW",
         "categories": muon_categories + [(d, "{}_remove_mtw_selection".format(c))
@@ -136,13 +135,13 @@ histogrammer_cfgs = [
                                          for d in all_datasets],
         "variables": ["ev: ev.MTW"],
         "bins": [[-inf]+list(np.linspace(0., 200., 51))+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
     }, {
         "name": "MLL",
         "categories": dimuon_categories,
         "variables": ["ev: ev.MLL"],
         "bins": [[-inf]+list(np.linspace(65., 115., 51))+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
     }, {
         "name": "MLL_wide",
         "categories": dimuon_categories + [(d, "{}_remove_mll_selection".format(c))
@@ -150,85 +149,85 @@ histogrammer_cfgs = [
                                            for d in all_datasets],
         "variables": ["ev: ev.MLL"],
         "bins": [[-inf]+list(np.linspace(0., 200., 51))+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
     }, {
         "name": "nJetVeto",
         "categories": categories,
         "variables": ["ev: ev.JetVeto.size"],
         "bins": [[-inf]+list(np.linspace(0., 10., 11))+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
     }, {
         "name": "nJetSelection",
         "categories": categories,
         "variables": ["ev: ev.JetSelection.size"],
         "bins": [[-inf]+list(np.linspace(0., 10., 11))+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
     }, {
         "name": "LeadJetSelection_pt",
         "categories": categories,
         "variables": ["ev: ev.LeadJetSelection_pt"],
         "bins": [[-inf]+list(np.linspace(0., 1200., 49))+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
     }, {
         "name": "LeadJetSelection_eta",
         "categories": categories,
         "variables": ["ev: ev.LeadJetSelection_eta"],
         "bins": [[-inf]+list(np.linspace(-5., 5., 51))+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
     }, {
         "name": "LeadJetSelection_phi",
         "categories": categories,
         "variables": ["ev: ev.LeadJetSelection_phi"],
         "bins": [[-inf]+list(np.linspace(-pi, pi, 51))+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
     }, {
         "name": "LeadJetSelection_chEmEF",
         "categories": categories,
         "variables": ["ev: ev.LeadJetSelection_chEmEF"],
         "bins": [[-inf]+list(np.linspace(0., 1., 41))+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
     }, {
         "name": "LeadJetSelection_chHEF",
         "categories": categories,
         "variables": ["ev: ev.LeadJetSelection_chHEF"],
         "bins": [[-inf]+list(np.linspace(0., 1., 41))+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
     }, {
         "name": "LeadJetSelection_neEmEF",
         "categories": categories,
         "variables": ["ev: ev.LeadJetSelection_neEmEF"],
         "bins": [[-inf]+list(np.linspace(0., 1., 41))+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
     }, {
         "name": "LeadJetSelection_neHEF",
         "categories": categories,
         "variables": ["ev: ev.LeadJetSelection_neHEF"],
         "bins": [[-inf]+list(np.linspace(0., 1., 41))+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
     }, {
         "name": "nMuonVeto",
         "categories": categories,
         "variables": ["ev: ev.MuonVeto.size"],
         "bins": [[-inf]+list(np.linspace(0., 5., 6))+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
     }, {
         "name": "nMuonSelection",
         "categories": categories,
         "variables": ["ev: ev.MuonSelection.size"],
         "bins": [[-inf]+list(np.linspace(0., 5., 6))+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
     }, {
         "name": "nElectronVeto",
         "categories": categories,
         "variables": ["ev: ev.ElectronVeto.size"],
         "bins": [[-inf]+list(np.linspace(0., 5., 6))+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
     }, {
         "name": "nElectronSelection",
         "categories": categories,
         "variables": ["ev: ev.ElectronSelection.size"],
         "bins": [[-inf]+list(np.linspace(0., 5., 6))+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
     }, {
         "name": "nPhotonVeto",
         "categories": categories + [(d, "{}_remove_pho_veto".format(c))
@@ -236,13 +235,13 @@ histogrammer_cfgs = [
                                     for d in all_datasets],
         "variables": ["ev: ev.PhotonVeto.size"],
         "bins": [[-inf]+list(np.linspace(0., 5., 6))+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
     }, {
         "name": "nPhotonSelection",
         "categories": categories,
         "variables": ["ev: ev.PhotonSelection.size"],
         "bins": [[-inf]+list(np.linspace(0., 5., 6))+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
     }, {
         "name": "nTauVeto",
         "categories": categories + [(d, "{}_remove_tau_veto".format(c))
@@ -250,13 +249,13 @@ histogrammer_cfgs = [
                                     for d in all_datasets],
         "variables": ["ev: ev.TauVeto.size"],
         "bins": [[-inf]+list(np.linspace(0., 5., 6))+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
     }, {
         "name": "nTauSelection",
         "categories": categories,
         "variables": ["ev: ev.TauSelection.size"],
         "bins": [[-inf]+list(np.linspace(0., 5., 6))+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
     }, {
         "name": "nBJetSelectionMedium",
         "categories": categories + [(d, "{}_remove_nbjet_veto".format(c))
@@ -264,122 +263,128 @@ histogrammer_cfgs = [
                                     for d in all_datasets],
         "variables": ["ev: ev.nBJetSelectionMedium"],
         "bins": [[-inf]+list(np.linspace(0., 5., 6))+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
     }, {
         "name": "LeadMuonSelection_pt",
         "categories": muon_categories + dimuon_categories,
         "variables": ["ev: ev.LeadMuonSelection_pt"],
         "bins": [[-inf]+list(np.linspace(0., 1000., 51))+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
     }, {
         "name": "LeadMuonSelection_eta",
         "categories": muon_categories + dimuon_categories,
         "variables": ["ev: ev.LeadMuonSelection_eta"],
         "bins": [[-inf]+list(np.linspace(-5., 5., 51))+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
     }, {
         "name": "LeadMuonSelection_phi",
         "categories": muon_categories + dimuon_categories,
         "variables": ["ev: ev.LeadMuonSelection_phi"],
         "bins": [[-inf]+list(np.linspace(-pi, pi, 51))+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
     }, {
         "name": "SecondMuonSelection_pt",
         "categories": dimuon_categories,
         "variables": ["ev: ev.SecondMuonSelection_pt"],
         "bins": [[-inf]+list(np.linspace(0., 1000., 51))+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
     }, {
         "name": "SecondMuonSelection_eta",
         "categories": dimuon_categories,
         "variables": ["ev: ev.SecondMuonSelection_eta"],
         "bins": [[-inf]+list(np.linspace(-5., 5., 51))+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
     }, {
         "name": "SecondMuonSelection_phi",
         "categories": dimuon_categories,
         "variables": ["ev: ev.SecondMuonSelection_phi"],
         "bins": [[-inf]+list(np.linspace(-pi, pi, 51))+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
     }, {
         "name": "LeadElectronSelection_pt",
         "categories": ele_categories + diele_categories,
         "variables": ["ev: ev.LeadElectronSelection_pt"],
         "bins": [[-inf]+list(np.linspace(0., 1000., 51))+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
     }, {
         "name": "LeadElectronSelection_eta",
         "categories": ele_categories + diele_categories,
         "variables": ["ev: ev.LeadElectronSelection_eta"],
         "bins": [[-inf]+list(np.linspace(-5., 5., 51))+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
     }, {
         "name": "LeadElectronSelection_phi",
         "categories": ele_categories + diele_categories,
         "variables": ["ev: ev.LeadElectronSelection_phi"],
         "bins": [[-inf]+list(np.linspace(-pi, pi, 51))+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
     }, {
         "name": "SecondElectronSelection_pt",
         "categories": diele_categories,
         "variables": ["ev: ev.SecondElectronSelection_pt"],
         "bins": [[-inf]+list(np.linspace(0., 1000., 51))+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
     }, {
         "name": "SecondElectronSelection_eta",
         "categories": diele_categories,
         "variables": ["ev: ev.SecondElectronSelection_eta"],
         "bins": [[-inf]+list(np.linspace(-5., 5., 51))+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
     }, {
         "name": "SecondElectronSelection_phi",
         "categories": diele_categories,
         "variables": ["ev: ev.SecondElectronSelection_phi"],
         "bins": [[-inf]+list(np.linspace(-pi, pi, 51))+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
     }, {
         "name": "PV_npvsGood",
         "categories": categories,
         "variables": ["ev: ev.PV_npvsGood"],
         "bins": [[-inf]+list(np.linspace(0., 100., 51))+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
     }, {
         "name": "LeptonDecay",
         "categories": categories,
         "variables": ["ev: ev.LeptonDecay"],
         "bins": [[-inf]+list(np.linspace(10., 20., 11))+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
     }, {
         "name": "nGenBosons",
         "categories": categories,
         "variables": ["ev: ev.nGenBosons"],
         "bins": [[-inf]+list(np.linspace(0., 5., 6))+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
     }, {
         "name": "GenPartBoson_pt",
         "categories": categories,
         "variables": ["ev: ev.GenPartBoson_pt"],
         "bins": [[-inf]+list(np.linspace(0., 1000., 41))+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
     }, {
         "name": "GenPartBoson_eta",
         "categories": categories,
         "variables": ["ev: ev.GenPartBoson_eta"],
         "bins": [[-inf]+list(np.linspace(-5., 5., 51))+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
     }, {
         "name": "GenPartBoson_phi",
         "categories": categories,
         "variables": ["ev: ev.GenPartBoson_phi"],
         "bins": [[-inf]+list(np.linspace(-pi, pi, 51))+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
     }, {
         "name": "GenPartBoson_mass",
         "categories": categories,
         "variables": ["ev: ev.GenPartBoson_mass"],
         "bins": [[-inf]+list(np.linspace(0., 500., 51))+[inf]],
-        "weight": "ev: ev.Weight_{dataset}",
-    },
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
+    }, {
+        "name": "Weight_MET",
+        "categories": monojet_categories,
+        "variables": ["ev: ev.Weight_MET"],
+        "bins": [[-inf]+list(np.linspace(-50, 950, 51))+[inf]],
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
+    }
 ]
 
 sample_colours = {
@@ -429,7 +434,9 @@ sample_names = {
 }
 
 axis_label = {
-    "Weight": r'Weight',
+    "Weight_MET": r'Weight',
+    "Weight_SingleMuon": r'Weight',
+    "Weight_SingleElectron": r'Weight',
     "METnoX_pt": r'$E_{T}^{miss}$ (GeV)',
     "METnoX_phi": r'$E_{T}^{miss}\ \phi$',
     "METnoX_diMuonParaProjPt_Minus_DiMuon_pt": r'$E_{T,\parallel}^{miss} - p_{T}(\mu\mu)$ (GeV)',
