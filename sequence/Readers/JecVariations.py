@@ -3,6 +3,8 @@ import numpy as np
 from numba import njit, int32, float32
 from utils.Geometry import DeltaR2, RadToCart, CartToRad
 
+np.random.seed(123456)
+
 class JecVariations(object):
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
@@ -49,9 +51,8 @@ class JecVariations(object):
 
         met, mephi = get_jer_met_correction(self.uncl_energy_thresh, jer_corr,
                                             event.Jet, event.MET)
-
-        event.MET.pt = met
-        event.MET.phi = mephi
+        event.MET_pt = met
+        event.MET_phi = mephi
 
         if self.variation is None:
             return True
@@ -99,7 +100,7 @@ def jit_get_jet_ptresolution(bins, var_ranges, params,
 
                     jet_pt = min(var_range[1], max(var_range[0], jets_pt[ij]))
                     resolution[ij] = np.sqrt(max(0.,
-                        (param[0]*np.abs(jet_pt)/jet_pt**2) \
+                        (param[0]*np.abs(param[0])/jet_pt**2) \
                         + param[1]**2*np.power(jet_pt, param[3]) \
                         + param[2]**2
                     ))
@@ -171,8 +172,10 @@ def jit_get_jer_correction(jersf,
             if rel_genjetidx >= 0:
                 corr = 1.+(jersf[ij]-1.)*(jets_pt[ij]-genjets_pt[gjb+rel_genjetidx])/jets_pt[ij]
             else:
-                corr = 1.+np.random.normal(0., 1.)*jets_res[ij]*np.sqrt(max(jersf[ij]**2-1., 0.))
-            corrs[ij] = abs(corr)
+                #corr = np.random.lognormal(0., jets_res[ij]*np.sqrt(max(jersf[ij]**2-1., 0.)))
+                corr = np.random.normal(1., jets_res[ij]*np.sqrt(max(jersf[ij]**2-1., 0.)))
+            #corrs[ij] = max(0., corr)
+            corrs[ij] = np.abs(corr)
     return corrs
 
 def get_jer_met_correction(uncl_energy_thresh, jer_corr, jets, met):
