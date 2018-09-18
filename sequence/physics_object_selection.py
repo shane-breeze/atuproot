@@ -1,3 +1,6 @@
+from utils.classes import EmptyClass
+physics_object_selection = EmptyClass()
+
 jet_veto = "j: (j.pt>40.) & "\
               "(j.jetId>=1) & "\
               "((j.puId>=1) | (j.pt>50.))"
@@ -49,7 +52,7 @@ tau_sele = "t: (t.pt>40.) & "\
               "(np.abs(t.eta)<2.1) & "\
               "(t.idMVAoldDM>=8)"
 
-selection_dict = {
+physics_object_selection.selection_dict = {
     ("Jet",      "JetVeto"):           jet_veto,
     ("Jet",      "JetSelection"):      jet_sele,
     ("Muon",     "MuonVeto"):          muo_veto,

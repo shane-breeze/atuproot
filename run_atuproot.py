@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+import os
+import sys
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -49,6 +51,11 @@ def parse_args():
                              "only to rerun the draw function on outdir")
     return parser.parse_args()
 
+def generate_report(outdir):
+    filepath = os.path.join(outdir, "report.txt")
+    with open(filepath, 'w') as f:
+        f.write("python "+" ".join(sys.argv)+"\n")
+
 def run(sequence, datasets, options):
     process = AtUproot(options.outdir,
         quiet = options.quiet,
@@ -95,6 +102,9 @@ def parallel_draw(jobs, options):
 
 if __name__ == "__main__":
     options = parse_args()
+    if not os.path.exists(options.outdir):
+        os.makedirs(options.outdir)
+    generate_report(options.outdir)
 
     sequence = build_sequence(options.sequence_cfg)
     datasets = get_datasets(options.dataset_cfg)

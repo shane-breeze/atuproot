@@ -1,3 +1,6 @@
+from utils.classes import EmptyClass
+event_selection = EmptyClass()
+
 lumi_selection = "ev: ev.IsCertified"
 trigger_selection = "ev: ev.IsTriggered"
 filter_selection = "ev: (ev.Flag_goodVertices>0.5) & "\
@@ -31,14 +34,14 @@ metsb_selection = "ev: ev.METnoX.pt <= 250."
 metsr_selection = "ev: ev.METnoX.pt > 250."
 
 # Selections
-data_selection = [
+event_selection.data_selection = [
     ("lumi_selection", lumi_selection),
     ("trigger_selection", trigger_selection),
 ]
 
-mc_selection = []
+event_selection.mc_selection = []
 
-baseline_selection = [
+event_selection.baseline_selection = [
     ("filter_selection", filter_selection),
     ("met_selection", met_selection),
     ("dcalo_pfmet_selection", dcalo_pfmet_selection),
@@ -49,19 +52,19 @@ baseline_selection = [
     ("large_weight_removal", large_weight_removal),
 ]
 
-monojet_selection = [
+event_selection.monojet_selection = [
     ("blind_mask", blind_mask),
     ("dphi_jet_met_selection", dphi_jet_met_selection),
     ("muon_selection_fmt_0", muon_selection.format(0)),
     ("ele_selection_fmt_0", ele_selection.format(0)),
 ]
-monojetsb_selection = [
+event_selection.monojetsb_selection = [
     ("metsb_selection", metsb_selection),
     ("dphi_jet_met_selection", dphi_jet_met_selection),
     ("muon_selection_fmt_0", muon_selection.format(0)),
     ("ele_selection_fmt_0", ele_selection.format(0)),
 ]
-monojetsr_selection = [
+event_selection.monojetsr_selection = [
     ("blind_mask", blind_mask),
     ("metsr_selection", metsr_selection),
     ("dphi_jet_met_selection", dphi_jet_met_selection),
@@ -69,20 +72,20 @@ monojetsr_selection = [
     ("ele_selection_fmt_0", ele_selection.format(0)),
 ]
 
-singlemuon_selection = [
+event_selection.singlemuon_selection = [
     ("dphi_jet_met_selection", dphi_jet_met_selection),
     ("muon_selection_fmt_1", muon_selection.format(1)),
     ("ele_selection_fmt_0", ele_selection.format(0)),
     ("mtw_selection", mtw_selection),
 ]
-singlemuonsb_selection = [
+event_selection.singlemuonsb_selection = [
     ("metsb_selection", metsb_selection),
     ("dphi_jet_met_selection", dphi_jet_met_selection),
     ("muon_selection_fmt_1", muon_selection.format(1)),
     ("ele_selection_fmt_0", ele_selection.format(0)),
     ("mtw_selection", mtw_selection),
 ]
-singlemuonsr_selection = [
+event_selection.singlemuonsr_selection = [
     ("metsr_selection", metsr_selection),
     ("dphi_jet_met_selection", dphi_jet_met_selection),
     ("muon_selection_fmt_1", muon_selection.format(1)),
@@ -90,21 +93,21 @@ singlemuonsr_selection = [
     ("mtw_selection", mtw_selection),
 ]
 
-doublemuon_selection = [
+event_selection.doublemuon_selection = [
     ("blind_mask", blind_mask),
     ("dphi_jet_met_selection", dphi_jet_met_selection),
     ("muon_selection_fmt_2", muon_selection.format(2)),
     ("ele_selection_fmt_0", ele_selection.format(0)),
     ("mll_selection", mll_selection),
 ]
-doublemuonsb_selection = [
+event_selection.doublemuonsb_selection = [
     ("metsb_selection", metsb_selection),
     ("dphi_jet_met_selection", dphi_jet_met_selection),
     ("muon_selection_fmt_2", muon_selection.format(2)),
     ("ele_selection_fmt_0", ele_selection.format(0)),
     ("mll_selection", mll_selection),
 ]
-doublemuonsr_selection = [
+event_selection.doublemuonsr_selection = [
     ("blind_mask", blind_mask),
     ("metsr_selection", metsr_selection),
     ("dphi_jet_met_selection", dphi_jet_met_selection),
@@ -113,20 +116,20 @@ doublemuonsr_selection = [
     ("mll_selection", mll_selection),
 ]
 
-singleelectron_selection = [
+event_selection.singleelectron_selection = [
     ("dphi_jet_met_selection", dphi_jet_met_selection),
     ("muon_selection_fmt_0", muon_selection.format(0)),
     ("ele_selection_fmt_1", ele_selection.format(1)),
     ("mtw_selection", mtw_selection),
 ]
-singleelectronsb_selection = [
+event_selection.singleelectronsb_selection = [
     ("metsb_selection", metsb_selection),
     ("dphi_jet_met_selection", dphi_jet_met_selection),
     ("muon_selection_fmt_0", muon_selection.format(0)),
     ("ele_selection_fmt_1", ele_selection.format(1)),
     ("mtw_selection", mtw_selection),
 ]
-singleelectronsr_selection = [
+event_selection.singleelectronsr_selection = [
     ("metsr_selection", metsr_selection),
     ("dphi_jet_met_selection", dphi_jet_met_selection),
     ("muon_selection_fmt_0", muon_selection.format(0)),
@@ -134,20 +137,20 @@ singleelectronsr_selection = [
     ("mtw_selection", mtw_selection),
 ]
 
-doubleelectron_selection = [
+event_selection.doubleelectron_selection = [
     ("dphi_jet_met_selection", dphi_jet_met_selection),
     ("muon_selection_fmt_0", muon_selection.format(0)),
     ("ele_selection_fmt_2", ele_selection.format(2)),
     ("mll_selection", mll_selection),
 ]
-doubleelectronsb_selection = [
+event_selection.doubleelectronsb_selection = [
     ("metsb_selection", metsb_selection),
     ("dphi_jet_met_selection", dphi_jet_met_selection),
     ("muon_selection_fmt_0", muon_selection.format(0)),
     ("ele_selection_fmt_2", ele_selection.format(2)),
     ("mll_selection", mll_selection),
 ]
-doubleelectronsr_selection = [
+event_selection.doubleelectronsr_selection = [
     ("metsr_selection", metsr_selection),
     ("dphi_jet_met_selection", dphi_jet_met_selection),
     ("muon_selection_fmt_0", muon_selection.format(0)),
@@ -155,18 +158,18 @@ doubleelectronsr_selection = [
     ("mll_selection", mll_selection),
 ]
 
-monojetqcd_selection = [
+event_selection.monojetqcd_selection = [
     ("dphi_jet_met_inv_selection", dphi_jet_met_inv_selection),
     ("muon_selection_fmt_0", muon_selection.format(0)),
     ("ele_selection_fmt_0", ele_selection.format(0)),
 ]
-monojetqcdsb_selection = [
+event_selection.monojetqcdsb_selection = [
     ("metsb_selection", metsb_selection),
     ("dphi_jet_met_inv_selection", dphi_jet_met_inv_selection),
     ("muon_selection_fmt_0", muon_selection.format(0)),
     ("ele_selection_fmt_0", ele_selection.format(0)),
 ]
-monojetqcdsr_selection = [
+event_selection.monojetqcdsr_selection = [
     ("metsr_selection", metsr_selection),
     ("dphi_jet_met_inv_selection", dphi_jet_met_inv_selection),
     ("muon_selection_fmt_0", muon_selection.format(0)),

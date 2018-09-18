@@ -1,7 +1,6 @@
 import logging
 import numpy as np
 
-import sequence.event_selection as es
 from utils.Lambda import Lambda
 
 class SelectionProducer(object):
@@ -11,6 +10,7 @@ class SelectionProducer(object):
 
     def begin(self, event):
         self.isdata = event.config.dataset.isdata
+        es = self.event_selection
 
         baseline = es.data_selection if self.isdata else es.mc_selection
         self.selections = {

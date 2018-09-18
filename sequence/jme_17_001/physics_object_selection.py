@@ -1,3 +1,6 @@
+from utils.classes import EmptyClass
+physics_object_selection = EmptyClass()
+
 jet_veto = "j: (j.pt>40.) & "\
               "(j.jetId>=1) & "\
               "((j.puId>=1) | (j.pt>50.))"
@@ -6,24 +9,24 @@ jet_sele = "j: (j.pt>40.) & "\
               "(j.jetId>=1) & "\
               "((j.puId>=1) | (j.pt>50.))"
 
-muo_veto = "u: (u.pt>20.) & "\
+muo_veto = "u: (u.pt>10.) & "\
               "(np.abs(u.eta)<2.5) & "\
               "(np.abs(u.pfRelIso04_all)<0.25) & "\
               "(np.abs(u.dxy)<0.5) & "\
               "(np.abs(u.dz)<1.0)"
-muo_sele = "u: (u.pt>30.) &"\
+muo_sele = "u: (u.pt>20.) &"\
               "(np.abs(u.eta)<2.1) & "\
               "(np.abs(u.pfRelIso04_all)<0.15) &"\
               "(u.tightId>=1)"
 
-ele_veto = "e: (e.pt>20.) & "\
+ele_veto = "e: (e.pt>10.) & "\
               "(np.abs(e.eta)<2.5) & "\
               "(e.cutBased>=1) & "\
               "(np.abs(e.dxy)<0.118) & "\
               "(np.abs(e.dz)<0.822) & "\
               "(e.convVeto)"
-ele_sele = "e: (e.pt>30.) & "\
-              "(np.abs(e.eta)<2.1) & "\
+ele_sele = "e: (e.pt>20.) & "\
+              "(np.abs(e.eta)<2.5) & "\
               "(e.cutBased>=4) & "\
               "(((np.abs(e.eta)<=1.479) & "\
                 "(np.abs(e.dxy)<0.05) & "\
@@ -49,7 +52,7 @@ tau_sele = "t: (t.pt>40.) & "\
               "(np.abs(t.eta)<2.1) & "\
               "(t.idMVAoldDM>=8)"
 
-selection_dict = {
+physics_object_selection.selection_dict = {
     ("Jet",      "JetVeto"):           jet_veto,
     ("Jet",      "JetSelection"):      jet_sele,
     ("Muon",     "MuonVeto"):          muo_veto,
