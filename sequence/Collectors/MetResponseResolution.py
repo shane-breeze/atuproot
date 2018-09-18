@@ -220,10 +220,14 @@ class MetResponseResolutionCollector(HistCollector):
         # https://en.wikipedia.org/wiki/Voigt_profile
         width_breit = 2.*gamma
         width_gauss = 2.*sigma*(2.*np.log(2.)**0.5)
-        phi = width_breit / width_gauss
-        c0 = 2.0056
-        c1 = 1.0593
-        width = width_gauss * (1. - c0*c1 + (phi**2 + 2.*c1*phi + c0**2*c1**2)**0.5)
+        if width_gauss != 0.:
+            phi = width_breit / width_gauss
+            c0 = 2.0056
+            c1 = 1.0593
+            width = sigma * (1. - c0*c1 + (phi**2 + 2.*c1*phi + c0**2*c1**2)**0.5)
+        else:
+            width = width_breit
+        # FWHM / (2*sqrt(2*ln(2)))
 
         def voigt(x, mean, sigma, gamma):
             z = ((x-mean) + 1j*gamma*0.5) / (sigma*np.sqrt(2))
