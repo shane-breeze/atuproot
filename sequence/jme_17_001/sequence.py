@@ -159,6 +159,11 @@ gen_stitching_collector = Collectors.GenStitchingCollector(
     cfg = Collectors.GenStitching_cfg,
 )
 
+import numpy as np
+for cfg in Collectors.MetResponseResolution_cfg.histogrammer_cfgs:
+    cfg["bins"][1] = [-np.infty, 0., 20., 26., 32., 38., 44., 50., 60., 70.,
+                      80., 90., 100., 116., 132., 150., 175., 200., 225., 250.,
+                      275., 305., 335., 365., 400., 450., np.infty]
 met_response_resolution_reader = Collectors.MetResponseResolutionReader(
     name = "met_response_resolution_reader",
     cfg = Collectors.MetResponseResolution_cfg,
