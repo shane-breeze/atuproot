@@ -197,7 +197,7 @@ sequence = [
     # this with all other branches
     (gen_boson_producer, NullCollector()),
     (lhe_part_assigner, NullCollector()),
-    (jec_variations, NullCollector()),
+    #(jec_variations, NullCollector()),
     (skim_collections, NullCollector()),
     # Cross cleaning must be placed after the veto and selection collections
     # are created but before they're used anywhere to allow the collection
