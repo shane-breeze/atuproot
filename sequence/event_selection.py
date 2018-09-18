@@ -12,6 +12,7 @@ dphi_jet_met_inv_selection = "ev: ev.MinDPhiJ1234METnoX <= 0.5"
 dcalo_pfmet_selection = "ev: ev.MET_dCaloMET < 0.5"
 jet_selection = "ev: (ev.JetSelection.size > 0) & "\
                     "(ev.JetSelection.size == ev.JetVeto.size) & "\
+                    "(ev.LeadJetSelection.pt > 200.) & "\
                     "(ev.LeadJetSelection.chHEF > 0.1) & "\
                     "(ev.LeadJetSelection.chHEF < 0.95)"
 muon_selection = "ev: (ev.MuonSelection.size == ev.MuonVeto.size) & (ev.MuonVeto.size == {})"
