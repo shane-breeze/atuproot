@@ -89,9 +89,9 @@ def dist_ratio(hist_data, hists_mc, filepath, cfg):
         "variance": sum(h["variance"] for h in hists_mc),
     }
     if "function" in hists_mc[0]:
-        hist_mc_sum["function"] = hists_mc[0]["function"]
-        hist_mc_sum["chi2"] = hists_mc[0]["chi2"]
-        hist_mc_sum["ndof"] = hists_mc[0]["ndof"]
+        for key in hists_mc[0]:
+            if key not in hist_mc_sum:
+                hist_mc_sum[key] = hists_mc[0][key]
 
     # Total MC yield (integrated across the distribution)
     # Also sort MC histograms
@@ -165,7 +165,7 @@ def dist_ratio(hist_data, hists_mc, filepath, cfg):
     if hist_data is not None and "function" in hist_data:
         xs, ys = hist_data["function"]
         try:
-            title.append(r'data $\chi^2/N_{dof}$'+" = {:.1f}/{:.0f}".format(hist_data["chi2"], hist_data["ndof"]))
+            title.append(hist_data["text"])
         except TypeError:
             pass
         ys = mc_sum*ys / sum(ys)
@@ -176,7 +176,7 @@ def dist_ratio(hist_data, hists_mc, filepath, cfg):
     if "function" in hist_mc_sum:
         xs, ys = hist_mc_sum["function"]
         try:
-            title.append(r'mc $\chi^2/N_{dof}$'+" = {:.1f}/{:.0f}".format(hist_mc_sum["chi2"], hist_mc_sum["ndof"]))
+            title.append(hist_mc_sum["text"])
         except TypeError:
             pass
         ys = mc_sum*ys / sum(ys)

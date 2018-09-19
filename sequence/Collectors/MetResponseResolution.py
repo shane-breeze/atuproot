@@ -78,16 +78,12 @@ class MetResponseResolutionCollector(HistCollector):
 
             for icat in range(len(hist_datas)):
                 hist_data = hist_datas[icat]
-                hist_data["function"] = results["data"][icat]["function"]
-                hist_data["chi2"] = results["data"][icat]["chi2"]
-                hist_data["ndof"] = results["data"][icat]["ndof"]
+                hist_data.update(results["data"][icat])
                 if plot_items[icat]["category"] >= 250.:
                     hist_data = None
                 hists_mc = [h[icat] for h in hists_mcs]
                 for h in hists_mc:
-                    h["function"] = results["mc"][icat]["function"]
-                    h["chi2"] = results["mc"][icat]["chi2"]
-                    h["ndof"] = results["mc"][icat]["ndof"]
+                    h.update(results["mc"][icat])
 
                 name = plot_items[icat]["name"][1]
                 name = self.cfg.axis_label.get(name, name)
@@ -248,7 +244,7 @@ class MetResponseResolutionCollector(HistCollector):
             "gamma": (gamma.n, gamma.s),
             "width": (width.n, width.s),
             "function": (xs, voigt(xs, mean.n, sigma.n, gamma.n)),
-            "chi2": chi2*(len(bins)-3),
+            "chi2": chi2,
             "ndof": len(bins)-3,
         }
         return results
