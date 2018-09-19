@@ -121,6 +121,4 @@ if __name__ == "__main__":
             for ssjobs in sjobs
             if not ssjobs is None
         ]) for sjobs in jobs]
-    print(jobs)
-    exit()
     parallel_draw(jobs, options)
