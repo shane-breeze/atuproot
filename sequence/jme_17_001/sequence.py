@@ -1,3 +1,7 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.dirname(__file__)))
+
 import Readers
 import Collectors
 from event_selection import event_selection
@@ -139,6 +143,8 @@ selection_producer = Readers.SelectionProducer(
     event_selection = event_selection,
 )
 
+for cfg in Collectors.Histogrammer_cfg.histogrammer_cfgs:
+    cfg["categories"] = [cat for cat in cfg["categories"] if "remove" not in cat[1]]
 hist_reader = Collectors.HistReader(
     name = "hist_reader",
     cfg = Collectors.Histogrammer_cfg,

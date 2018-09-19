@@ -14,7 +14,7 @@ muo_veto = "u: (u.pt>10.) & "\
               "(np.abs(u.pfRelIso04_all)<0.25) & "\
               "(np.abs(u.dxy)<0.5) & "\
               "(np.abs(u.dz)<1.0)"
-muo_sele = "u: (u.pt>20.) &"\
+muo_sele = "u: (u.pt>30.) &"\
               "(np.abs(u.eta)<2.1) & "\
               "(np.abs(u.pfRelIso04_all)<0.15) &"\
               "(u.tightId>=1)"
