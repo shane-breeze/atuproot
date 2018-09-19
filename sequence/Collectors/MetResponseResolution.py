@@ -246,5 +246,8 @@ class MetResponseResolutionCollector(HistCollector):
             "function": (xs, voigt(xs, mean.n, sigma.n, gamma.n)),
             "chi2": chi2,
             "ndof": len(bins)-3,
+            "text": "Mean = {:.1f} +/- {:.1f}\nWidth = {:.1f} +/- {:.1f}".format(
+                mean.n, mean.s, width.n, width.s,
+            )
         }
         return results
