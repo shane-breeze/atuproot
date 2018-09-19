@@ -16,6 +16,11 @@ class SelectionProducer(object):
         self.selections = {
             "None": [],
             "Monojet": baseline + es.baseline_selection + es.monojet_selection,
+            "Monojet_unblind": [(n, s)
+                                for (n, s) in baseline \
+                                + es.baseline_selection \
+                                + es.monojet_selection
+                                if n not in ["met_selection", "blind_mask", "muon_selection_fmt_0"]],
             "MonojetSB": baseline + es.baseline_selection + es.monojetsb_selection,
             "MonojetSR": baseline + es.baseline_selection + es.monojetsr_selection,
             "MonojetQCD": baseline + es.baseline_selection + es.monojetqcd_selection,
@@ -27,7 +32,6 @@ class SelectionProducer(object):
             "DoubleMuon": baseline + es.baseline_selection + es.doublemuon_selection,
             "DoubleMuon_unblind": [(n, s)
                                    for (n, s) in baseline \
-                                   + es.baseline_selection \
                                    + es.baseline_selection \
                                    + es.doublemuon_selection
                                    if n not in ["met_selection", "blind_mask"]],

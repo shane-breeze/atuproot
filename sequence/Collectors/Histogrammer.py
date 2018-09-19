@@ -43,6 +43,8 @@ class HistReader(object):
             for dataset, cutflow in cfg["categories"]:
                 cutflow_restriction = "ev: ev.Cutflow_{}".format(cutflow)
                 selection = [cutflow_restriction]
+                if "additional_selection" in cfg:
+                    selection.extend(cfg["additional_selection"])
                 for weightname, weight in cfg["weights"]:
                     weight = weight.format(dataset=dataset)
                     identifier = (dataset, cutflow, None, cfg["name"], weightname)
