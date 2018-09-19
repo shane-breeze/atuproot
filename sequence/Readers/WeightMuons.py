@@ -69,7 +69,7 @@ class WeightMuons(object):
              np.array(sf["corr"]), np.array(sf["unc"]), np.array(sf.pop("unc"))]
             for sf in self.corrections_trig
         ]
-        for sf in self.corrections_iso:
+        for sf in self.corrections_trig:
             sf[0][sf[0]==np.min(sf[0])] = 0.
             sf[0][sf[0]==np.max(sf[0])] = np.infty
             sf[1][sf[1]==np.min(sf[1])] = 0.
@@ -217,8 +217,9 @@ def get_correction_pt_abseta_jit(mupt, mueta, starts, stops, weights,
                 for ibin in range(ptbins.shape[0]):
 
                     # find the bin
-                    if (ptbins[ibin,0] <= mupt[imu] < ptbins[ibin,1] \
-                        and etabins[ibin,0] <= abs(mueta[imu]) < etabins[ibin,1]):
+                    within_pt = ptbins[ibin,0] <= mupt[imu] < ptbins[ibin,1]
+                    within_eta = etabins[ibin,0] <= abs(mueta[imu]) < etabins[ibin,1]
+                    if within_pt and within_eta:
                         sum_weightcorr += weights[iw]*corr[ibin]
                         sum_weightcorrup2 += (weights[iw] * corr_up[ibin])**2
                         sum_weightcorrdown2 += (weights[iw] * corr_down[ibin])**2
