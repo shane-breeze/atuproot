@@ -50,7 +50,7 @@ class AtUproot(object):
         self.parallel.begin()
         try:
             loop = self._configure(datasets, reader_collector_pairs)
-            self._run(loop)
+            return self._run(loop)
         except KeyboardInterrupt:
             logger = logging.getLogger(__name__)
             logger.warning('received KeyboardInterrupt')
@@ -105,9 +105,10 @@ class AtUproot(object):
 
     def _run(self, loop):
         if not self.profile:
-            loop()
+            result = loop()
         else:
-            alphatwirl.misc.print_profile_func(
+            result = alphatwirl.misc.print_profile_func(
                func=loop,
                profile_out_path=self.profile_out_path
             )
+        return result

@@ -80,7 +80,7 @@ def parallel_draw(jobs, options):
     if len(jobs)==0:
         return
     jobs = [job for subjobs in jobs for job in subjobs]
-    jobs = [jobs[i:i+len(jobs)/100]
+    jobs = [jobs[i:i+len(jobs)/100+1]
             for i in xrange(0, len(jobs), len(jobs)/100+1)]
 
     parallel = build_parallel(
@@ -117,4 +117,10 @@ if __name__ == "__main__":
         jobs = redraw(sequence, datasets, options)
     else:
         jobs = run(sequence, datasets, options)
+        jobs = [reduce(lambda x, y: x + y, [ssjobs
+            for ssjobs in sjobs
+            if not ssjobs is None
+        ]) for sjobs in jobs]
+    print(jobs)
+    exit()
     parallel_draw(jobs, options)
