@@ -165,10 +165,10 @@ def dist_ratio(hist_data, hists_mc, filepath, cfg):
     if hist_data is not None and "function" in hist_data:
         xs, ys = hist_data["function"]
         try:
-            title.append(hist_data["text"])
+            title.extend(hist_data["text"])
         except TypeError:
             pass
-        ys = mc_sum*ys / sum(ys)
+        ys = hist_data["yields"].sum()*ys / sum(ys)
         xnew = np.linspace(xs.min(), xs.max(), xs.shape[0]*4)
         ynew = spline(xs, ys, xnew)
         axtop.plot(xnew, ynew, color="k", ls='--', label="Data fit")
@@ -176,7 +176,7 @@ def dist_ratio(hist_data, hists_mc, filepath, cfg):
     if "function" in hist_mc_sum:
         xs, ys = hist_mc_sum["function"]
         try:
-            title.append(hist_mc_sum["text"])
+            title.extend(hist_mc_sum["text"])
         except TypeError:
             pass
         ys = mc_sum*ys / sum(ys)

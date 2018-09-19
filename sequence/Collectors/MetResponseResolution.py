@@ -147,6 +147,10 @@ class MetResponseResolutionCollector(HistCollector):
 
             data_results = self.fit(hist_data, errs="none")
             mc_results = self.fit(hist_mc_sum, errs="sumw2")
+            if "text" in data_results:
+                data_results["text"] = ["Data:"] + data_results["text"]
+            if "text" in mc_results:
+                mc_results["text"] = ["MC:"] + mc_results["text"]
 
             results.append({
                 "name": hist_mc_sum["name"],
@@ -237,6 +241,16 @@ class MetResponseResolutionCollector(HistCollector):
             z = ((x-mean) + 1j*gamma*0.5) / (sigma*np.sqrt(2))
             return np.real(wofz(z)) / (sigma*np.sqrt(2*np.pi))
 
+        def get_sfs(val):
+            n = 0
+            test_val = copy.deepcopy(val)
+            while test_val < 1.:
+                test_val *= 10.
+                n += 1
+            return n
+        mean_fmt = "{:."+str(get_sfs(mean.s))+"f}"
+        sigma_fmt = "{:."+str(get_sfs(width.s))+"f}"
+
         xs = (bins[1:] + bins[:-1])/2
         results = {
             "mean": (mean.n, mean.s),
@@ -246,8 +260,9 @@ class MetResponseResolutionCollector(HistCollector):
             "function": (xs, voigt(xs, mean.n, sigma.n, gamma.n)),
             "chi2": chi2,
             "ndof": len(bins)-3,
-            "text": "Mean = {:.1f} +/- {:.1f}\nWidth = {:.1f} +/- {:.1f}".format(
-                mean.n, mean.s, width.n, width.s,
-            )
+            "text": [
+                (r'$\mu = '+mean_fmt+' \pm '+mean_fmt+'$').format(mean.n, mean.s),
+                (r'$\sigma = '+sigma_fmt+' \pm '+sigma_fmt+'$').format(width.n, width.s),
+            ],
         }
         return results
