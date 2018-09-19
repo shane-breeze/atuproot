@@ -1,5 +1,6 @@
 import numpy as np
 from numba import njit, boolean, int32, float32
+import uproot
 from . import Collection
 from utils.Geometry import DeltaR2, LorTHPMToXYZE, LorXYZEToTHPM
 
@@ -19,6 +20,7 @@ class GenBosonProducer(object):
                                        event.GenPart.starts,
                                        event.GenPart.stops)
 
+        # Initialise branches before deleting GenPart branches
         event.GenPartBosonDaughters.pdgId
         event.GenPartBosonDaughters.pt
         event.GenPartBosonDaughters.eta
@@ -38,7 +40,9 @@ class GenBosonProducer(object):
         genpart_dressedlepidx = genpart_matched_dressedlepton(
             event.GenPartBosonDaughters, event.GenDressedLepton,
         )
-        event.GenPartBosonDaughters_genDressedLeptonIdx = genpart_dressedlepidx
+        event.GenPartBosonDaughters_genDressedLeptonIdx = uproot.interp.jagged.JaggedArray(
+            genpart_dressedlepidx, event.GenPartBosonDaughters.starts, event.GenPartBosonDaughters.stops,
+        )
 
         pt, eta, phi, mass = create_genpart_boson(event.GenPartBosonDaughters,
                                                   event.GenDressedLepton)
@@ -65,7 +69,7 @@ def create_genpart_boson(genpart, gendressedlep):
                                     genpart.eta.content,
                                     genpart.phi.content,
                                     genpart.mass.content,
-                                    genpart.genDressedLeptonIdx,
+                                    genpart.genDressedLeptonIdx.content,
                                     genpart.pt.starts,
                                     genpart.pt.stops,
                                     gendressedlep.pt.content,

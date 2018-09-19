@@ -89,7 +89,9 @@ def dist_ratio(hist_data, hists_mc, filepath, cfg):
         "variance": sum(h["variance"] for h in hists_mc),
     }
     if "function" in hists_mc[0]:
-        hist_mc_sum["function"] = hists_mc[0]["function"]
+        for key in hists_mc[0]:
+            if key not in hist_mc_sum:
+                hist_mc_sum[key] = hists_mc[0][key]
 
     # Total MC yield (integrated across the distribution)
     # Also sort MC histograms
@@ -159,8 +161,13 @@ def dist_ratio(hist_data, hists_mc, filepath, cfg):
         axtop.set_xlim(bins[0], bins[-1])
 
     # Draw functions if they exist
+    title = []
     if hist_data is not None and "function" in hist_data:
         xs, ys = hist_data["function"]
+        try:
+            title.append(hist_data["text"])
+        except TypeError:
+            pass
         ys = mc_sum*ys / sum(ys)
         xnew = np.linspace(xs.min(), xs.max(), xs.shape[0]*4)
         ynew = spline(xs, ys, xnew)
@@ -168,6 +175,10 @@ def dist_ratio(hist_data, hists_mc, filepath, cfg):
 
     if "function" in hist_mc_sum:
         xs, ys = hist_mc_sum["function"]
+        try:
+            title.append(hist_mc_sum["text"])
+        except TypeError:
+            pass
         ys = mc_sum*ys / sum(ys)
         xnew = np.linspace(xs.min(), xs.max(), xs.shape[0]*4)
         ynew = spline(xs, ys, xnew)
@@ -205,10 +216,9 @@ def dist_ratio(hist_data, hists_mc, filepath, cfg):
               if label in cfg.sample_names else label for label in labels]
 
     # Additional text added to the legend title
-    if not hasattr(cfg, "text"):
-        axtop.legend(handles, labels, labelspacing=0.1)
-    else:
-        axtop.legend(handles, labels, title=cfg.text, labelspacing=0.1)
+    if hasattr(cfg, "text"):
+        title.append(cfg.text)
+    axtop.legend(handles, labels, title="\n".join(title), labelspacing=0.1)
 
     if hist_data is not None:
         # Data / MC in the ratio

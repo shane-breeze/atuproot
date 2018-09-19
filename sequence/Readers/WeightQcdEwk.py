@@ -38,7 +38,7 @@ class WeightQcdEwk(object):
 
 @njit
 def get_corrections(boson_pts, bin_mins, bin_maxs, corrections):
-    weights = np.ones(boson_pts.shape[0], dtype=float32)
+    weights = np.zeros(boson_pts.shape[0], dtype=float32)
     for iev, boson_pt in enumerate(boson_pts):
         for ib, (bin_min, bin_max) in enumerate(zip(bin_mins, bin_maxs)):
             if bin_min <= boson_pt < bin_max:
