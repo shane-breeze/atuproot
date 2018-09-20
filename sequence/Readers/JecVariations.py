@@ -9,7 +9,16 @@ class JecVariations(object):
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
 
-        self.uncl_energy_thresh = 15.
+        self.unclust_threshold = 15.
+        self.variations = [
+            ("",            ( 0.,  0.,  0.)),
+            ("jerUp",       ( 1.,  0.,  0.)),
+            ("jerDown",     (-1.,  0.,  0.)),
+            ("jesUp",       ( 0.,  1.,  0.)),
+            ("jesDown",     ( 0., -1.,  0.)),
+            ("unclustUp",   ( 0.,  0.,  1.)),
+            ("unclustDown", ( 0.,  0., -1.)),
+        ]
 
         self.jesuncs = read_jesunc_file(self.jes_unc_file, overflow=True)
         self.jersfs = read_jersf_file(self.jer_sf_file, overflow=True)
@@ -22,66 +31,55 @@ class JecVariations(object):
         if self.isdata:
             return True
 
-        # JER
-        jet_res = get_jet_ptresolution(
+        # Get jet pT resolution:
+        event.Jet_ptResolution = get_jet_ptresolution(
             self.jers, event.Jet, event.fixedGridRhoFastjetAll,
         )
-        event.Jet_ptResolution = uproot.interp.jagged.JaggedArray(
-            jet_res, event.Jet.starts, event.Jet.stops,
+
+        # Do Jet-GenJet matching
+        event.Jet_genJetMatchIdx = match_jets_genjets(
+            event.Jet, event.GenJet,
         )
 
-        # Jet-GenJet matching
-        jet_genjet_matchidx = match_jets_genjets(event.Jet, event.GenJet)
-        event.Jet_genJetMatchIdx = uproot.interp.jagged.JaggedArray(
-            jet_genjet_matchidx, event.Jet.starts, event.Jet.stops,
+        # Get JER correction, delta JER up and down - relative values
+        jersf, delta_jerup, delta_jerdown = get_jer_sfs(self.jersfs, event.Jet)
+        event.Jet_jerCorrection = get_jer_correction(
+            jersf, event.Jet, event.GenJet,
         )
 
-        # JER correction
-        jersf, jersf_up, jersf_down = get_jer_sfs(self.jersfs, event.Jet)
-        jer_corr = get_jer_correction(jersf, event.Jet, event.GenJet)
-        event.Jet_jerCorrection = uproot.interp.jagged.JaggedArray(
-            jer_corr, event.Jet.starts, event.Jet.stops,
-        )
+        # Get delta JES up and down - relative values
+        delta_jesup, delta_jesdown = get_jes_sfs(self.jesuncs, event.Jet)
 
-        # Remove GenJets
-        event.delete_branches(["GenJet_pt", "GenJet_eta", "GenJet_phi"])
+        # Get delta unclustered energy x and y - absolute values
+        delta_unclustx = event.MET_MetUnclustEnUpDeltaX
+        delta_unclusty = event.MET_MetUnclustEnUpDeltaY
 
-        event.Jet.pt.content *= jer_corr
-        event.Jet.mass.content *= jer_corr
+        # Apply jet pt and mass corrections
+        for key, (jer_var, jes_var, unclust_var) in self.variations:
+            djer = delta_jerup if jer_var>=0. else delta_jerdown
+            djes = delta_jesup if jes_var>=0. else delta_jesdown
 
-        met, mephi = get_jer_met_correction(self.uncl_energy_thresh, jer_corr,
-                                            event.Jet, event.MET)
-        event.MET_pt = met
-        event.MET_phi = mephi
+            (jets_pt, jets_mass), (met_pt, met_phi) = calculate_new_jets_met(
+                jer_var*djer, jes_var*djes, unclust_threshold,
+                unclust_var*delta_unclustx, unclust_var*delta_unclusty,
+                event.Jets, event.MET,
+            )
 
-        if self.variation is None:
-            return True
+            setattr(event, "Jet_pt{}"  .format(key), jets_pt)
+            setattr(event, "Jet_mass{}".format(key), jets_mass)
+            setattr(event, "MET_pt{}"  .format(key), met_pt)
+            setattr(event, "MET_phi{}" .format(key), met_phi)
 
-        # JES
-        if self.variation == "up":
-            yvals = self.yvals_up
-            delta = 1.
-        else:
-            yvals = self.yvals_down
-            delta = -1.
-
-        bin_indices = select_bins(event.Jet.eta.content,
-                                  self.bins)
-        corrs = get_correction(event.Jet.pt.content,
-                               bin_indices,
-                               self.xvals,
-                               yvals,
-                               delta)
-
-        event.Jet.pt.content *= corrs
-        event.Jet.mass.content *= corrs
-
+################################################################################
 def get_jet_ptresolution(jers, jets, rho):
     """Function to modify arguments that are sent to a numba-jitted function"""
-    return jit_get_jet_ptresolution(
-        jers["bins"], jers["var_range"], jers["params"],
-        jets.pt.content, jets.eta.content, jets.starts, jets.stops,
-        rho,
+    return uproot.interp.jagged.JaggedArray(
+        jit_get_jet_ptresolution(
+            jers["bins"], jers["var_range"], jers["params"],
+            jets.pt.content, jets.eta.content, jets.starts, jets.stops,
+            rho,
+        ),
+        jets.starts, jets.stops,
     )
 
 @njit
@@ -107,11 +105,18 @@ def jit_get_jet_ptresolution(bins, var_ranges, params,
                     break
     return resolution
 
+################################################################################
 def match_jets_genjets(jets, genjets):
     """Function to modify arguments that are sent to a numba-jitted function"""
-    return jit_match_jets_genjets(
-        jets.pt.content, jets.eta.content, jets.phi.content, jets.ptResolution.content, jets.starts, jets.stops,
-        genjets.pt.content, genjets.eta.content, genjets.phi.content, genjets.starts, genjets.stops,
+    return uproot.interp.jagged.JaggedArray(
+        jit_match_jets_genjets(
+            jets.pt.content, jets.eta.content,
+            jets.phi.content, jets.ptResolution.content,
+            jets.starts, jets.stops,
+            genjets.pt.content, genjets.eta.content, genjets.phi.content,
+            genjets.starts, genjets.stops,
+        ),
+        jets.starts, jets.stops,
     )
 
 @njit
@@ -129,13 +134,13 @@ def jit_match_jets_genjets(jets_pt, jets_eta, jets_phi, jets_res, jets_starts, j
                     break
     return match_idx
 
+################################################################################
 def get_jer_sfs(jersfs, jets):
     """Function to modify arguments that are sent to a numba-jitted function"""
     return jit_get_jer_sfs(
         jersfs["bins"], jersfs["corrs"], jersfs["corrs_up"], jersfs["corrs_down"],
         jets.eta.content,
     )
-
 @njit
 def jit_get_jer_sfs(bins, corrs, corrs_up, corrs_down, jets_eta):
     sfs = np.ones(jets_eta.shape[0], dtype=float32)
@@ -143,7 +148,7 @@ def jit_get_jer_sfs(bins, corrs, corrs_up, corrs_down, jets_eta):
     sfs_down = np.ones(jets_eta.shape[0], dtype=float32)
     for ij in range(jets_eta.shape[0]):
         for ib in range(bins.shape[0]):
-            within_eta = bins[ib,0] < jets_eta[ij] < bins[ib,1]
+            within_eta = bins[ib,0] <= jets_eta[ij] < bins[ib,1]
             if within_eta:
                 sfs[ij] = corrs[ib]
                 sfs_up[ij] = corrs_up[ib]
@@ -151,15 +156,18 @@ def jit_get_jer_sfs(bins, corrs, corrs_up, corrs_down, jets_eta):
                 break
     return sfs, sfs_up, sfs_down
 
+################################################################################
 def get_jer_correction(jersf, jets, genjets):
     """Function to modify arguments that are sent to a numba-jitted function"""
-    return jit_get_jer_correction(
-        jersf,
-        jets.pt.content, jets.genJetMatchIdx.content, jets.ptResolution.content,
+    return uproot.interp.jagged.JaggedArray(
+        jit_get_jer_correction(
+            jersf,
+            jets.pt.content, jets.genJetMatchIdx.content, jets.ptResolution.content,
+            jets.starts, jets.stops,
+            genjets.pt.content, genjets.starts, genjets.stops,
+        ),
         jets.starts, jets.stops,
-        genjets.pt.content, genjets.starts, genjets.stops,
     )
-
 @njit
 def jit_get_jer_correction(jersf,
                            jets_pt, jets_genjetidx, jets_res, jets_starts, jets_stops,
@@ -172,36 +180,31 @@ def jit_get_jer_correction(jersf,
             if rel_genjetidx >= 0:
                 corr = 1.+(jersf[ij]-1.)*(jets_pt[ij]-genjets_pt[gjb+rel_genjetidx])/jets_pt[ij]
             else:
-                #corr = np.random.lognormal(0., jets_res[ij]*np.sqrt(max(jersf[ij]**2-1., 0.)))
-                corr = np.random.normal(1., jets_res[ij]*np.sqrt(max(jersf[ij]**2-1., 0.)))
-            #corrs[ij] = max(0., corr)
-            corrs[ij] = np.abs(corr)
+                #corr = np.random.lognormal(0., jets_res[ij])*np.sqrt(max(jersf[ij]**2-1., 0.)))
+                corr = 1. + np.random.normal(0., jets_res[ij])*np.sqrt(max(jersf[ij]**2-1., 0.))
+            corrs[ij] = max(0., corr)
     return corrs
 
-def get_jer_met_correction(uncl_energy_thresh, jer_corr, jets, met):
-    return jit_get_jer_met_correction(
-        uncl_energy_thresh, jer_corr,
-        jets.pt.content, jets.phi.content, jets.starts, jets.stops,
-        met.pt, met.phi,
+################################################################################
+def get_jes_sfs(jesuncs, jets):
+    return (uproot.interp.jagged.JaggedArray(result, jets.starts, jets.stops)
+        for result in jit_get_jes_sfs(
+            jesuncs["bins"], jesuncs["xvals"], jesuncs["yvals_up"], jesuncs["yvals_down"],
+            jets.pt.content, jets.eta.content,
+        )
     )
-
 @njit
-def jit_get_jer_met_correction(uncl_energy_thresh, jer_corr,
-                               jets_pt, jets_phi, jets_starts, jets_stops,
-                               met_pt, met_phi):
-    met_out = np.zeros(met_pt.shape[0], dtype=float32)
-    mephi_out = np.zeros(met_pt.shape[0], dtype=float32)
-    for iev, (jb, je) in enumerate(zip(jets_starts, jets_stops)):
-        mex, mey = RadToCart(met_pt[iev], met_phi[iev])
-        for ij in range(jb, je):
-            if jets_pt[ij] > uncl_energy_thresh:
-                mex -= (1.-1./jer_corr[ij])*jets_pt[ij]*np.cos(jets_phi[ij])
-                mey -= (1.-1./jer_corr[ij])*jets_pt[ij]*np.sin(jets_phi[ij])
-        r, phi = CartToRad(mex, mey)
-        met_out[iev] = r
-        mephi_out[iev] = phi
-    return met_out, mephi_out
-
+def jit_get_jes_sfs(bins, xvals, yvals_up, yvals_down, jets_pt, jets_eta):
+    sfs_up = np.ones(jets_pt.shape[0], dtype=float32)
+    sfs_down = np.ones(jets_pt.shape[0], dtype=float32)
+    for ij in range(jets_pt.shape[0]):
+        for ib in range(bins.shape[0]):
+            within_eta = bins[ib,0] <= jets_eta[ij] < bins[ib,1]
+            if within_eta:
+                sfs_up[ij] = interp(jets_pt[ij], xvals[ib], yvals_up[ib])
+                sfs_down[ij] = interp(jets_pt[ij], xvals[ib], yvals_down[ib])
+                break
+    return sfs_up, sfs_down
 @njit
 def interp(x, xp, fp):
     nx = xp.shape[0]
@@ -216,34 +219,49 @@ def interp(x, xp, fp):
             return (x - xp[ix]) * (fp[ix+1] - fp[ix]) / (xp[ix+1] - xp[ix]) + fp[ix]
     return np.nan
 
+################################################################################
+def calculate_new_jets_met(jer_var, jes_var, unclust_threshold, unclustx_var, unclusty_var, jets, met):
+    results = jit_calculate_new_jets_met(
+        jer_var, jes_var, unclust_threshold, unclustx_var, unclusty_var,
+        jets.jerCorrection.content, jets.pt.content, jets.mass.content,
+        jets.starts, jets.stops,
+        met.pt, met.phi,
+    )
+    return (
+        (uproot.interp.jagged.JaggedArray(r, jets.starts, jets.stops) for r in results[0]),
+        results[1],
+    )
 @njit
-def get_correction(jvals, bin_indices, xvals, yvals, delta):
-    njs = jvals.shape[0]
-    corr = np.ones(njs)
-    for ij in range(njs):
-        val = jvals[ij]
-        bin_idx = bin_indices[ij]
-        corr[ij] = max(0., 1.+delta*interp(val,
-                                           xvals[bin_idx],
-                                           yvals[bin_idx]))
-    return corr
+def jit_calculate_new_jets_met(jer_var, jes_var, unclust_threshold, unclustx_var, unclusty_var,
+                               jets_jersf, jets_pt, jets_mass, jets_starts, jets_stops,
+                               met_pt, met_phi):
+    # common jet correction factor
+    jets_corr = (1 + jer_var + jes_var)*jets_jersf
 
-@njit
-def select_bins(vals, bins):
-    njs = vals.shape[0]
-    nbins = bins.shape[0]
-    indices = np.zeros(njs, dtype=int32)
-    for ij in range(njs):
-        val = vals[ij]
-        for ib in range(nbins):
-            bin_= bins[ib,:]
-            if bin_[0] < val < bin_[1]:
-                indices[ij] = ib
-                break
-        else:
-            indices[ij] = np.nan
-    return indices
+    # Modified jet pt and mass
+    new_jets_pt = jets_corr*jets_pt
+    new_jets_mass = jets_corr*jets_mass
 
+    # Radian to cartesian for mex and mey corrections
+    jets_px, jets_py = RadToCart(jets_pt, jets_phi)
+    mex, mey = RadToCart(met_pt, met_phi)
+
+    # Sum the jet modification contributions
+    mex_jet_mod = np.zeros(met_pt.shape[0], dtype=float32)
+    mey_jet_mod = np.zeros(met_pt.shape[0], dtype=float32)
+    for iev, (jb, je) in enumerate(zip(jets_starts, jets_stops)):
+        for ij in range(jb, je):
+            if jets_pt[ij] > unclust_threshold:
+                mex_jet_mod[iev] -= (jets_corr[ij]-1)*jets_px[ij]
+                mey_jet_mod[iev] -= (jets_corr[ij]-1)*jets_py[ij]
+
+    new_mex = mex + mex_jet_mod + unclustx_var
+    new_mey = mey + mey_jet_mod + unclusty_var
+
+    new_met_pt, new_met_phi = CartToRad(new_mex, new_mey)
+    return ((new_jets_pt, new_jets_mass), (new_met_pt, new_met_phi))
+
+################################################################################
 def read_jesunc_file(filename, overflow=True):
     with open(filename, 'r') as f:
         lines = [l.strip().split() for l in f.read().splitlines()][1:]
@@ -302,4 +320,4 @@ def read_jer_file(filename, overflow=True):
         "bins": bins,
         "var_range": var_range,
         "params": params,
-    }
+    U}
