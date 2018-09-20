@@ -11,8 +11,6 @@ from .EventBuilderConfigMaker import EventBuilderConfigMaker
 from .EventBuilder import EventBuilder
 from .build_parallel import build_parallel
 
-from .yes_no import query_yes_no
-
 class AtUproot(object):
     def __init__(self, outdir,
                  force=False, quiet=False,
@@ -54,11 +52,8 @@ class AtUproot(object):
         except KeyboardInterrupt:
             logger = logging.getLogger(__name__)
             logger.warning('received KeyboardInterrupt')
-            if query_yes_no('terminate running jobs'):
-               logger.warning('terminating running jobs')
-               self.parallel.terminate()
-            else:
-               logger.warning('not terminating running jobs')
+            logger.warning('terminating running jobs')
+            self.parallel.terminate()
         self.parallel.end()
 
     def _configure(self, datasets, reader_collector_pairs):
