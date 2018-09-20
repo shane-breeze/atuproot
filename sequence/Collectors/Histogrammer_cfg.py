@@ -384,7 +384,7 @@ histogrammer_cfgs = [
         "variables": ["ev: ev.Weight_MET"],
         "bins": [[-inf]+list(np.linspace(-50, 950, 51))+[inf]],
         "weights": [("nominal", "ev: ev.Weight_{dataset}")],
-    }
+    },
 ]
 
 sample_colours = {
@@ -442,7 +442,7 @@ axis_label = {
     "METnoX_diMuonParaProjPt_Minus_DiMuon_pt": r'$E_{T,\parallel}^{miss} - p_{T}(\mu\mu)$ (GeV)',
     "METnoX_diMuonPerpProjPt": r'$E_{T,\perp}^{miss}$ (GeV)',
     "DiMuon_pt": r'$p_{T}(\mu\mu)$ (GeV)',
-    "DiMuon_phi": r'$p_{T}(\mu\mu)\ \phi',
+    "DiMuon_phi": r'$p_{T}(\mu\mu)\ \phi$',
     "MET_pt": r'$E_{T,PF}^{miss}$ (GeV)',
     "MET_phi": r'$E_{T,PF}^{miss}\ \phi$',
     "CaloMET_pt": r'$E_{T,Calo.}^{miss}$ (GeV)',
@@ -493,4 +493,5 @@ axis_label = {
     "GenPartBoson_eta": r'Gen. $\eta(V)$ (GeV)',
     "GenPartBoson_phi": r'Gen. $\phi(V)$ (GeV)',
     "GenPartBoson_mass": r'Gen. $m(V)$ (GeV)',
+    "Jet_genPtClosure": r'$(p_{T}^{j} - p_{T,gen}^{j})/p_{T}^{j}$',
 }
