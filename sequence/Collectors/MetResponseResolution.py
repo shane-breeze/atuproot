@@ -79,8 +79,8 @@ class MetResponseResolutionCollector(HistCollector):
             for icat in range(len(hist_datas)):
                 hist_data = hist_datas[icat]
                 hist_data.update(results["data"][icat])
-                if plot_items[icat]["category"] >= 250.:
-                    hist_data = None
+                #if plot_items[icat]["category"] >= 250.:
+                #    hist_data = None
                 hists_mc = [h[icat] for h in hists_mcs]
                 for h in hists_mc:
                     h.update(results["mc"][icat])
@@ -177,6 +177,14 @@ class MetResponseResolutionCollector(HistCollector):
         yields = data["yields"][1:-1]
         vars = data["variance"][1:-1]
 
+        if yields.sum() == 0.:
+            return {
+                "mean": (0., 0.),
+                "sigma": (0., 0.),
+                "gamma": (0., 0.),
+                "width": (0., 0.),
+            }
+
         hdata = ROOT.TH1D("data", "", len(bins)-1, bins)
         if errs == "sumw2": hdata.Sumw2()
 
@@ -186,7 +194,7 @@ class MetResponseResolutionCollector(HistCollector):
                 hdata.SetBinError(ibin, np.sqrt(vars[ibin-1]))
 
         x = ROOT.RooRealVar("x", "x", bins[0], bins[-1])
-        xframe = x.frame()
+        #xframe = x.frame()
         l = ROOT.RooArgList(x)
         data = ROOT.RooDataHist("data", "data", l, hdata)
 
@@ -211,9 +219,10 @@ class MetResponseResolutionCollector(HistCollector):
             args.append(ROOT.RooFit.SumW2Error(True))
 
         fit_result = model.fitTo(data, *args)
-        data.plotOn(xframe)
-        model.plotOn(xframe)
-        chi2 = xframe.chiSquare(3)
+        #data.plotOn(xframe)
+        #model.plotOn(xframe)
+        #chi2 = xframe.chiSquare(3)
+        chi2 = 0.
 
         from uncertainties import ufloat
         mu = ws.var("mu")
@@ -252,7 +261,7 @@ class MetResponseResolutionCollector(HistCollector):
         sigma_fmt = "{:."+str(get_sfs(width.s))+"f}"
 
         xs = (bins[1:] + bins[:-1])/2
-        results = {
+        return {
             "mean": (mean.n, mean.s),
             "sigma": (sigma.n, sigma.s),
             "gamma": (gamma.n, gamma.s),
@@ -265,4 +274,3 @@ class MetResponseResolutionCollector(HistCollector):
                 (r'$\sigma = '+sigma_fmt+' \pm '+sigma_fmt+'$').format(width.n, width.s),
             ],
         }
-        return results
