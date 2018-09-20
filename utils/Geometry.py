@@ -1,8 +1,8 @@
 import numpy as np
 from numpy import pi
-from numba import njit
+from numba import njit, vectorize
 
-@njit
+@vectorize
 def BoundPhi(phi):
     if phi >= pi:
         phi -= 2*pi

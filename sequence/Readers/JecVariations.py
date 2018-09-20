@@ -54,9 +54,6 @@ class JecVariations(object):
             jersf, event.Jet, event.GenJet, self.do_jer,
         )
 
-        if not self.do_jer:
-            event.Jet_jerCorrection = np.ones(
-
         # Get delta JES up and down - relative values
         delta_jesup, delta_jesdown = get_jes_sfs(self.jesuncs, event.Jet)
 
@@ -70,9 +67,9 @@ class JecVariations(object):
             djes = delta_jesup if jes_var>=0. else delta_jesdown
 
             (jets_pt, jets_mass), (met_pt, met_phi) = calculate_new_jets_met(
-                jer_var*djer, jes_var*djes, unclust_threshold,
+                jer_var*djer, jes_var*djes, self.unclust_threshold,
                 unclust_var*delta_unclustx, unclust_var*delta_unclusty,
-                event.Jets, event.MET,
+                event.Jet, event.MET,
             )
 
             setattr(event, "Jet_pt{}"  .format(key), jets_pt)
@@ -181,7 +178,7 @@ def get_jer_correction(jersf, jets, genjets, do_jer):
         )
     else:
         return uproot.interp.jagged.JaggedArray(
-            np.ones(jets.pt.shape[0]),
+            np.ones(jets.pt.content.shape[0]),
             jets.starts,
             jets.stops,
         )
@@ -204,11 +201,9 @@ def jit_get_jer_correction(jersf,
 
 ################################################################################
 def get_jes_sfs(jesuncs, jets):
-    return (uproot.interp.jagged.JaggedArray(result, jets.starts, jets.stops)
-        for result in jit_get_jes_sfs(
-            jesuncs["bins"], jesuncs["xvals"], jesuncs["yvals_up"], jesuncs["yvals_down"],
-            jets.pt.content, jets.eta.content,
-        )
+    return jit_get_jes_sfs(
+        jesuncs["bins"], jesuncs["xvals"], jesuncs["yvals_up"], jesuncs["yvals_down"],
+        jets.pt.content, jets.eta.content,
     )
 @njit
 def jit_get_jes_sfs(bins, xvals, yvals_up, yvals_down, jets_pt, jets_eta):
@@ -240,7 +235,7 @@ def interp(x, xp, fp):
 def calculate_new_jets_met(jer_var, jes_var, unclust_threshold, unclustx_var, unclusty_var, jets, met):
     results = jit_calculate_new_jets_met(
         jer_var, jes_var, unclust_threshold, unclustx_var, unclusty_var,
-        jets.jerCorrection.content, jets.pt.content, jets.mass.content,
+        jets.jerCorrection.content, jets.pt.content, jets.phi.content, jets.mass.content,
         jets.starts, jets.stops,
         met.pt, met.phi,
     )
@@ -250,7 +245,7 @@ def calculate_new_jets_met(jer_var, jes_var, unclust_threshold, unclustx_var, un
     )
 @njit
 def jit_calculate_new_jets_met(jer_var, jes_var, unclust_threshold, unclustx_var, unclusty_var,
-                               jets_jersf, jets_pt, jets_mass, jets_starts, jets_stops,
+                               jets_jersf, jets_pt, jets_phi, jets_mass, jets_starts, jets_stops,
                                met_pt, met_phi):
     # common jet correction factor
     jets_corr = (1 + jer_var + jes_var)*jets_jersf
@@ -337,4 +332,4 @@ def read_jer_file(filename, overflow=True):
         "bins": bins,
         "var_range": var_range,
         "params": params,
-    U}
+    }
