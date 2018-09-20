@@ -10,15 +10,22 @@ class JecVariations(object):
         self.__dict__.update(kwargs)
 
         self.unclust_threshold = 15.
-        self.variations = [
-            ("",            ( 0.,  0.,  0.)),
-            ("jerUp",       ( 1.,  0.,  0.)),
-            ("jerDown",     (-1.,  0.,  0.)),
-            ("jesUp",       ( 0.,  1.,  0.)),
-            ("jesDown",     ( 0., -1.,  0.)),
-            ("unclustUp",   ( 0.,  0.,  1.)),
-            ("unclustDown", ( 0.,  0., -1.)),
-        ]
+        self.variations = [("", (0., 0., 0.))]
+        if self.do_jer:
+            self.variations.extend([
+                ("jerUp",   ( 1., 0., 0.)),
+                ("jerDown", (-1., 0., 0.)),
+            ])
+        if self.do_jes:
+            self.variations.extend([
+                ("jesUp",   (0.,  1., 0.)),
+                ("jesDown", (0., -1., 0.)),
+            ])
+        if self.do_unclust:
+            self.variations.extend([
+                ("unclustUp",   (0., 0.,  1.)),
+                ("unclustDown", (0., 0., -1.)),
+            ])
 
         self.jesuncs = read_jesunc_file(self.jes_unc_file, overflow=True)
         self.jersfs = read_jersf_file(self.jer_sf_file, overflow=True)
@@ -44,8 +51,11 @@ class JecVariations(object):
         # Get JER correction, delta JER up and down - relative values
         jersf, delta_jerup, delta_jerdown = get_jer_sfs(self.jersfs, event.Jet)
         event.Jet_jerCorrection = get_jer_correction(
-            jersf, event.Jet, event.GenJet,
+            jersf, event.Jet, event.GenJet, self.do_jer,
         )
+
+        if not self.do_jer:
+            event.Jet_jerCorrection = np.ones(
 
         # Get delta JES up and down - relative values
         delta_jesup, delta_jesdown = get_jes_sfs(self.jesuncs, event.Jet)
@@ -157,17 +167,24 @@ def jit_get_jer_sfs(bins, corrs, corrs_up, corrs_down, jets_eta):
     return sfs, sfs_up, sfs_down
 
 ################################################################################
-def get_jer_correction(jersf, jets, genjets):
+def get_jer_correction(jersf, jets, genjets, do_jer):
     """Function to modify arguments that are sent to a numba-jitted function"""
-    return uproot.interp.jagged.JaggedArray(
-        jit_get_jer_correction(
-            jersf,
-            jets.pt.content, jets.genJetMatchIdx.content, jets.ptResolution.content,
+    if do_jer:
+        return uproot.interp.jagged.JaggedArray(
+            jit_get_jer_correction(
+                jersf,
+                jets.pt.content, jets.genJetMatchIdx.content, jets.ptResolution.content,
+                jets.starts, jets.stops,
+                genjets.pt.content, genjets.starts, genjets.stops,
+            ),
             jets.starts, jets.stops,
-            genjets.pt.content, genjets.starts, genjets.stops,
-        ),
-        jets.starts, jets.stops,
-    )
+        )
+    else:
+        return uproot.interp.jagged.JaggedArray(
+            np.ones(jets.pt.shape[0]),
+            jets.starts,
+            jets.stops,
+        )
 @njit
 def jit_get_jer_correction(jersf,
                            jets_pt, jets_genjetidx, jets_res, jets_starts, jets_stops,

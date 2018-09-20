@@ -53,7 +53,9 @@ jec_variations = Readers.JecVariations(
     #jer_sf_file = datapath + "/jecs/Summer16_25nsV1_MC_SF_AK4PFchs.txt",
     jer_file = datapath + "/jecs/Spring16_25nsV10_MC_PtResolution_AK4PFchs.txt",
     #jer_file = datapath + "/jecs/Summer16_25nsV1_MC_PtResolution_AK4PFchs.txt",
-    variation = None,
+    do_jer = False,
+    do_jes = True,
+    do_unclust = True,
 )
 
 event_sums_producer = Readers.EventSumsProducer(

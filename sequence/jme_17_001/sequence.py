@@ -50,8 +50,12 @@ jec_variations = Readers.JecVariations(
     name = "jec_variations",
     jes_unc_file = datapath + "/jecs/Summer16_23Sep2016V4_MC_Uncertainty_AK4PFchs.txt",
     jer_sf_file = datapath + "/jecs/Spring16_25nsV10a_MC_SF_AK4PFchs.txt",
+    #jer_sf_file = datapath + "/jecs/Summer16_25nsV1_MC_SF_AK4PFchs.txt",
     jer_file = datapath + "/jecs/Spring16_25nsV10_MC_PtResolution_AK4PFchs.txt",
-    variation = None,
+    #jer_file = datapath + "/jecs/Summer16_25nsV1_MC_PtResolution_AK4PFchs.txt",
+    do_jer = False,
+    do_jes = True,
+    do_unclust = True,
 )
 
 event_sums_producer = Readers.EventSumsProducer(
@@ -210,7 +214,7 @@ sequence = [
     # this with all other branches
     (gen_boson_producer, NullCollector()),
     (lhe_part_assigner, NullCollector()),
-    #(jec_variations, NullCollector()),
+    (jec_variations, NullCollector()),
     (skim_collections, NullCollector()),
     # Cross cleaning must be placed after the veto and selection collections
     # are created but before they're used anywhere to allow the collection
