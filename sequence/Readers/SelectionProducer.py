@@ -1,9 +1,38 @@
 import logging
 import numpy as np
 
+from collections import OrderedDict as odict
 from utils.Lambda import Lambda
 
 class SelectionProducer(object):
+    attr_variation_conv = odict([
+        ("ev.nBJetSelectionMedium",  "ev.nBJetSelectionMedium{}"),
+        ("ev.MinDPhiJ1234METnoX",    "ev.MinDPhiJ1234METnoX{}"),
+        ("ev.MET_pt",                "ev.MET_pt{}"),
+        ("ev.MET_phi",               "ev.MET_phi{}"),
+        ("ev.MET_dCaloMET",          "ev.MET_dCaloMET{}"),
+        ("ev.METnoX_pt",             "ev.METnoX_pt{}"),
+        ("ev.METnoX_phi",            "ev.METnoX_phi{}"),
+        ("ev.Jet_pt",                "ev.Jet_pt{}"),
+        ("ev.Jet_mass",              "ev.Jet_mass{}"),
+        ("ev.MET.pt",                "ev.MET.pt{}"),
+        ("ev.MET.phi",               "ev.MET.phi{}"),
+        ("ev.MET.dCaloMET",          "ev.MET.dCaloMET{}"),
+        ("ev.METnoX.pt",             "ev.METnoX.pt{}"),
+        ("ev.METnoX.phi",            "ev.METnoX.phi{}"),
+        ("ev.Jet.pt",                "ev.Jet.pt{}"),
+        ("ev.Jet.mass",              "ev.Jet.mass{}"),
+        # Collections - careful here
+        ("ev.JetVeto.pt",            "ev.JetVeto.pt{}"),
+        ("ev.JetVeto.mass",          "ev.JetVeto.mass{}"),
+        ("ev.JetVeto",               "ev.JetVeto{}"),
+        ("ev.JetSelection.pt",       "ev.JetSelection.pt{}"),
+        ("ev.JetSelection.mass",     "ev.JetSelection.mass{}"),
+        ("ev.JetSelection",          "ev.JetSelection{}"),
+        ("ev.LeadJetSelection.pt",   "ev.LeadJetSelection.pt{}"),
+        ("ev.LeadJetSelection.mass", "ev.LeadJetSelection.mass{}"),
+        ("ev.LeadJetSelection",      "ev.LeadJetSelection{}"),
+    ])
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
         self.debug = False
@@ -55,8 +84,22 @@ class SelectionProducer(object):
                 new_selection.remove(subselection)
                 newcutflow = "{}_remove_{}".format(cutflow, subselection[0])
                 additional_selections[newcutflow] = new_selection
-        self.selections.update(additional_selections)
 
+        # Create variation cutflows
+        for cutflow, selection in self.selections.items():
+            for variation in self.variations:
+                new_selection = selection[:]
+                for attr, new_attr in self.attr_variation_conv.items():
+                    new_selection = [
+                        (subselection[0],
+                         subselection[1].replace(attr, new_attr.format(variation))) \
+                        if attr in subselection[1] \
+                        else subselection
+                        for subselection in new_selection
+                    ]
+                additional_selections[cutflow+variation] = new_selection
+
+        self.selections.update(additional_selections)
         self.selections_lambda = {cutflow: [Lambda(cut) for name, cut in selection]
                                   for cutflow, selection in self.selections.items()}
 

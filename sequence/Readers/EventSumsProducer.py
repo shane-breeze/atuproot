@@ -9,61 +9,93 @@ class EventSumsProducer(object):
         self.__dict__.update(kwargs)
 
     def event(self, event):
+        # Create new collections
         event.METnoX = Collection("METnoX", event)
         event.DiMuon = Collection("DiMuon", event)
         event.MHT40 = Collection("MHT40", event)
         event.LeadJetSelection = Collection("LeadJetSelection", event)
 
-        # MET
-        met, mephi = create_metnox(
-            event.MET, event.MuonSelection, event.ElectronSelection,
-        )
-        event.METnoX_pt = met
-        event.METnoX_phi = mephi
-
-        # MET_dCaloMET
-        met_dcalomet = np.abs(event.MET.pt - event.CaloMET.pt) / event.METnoX.pt
-        event.MET_dCaloMET = met_dcalomet
-
-        # MET Resolution
-        dimu_pt, dimu_phi, dimu_para, dimu_perp = create_metres(
-            event.METnoX, event.MuonSelection,
-        )
+        # DiMuon
+        dimu_pt, dimu_phi = create_dimuon(event.MuonSelection)
         event.DiMuon_pt = dimu_pt
         event.DiMuon_phi = dimu_phi
-        event.METnoX_diMuonParaProjPt = dimu_para
-        event.METnoX_diMuonPerpProjPt = dimu_perp
-        event.METnoX_diMuonParaProjPt_Minus_DiMuon_pt = dimu_para - dimu_pt
-        event.METnoX_diMuonPerpProjPt_Plus_DiMuon_pt = dimu_perp + dimu_pt
-        event.METnoX_diMuonParaProjPt_Div_DiMuon_pt = dimu_para / dimu_pt
-        event.METnoX_diMuonPerpProjPt_Plus_DiMuon_pt_Div_DiMuon_pt = (dimu_perp + dimu_pt) / dimu_pt
 
-        # MHT
-        ht, mht, mhphi = create_mht(
-            event.JetSelection,
-        )
-        event.HT40 = ht
-        event.MHT40_pt = mht
-        event.MHT40_phi = mhphi
+        for variation in [""]+self.variations:
+            # Create lead jet selection collection
+            setattr(event, "LeadJetSelection{}".format(variation),
+                    Collection("LeadJetSelection{}".format(variation), event))
 
-        # dPhi(J, METnoX)
-        jet_dphimet = create_jDPhiMETnoX(event.Jet, event.METnoX)
-        event.Jet_dPhiMETnoX = uproot.interp.jagged.JaggedArray(
-            jet_dphimet, event.Jet.starts, event.Jet.stops,
-        )
+            # MET
+            met, mephi = create_metnox(
+                event.MET, event.MuonSelection, event.ElectronSelection, variation,
+            )
+            setattr(event, "METnoX_pt{}".format(variation), met)
+            setattr(event, "METnoX_phi{}".format(variation), mephi)
 
-        event.MinDPhiJ1234METnoX = create_minDPhiJ1234METnoX(
-            event.JetSelection,
-        )
+            # MET_dCaloMET
+            met = getattr(event.MET, "pt{}".format(variation))
+            cmet = event.CaloMET.pt
+            metnox = getattr(event.METnoX, "pt{}".format(variation))
+            setattr(event, "MET_dCaloMET{}".format(variation), np.abs(met-cmet)/metnox)
 
-        # nbjet
-        event.nBJetSelectionMedium = count_nbjet(
-            event.JetSelection.btagCSVV2.content,
-            event.JetSelection.starts,
-            event.JetSelection.stops,
-            0.8484,
-        )
+            # MET Resolution
+            metnox_para, metnox_perp = create_metres(
+                event.METnoX, event.DiMuon, variation,
+            )
+            setattr(event, "METnoX_diMuonParaProjPt{}".format(variation), metnox_para)
+            setattr(event, "METnoX_diMuonPerpProjPt{}".format(variation), metnox_perp)
+            setattr(event, "METnoX_diMuonParaProjPt_Minus_DiMuon_pt{}".format(variation), metnox_para-dimu_pt)
+            setattr(event, "METnoX_diMuonPerpProjPt_Plus_DiMuon_pt{}".format(variation), metnox_perp+dimu_pt)
+            setattr(event, "METnoX_diMuonParaProjPt_Div_DiMuon_pt{}".format(variation), metnox_para/dimu_pt)
+            setattr(event, "METnoX_diMuonPerpProjPt_Plus_DiMuon_pt_Div_DiMuon_pt{}".format(variation), (metnox_perp+dimu_pt)/dimu_pt)
 
+            # MHT
+            ht, mht, mhphi = create_mht(event.JetSelection, variation)
+            setattr(event, "HT40{}".format(variation), ht)
+            setattr(event, "MHT40_pt{}".format(variation), mht)
+            setattr(event, "MHT40_phi{}".format(variation), mhphi)
+
+            # dPhi(J, METnoX)
+            setattr(
+                event, "Jet_dPhiMETnoX{}".format(variation),
+                create_jDPhiMETnoX(event.Jet, event.METnoX, variation),
+            )
+            setattr(
+                event, "MinDPhiJ1234METnoX{}".format(variation),
+                create_minDPhiJ1234METnoX(event.JetSelection, variation),
+            )
+
+            # nbjet
+            setattr(
+                event, "nBJetSelectionMedium{}".format(variation),
+                count_nbjet(
+                    getattr(event, "JetSelection{}".format(variation)).btagCSVV2.content,
+                    getattr(event, "JetSelection{}".format(variation)).starts,
+                    getattr(event, "JetSelection{}".format(variation)).stops,
+                    0.8484,
+                ),
+            )
+
+            # Create Lead and Second Jet collections
+            collection = "LeadJetSelection{}".format(variation)
+            for attr in ["pt", "eta", "phi", "chEmEF", "chHEF", "neEmEF", "neHEF"]:
+                attr_name = attr+variation
+                if attr!="pt" and variation!="":
+                    attr_name = attr
+                ref_collection = collection.replace("Lead", "").replace("Second", "")
+                pos = 0 if "Lead" in collection else 1
+                setattr(
+                    event,
+                    collection+"_"+attr_name,
+                    create_lead_object(
+                        getattr(getattr(event, ref_collection), attr_name).content,
+                        getattr(event, ref_collection).starts,
+                        getattr(event, ref_collection).stops,
+                        pos = pos,
+                    ),
+                )
+
+        # Create Lead and Second Lepton collections
         for collection in ["LeadMuonSelection", "SecondMuonSelection",
                            "LeadElectronSelection", "SecondElectronSelection"]:
             for attr in ["pt", "eta", "phi"]:
@@ -80,20 +112,6 @@ class EventSumsProducer(object):
                     ),
                 )
 
-        for collection in ["LeadJetSelection"]:
-            for attr in ["pt", "eta", "phi", "chEmEF", "chHEF", "neEmEF", "neHEF"]:
-                ref_collection = collection.replace("Lead", "").replace("Second", "")
-                pos = 0 if "Lead" in collection else 1
-                setattr(
-                    event,
-                    collection+"_"+attr,
-                    create_lead_object(
-                        getattr(getattr(event, ref_collection), attr).content,
-                        getattr(event, ref_collection).starts,
-                        getattr(event, ref_collection).stops,
-                        pos = pos,
-                    ),
-                )
 
 @njit
 def create_lead_object(collection, starts, stops, pos=0):
@@ -116,10 +134,11 @@ def count_nbjet(jet_btags, starts, stops, threshold):
                 nbjets[iev] += 1
     return nbjets
 
-def create_minDPhiJ1234METnoX(jets):
-    return create_minDPhiJ1234METnoX_jit(jets.dPhiMETnoX.content,
-                                         jets.starts,
-                                         jets.stops)
+def create_minDPhiJ1234METnoX(jets, variation):
+    return create_minDPhiJ1234METnoX_jit(
+        getattr(jets, "dPhiMETnoX{}".format(variation)).content,
+        jets.starts, jets.stops,
+    )
 
 @njit
 def create_minDPhiJ1234METnoX_jit(jets_dphi, starts, stops):
@@ -132,9 +151,14 @@ def create_minDPhiJ1234METnoX_jit(jets_dphi, starts, stops):
         mindphis[iev] = mindphi
     return mindphis
 
-def create_jDPhiMETnoX(jets, met):
-    return create_jDPhiMETnoX_jit(met.phi, jets.phi.content,
-                                  jets.phi.starts, jets.phi.stops)
+def create_jDPhiMETnoX(jets, met, variation):
+    return uproot.interp.jagged.JaggedArray(
+        create_jDPhiMETnoX_jit(
+            getattr(met, "phi{}".format(variation)),
+            jets.phi.content, jets.starts, jets.stops,
+        ),
+        jets.starts, jets.stops,
+    )
 
 @njit
 def create_jDPhiMETnoX_jit(mephi, jetphi, starts, stops):
@@ -144,9 +168,11 @@ def create_jDPhiMETnoX_jit(mephi, jetphi, starts, stops):
             jet_dphis[jet_index] = BoundPhi(jetphi[jet_index] - mephi[iev])
     return jet_dphis
 
-def create_mht(jets):
-    return create_mht_jit(jets.pt.content, jets.phi.content,
-                          jets.pt.starts, jets.pt.stops)
+def create_mht(jets, variation):
+    return create_mht_jit(
+        getattr(jets, "pt{}".format(variation)).content,
+        jets.phi.content, jets.starts, jets.stops,
+    )
 
 @njit
 def create_mht_jit(jetpt, jetphi, starts, stops):
@@ -168,45 +194,46 @@ def create_mht_jit(jetpt, jetphi, starts, stops):
 
     return hts, mhts, mhphis
 
-def create_metres(metnox, muons):
-    return create_metres_jit(metnox.pt, metnox.phi,
-                             muons.pt.content, muons.phi.content,
-                             muons.pt.starts, muons.pt.stops)
-
+def create_dimuon(muons):
+    return jit_create_dimuon(
+        muons.pt.content, muons.phi.content,
+        muons.pt.starts, muons.pt.stops,
+    )
 @njit
-def create_metres_jit(met, mephi, mupt, muphi, mustarts, mustops):
-    nev = met.shape[0]
+def jit_create_dimuon(muons_pt, muons_phi, muons_starts, muons_stops):
+    nev = muons_starts.shape[0]
     dimupts = np.zeros(nev, dtype=float32)
     dimuphis = np.zeros(nev, dtype=float32)
-    metnox_dimuparas = np.zeros(nev, dtype=float32)
-    metnox_dimuperps = np.zeros(nev, dtype=float32)
 
-    for iev, (start, stop) in enumerate(zip(mustarts, mustops)):
+    for iev, (start, stop) in enumerate(zip(muons_starts, muons_stops)):
         nmu = stop-start
         if nmu != 2:
             dimupt = np.nan
             dimuphi = np.nan
-            metnox_dimupara = np.nan
-            metnox_dimuperp = np.nan
         else:
-            mux1, muy1 = RadToCart(mupt[start], muphi[start])
-            mux2, muy2 = RadToCart(mupt[start+1], muphi[start+1])
+            mux1, muy1 = RadToCart(muons_pt[start], muons_phi[start])
+            mux2, muy2 = RadToCart(muons_pt[start+1], muons_phi[start+1])
             dimupt, dimuphi = CartToRad(mux1+mux2, muy1+muy2)
-
-            dphi = BoundPhi(mephi[iev]-dimuphi)
-            metnox_dimupara = met[iev]*np.cos(dphi)
-            metnox_dimuperp = met[iev]*np.sin(dphi)
-
         dimupts[iev] = dimupt
         dimuphis[iev] = dimuphi
-        metnox_dimuparas[iev] = metnox_dimupara
-        metnox_dimuperps[iev] = metnox_dimuperp
 
-    return dimupts, dimuphis, metnox_dimuparas, metnox_dimuperps
+    return dimupts, dimuphis
 
-def create_metnox(met, muons, electrons):
-    return create_metnox_jit(met.pt,
-                             met.phi,
+def create_metres(metnox, dimuon, variation):
+    return create_metres_jit(
+        getattr(metnox, "pt{}".format(variation)),
+        getattr(metnox, "phi{}".format(variation)),
+        dimuon.pt, dimuon.phi,
+    )
+
+@njit
+def create_metres_jit(met, mephi, dimupt, dimuphi):
+    dphi = BoundPhi(mephi-dimuphi)
+    return met*np.cos(dphi), met*np.sin(dphi)
+
+def create_metnox(met, muons, electrons, variation):
+    return create_metnox_jit(getattr(met, "pt{}".format(variation)),
+                             getattr(met, "phi{}".format(variation)),
                              muons.pt.content,
                              muons.phi.content,
                              muons.pt.starts,
