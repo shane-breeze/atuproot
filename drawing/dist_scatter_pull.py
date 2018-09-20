@@ -30,7 +30,7 @@ def dist_scatter_pull(results, filepath, cfg):
         figsize = (5.6, 6.4),
     )
     axnull.axis('off')
-    axtop.set_xscale('log')
+    #axtop.set_xscale('log')
 
     bins = list(results["bins"][1:])
     bins = np.array(bins+[2*bins[-1]-bins[-2]])
