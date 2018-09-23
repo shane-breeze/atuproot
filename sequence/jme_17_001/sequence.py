@@ -12,6 +12,8 @@ import os
 datapath = os.path.join(os.environ["TOPDIR"], "data")
 #print(datapath)
 
+all_variations = ["jesUp", "jesDown"]
+
 certified_lumi_checker = Readers.CertifiedLumiChecker(
     name = "certified_lumi_checker",
     lumi_json_path = datapath + "/json/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt",
@@ -32,6 +34,7 @@ collection_creator = Readers.CollectionCreator(
 skim_collections = Readers.SkimCollections(
     name = "skim_collections",
     selection_dict = physics_object_selection.selection_dict,
+    variations = all_variations,
 )
 
 jet_cross_cleaning = Readers.ObjectCrossCleaning(
@@ -60,6 +63,7 @@ jec_variations = Readers.JecVariations(
 
 event_sums_producer = Readers.EventSumsProducer(
     name = "event_sums_producer",
+    variations = all_variations,
 )
 signal_region_blinder = Readers.SignalRegionBlinder(
     name = "signal_region_blinder",
@@ -145,6 +149,7 @@ weight_qcd_ewk = Readers.WeightQcdEwk(
 selection_producer = Readers.SelectionProducer(
     name = "selection_producer",
     event_selection = event_selection,
+    variations = all_variations,
 )
 
 for cfg in Collectors.Histogrammer_cfg.histogrammer_cfgs:
@@ -182,6 +187,7 @@ met_response_resolution_collector = Collectors.MetResponseResolutionCollector(
     name = "met_response_resolution_collector",
     plot = True,
     cfg = Collectors.MetResponseResolution_cfg,
+    variations = all_variations,
 )
 
 qcd_ewk_corrections_reader = Collectors.QcdEwkCorrectionsReader(

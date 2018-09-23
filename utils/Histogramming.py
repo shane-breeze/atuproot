@@ -36,11 +36,13 @@ class Histogram(object):
         weight = self.string_to_func[self.weight](event)[selection]
 
         variables = []
-        for v in self.variables:
+        for idx, v in enumerate(self.variables):
             try:
                 variables.append(self.string_to_func[v](event)[selection])
             except AttributeError:
-                variables.append(np.array([]))
+                temp = np.empty((int(selection.sum())))
+                temp[:] = np.nan
+                variables.append(temp)
 
         weights1 = weight
         weights2 = weight**2

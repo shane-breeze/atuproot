@@ -20,7 +20,9 @@ class EventSumsProducer(object):
         event.DiMuon_pt = dimu_pt
         event.DiMuon_phi = dimu_phi
 
-        for variation in [""]+self.variations:
+        self.isdata = event.config.dataset.isdata
+        variations = [""]+self.variations if not self.isdata else [""]
+        for variation in variations:
             # Create lead jet selection collection
             setattr(event, "LeadJetSelection{}".format(variation),
                     Collection("LeadJetSelection{}".format(variation), event))

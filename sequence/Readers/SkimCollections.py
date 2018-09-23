@@ -6,16 +6,19 @@ class SkimCollections(object):
         self.__dict__.update(kwargs)
 
     def begin(self, event):
-        # Add variation jet collections
-        variation_selection_dict = {}
-        for variation in self.variations:
-            variation_selection_dict.update({
-                (incoll, outcoll+variation):
-                selection.replace("pt", "pt{}".format(variation))
-                for (incoll, outcoll), selection in self.selection_dict.items()
-                if incoll in ["Jet"]
-            })
-        self.selection_dict.update(variation_selection_dict)
+        self.isdata = event.config.dataset.isdata
+
+        if not self.isdata:
+            # Add variation jet collections
+            variation_selection_dict = {}
+            for variation in self.variations:
+                variation_selection_dict.update({
+                    (incoll, outcoll+variation):
+                    selection.replace("pt", "pt{}".format(variation))
+                    for (incoll, outcoll), selection in self.selection_dict.items()
+                    if incoll in ["Jet"]
+                })
+            self.selection_dict.update(variation_selection_dict)
 
         self.selection_functions = {k: Lambda(v)
                                     for k, v in self.selection_dict.items()}

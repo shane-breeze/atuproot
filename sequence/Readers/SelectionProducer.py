@@ -93,7 +93,7 @@ class SelectionProducer(object):
                     new_selection = [
                         (subselection[0],
                          subselection[1].replace(attr, new_attr.format(variation))) \
-                        if attr in subselection[1] \
+                        if attr in subselection[1] and not self.isdata \
                         else subselection
                         for subselection in new_selection
                     ]

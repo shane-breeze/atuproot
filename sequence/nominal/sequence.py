@@ -72,7 +72,6 @@ signal_region_blinder = Readers.SignalRegionBlinder(
 )
 inv_mass_producer = Readers.InvMassProducer(
     name = "inv_mass_producer",
-    variations = all_variations,
 )
 gen_boson_producer = Readers.GenBosonProducer(
     name = "gen_boson_producer",
@@ -181,6 +180,7 @@ met_response_resolution_collector = Collectors.MetResponseResolutionCollector(
     name = "met_response_resolution_collector",
     plot = True,
     cfg = Collectors.MetResponseResolution_cfg,
+    variations = all_variations,
 )
 
 qcd_ewk_corrections_reader = Collectors.QcdEwkCorrectionsReader(
