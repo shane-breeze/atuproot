@@ -8,80 +8,96 @@ dimuon_categories = [("MET", "DoubleMuon_unblind"), ("SingleMuon", "DoubleMuon_u
 bins = [200., 207., 214., 220., 226., 232., 238., 244., 250., 258., 268., 279.,
         292., 307., 326., 349., 380., 431., 563., 695.]
 
+all_variations = ["", "jesUp", "jesDown"]
+
 histogrammer_cfgs = [
     {
-        "name": ["METnoX_diMuonParaProjPt_Minus_DiMuon_pt",
+        "name": ["METnoX_diMuonParaProjPt_Minus_DiMuon_pt{}".format(variation),
                  "DiMuon_pt"],
-        "categories": dimuon_categories,
-        "variables": ["ev: ev.METnoX_diMuonParaProjPt_Minus_DiMuon_pt",
+        "categories": [(d, c+variation) for d, c in dimuon_categories],
+        "variables": ["ev: ev.METnoX_diMuonParaProjPt_Minus_DiMuon_pt{}".format(variation),
                       "ev: ev.DiMuon_pt"],
         "bins": [[-inf]+list(np.linspace(-250, 250., 51))+[inf],
                  [-inf]+bins+[inf]],
         "weights": [("nominal", "ev: ev.Weight_{dataset}")],
-    }, {
-        "name": ["METnoX_diMuonPerpProjPt",
+    } for variation in all_variations
+] + [
+    {
+        "name": ["METnoX_diMuonPerpProjPt{}".format(variation),
                  "DiMuon_pt"],
-        "categories": dimuon_categories,
-        "variables": ["ev: ev.METnoX_diMuonPerpProjPt",
+        "categories": [(d, c+variation) for d, c in dimuon_categories],
+        "variables": ["ev: ev.METnoX_diMuonPerpProjPt{}".format(variation),
                       "ev: ev.DiMuon_pt"],
-        "bins": [[-inf]+list(np.linspace(-250., 250., 51))+[inf],
+        "bins": [[-inf]+list(np.linspace(-250, 250., 51))+[inf],
                  [-inf]+bins+[inf]],
         "weights": [("nominal", "ev: ev.Weight_{dataset}")],
-    }, {
-        "name": ["METnoX_diMuonParaProjPt_Div_DiMuon_pt",
+    } for variation in all_variations
+] + [
+    {
+        "name": ["METnoX_diMuonParaProjPt_Div_DiMuon_pt{}".format(variation),
                  "DiMuon_pt"],
-        "categories": dimuon_categories,
-        "variables": ["ev: ev.METnoX_diMuonParaProjPt_Div_DiMuon_pt",
-                      "ev: ev.DiMuon_pt"],
-        "bins": [[-inf]+list(np.linspace(0., 2., 51))+[inf],
-                 [-inf]+bins+[inf]],
-        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
-    }, {
-        "name": ["METnoX_diMuonPerpProjPt_Plus_DiMuon_pt_Div_DiMuon_pt",
-                 "DiMuon_pt"],
-        "categories": dimuon_categories,
-        "variables": ["ev: ev.METnoX_diMuonPerpProjPt_Plus_DiMuon_pt_Div_DiMuon_pt",
+        "categories": [(d, c+variation) for d, c in dimuon_categories],
+        "variables": ["ev: ev.METnoX_diMuonParaProjPt_Div_DiMuon_pt{}".format(variation),
                       "ev: ev.DiMuon_pt"],
         "bins": [[-inf]+list(np.linspace(0., 2., 51))+[inf],
                  [-inf]+bins+[inf]],
         "weights": [("nominal", "ev: ev.Weight_{dataset}")],
-    }, {
-        "name": ["METnoX_diMuonParaProjPt_Minus_DiMuon_pt",
+    } for variation in all_variations
+] + [
+    {
+        "name": ["METnoX_diMuonPerpProjPt_Plus_DiMuon_pt_Div_DiMuon_pt{}".format(variation),
+                 "DiMuon_pt"],
+        "categories": [(d, c+variation) for d, c in dimuon_categories],
+        "variables": ["ev: ev.METnoX_diMuonPerpProjPt_Plus_DiMuon_pt_Div_DiMuon_pt{}".format(variation),
+                      "ev: ev.DiMuon_pt"],
+        "bins": [[-inf]+list(np.linspace(0., 2., 51))+[inf],
+                 [-inf]+bins+[inf]],
+        "weights": [("nominal", "ev: ev.Weight_{dataset}")],
+    } for variation in all_variations
+] + [
+    {
+        "name": ["METnoX_diMuonParaProjPt_Minus_DiMuon_pt{}".format(variation),
                  "METnoX_pt"],
-        "categories": dimuon_categories,
-        "variables": ["ev: ev.METnoX_diMuonParaProjPt_Minus_DiMuon_pt",
+        "categories": [(d, c+variation) for d, c in dimuon_categories],
+        "variables": ["ev: ev.METnoX_diMuonParaProjPt_Minus_DiMuon_pt{}".format(variation),
                       "ev: ev.METnoX_pt"],
         "bins": [[-inf]+list(np.linspace(-250, 250., 51))+[inf],
                  [-inf]+bins+[inf]],
         "weights": [("nominal", "ev: ev.Weight_{dataset}")],
-    }, {
-        "name": ["METnoX_diMuonPerpProjPt",
-                 "METnoX_pt"],
-        "categories": dimuon_categories,
-        "variables": ["ev: ev.METnoX_diMuonPerpProjPt",
-                      "ev: ev.METnoX_pt"],
-        "bins": [[-inf]+list(np.linspace(-250., 250., 51))+[inf],
+    } for variation in all_variations
+] + [
+    {
+        "name": ["METnoX_diMuonPerpProjPt{}".format(variation),
+                 "METnoX_pt{}".format(variation)],
+        "categories": [(d, c+variation) for d, c in dimuon_categories],
+        "variables": ["ev: ev.METnoX_diMuonPerpProjPt{}".format(variation),
+                      "ev: ev.METnoX_pt{}".format(variation)],
+        "bins": [[-inf]+list(np.linspace(-250, 250., 51))+[inf],
                  [-inf]+bins+[inf]],
         "weights": [("nominal", "ev: ev.Weight_{dataset}")],
-    }, {
-        "name": ["METnoX_diMuonParaProjPt_Div_DiMuon_pt",
-                 "METnoX_pt"],
-        "categories": dimuon_categories,
-        "variables": ["ev: ev.METnoX_diMuonParaProjPt_Div_DiMuon_pt",
-                      "ev: ev.METnoX_pt"],
+    } for variation in all_variations
+] + [
+    {
+        "name": ["METnoX_diMuonParaProjPt_Div_DiMuon_pt{}".format(variation),
+                 "METnoX_pt{}".format(variation)],
+        "categories": [(d, c+variation) for d, c in dimuon_categories],
+        "variables": ["ev: ev.METnoX_diMuonParaProjPt_Div_DiMuon_pt{}".format(variation),
+                      "ev: ev.METnoX_pt{}".format(variation)],
         "bins": [[-inf]+list(np.linspace(0., 2., 51))+[inf],
                  [-inf]+bins+[inf]],
         "weights": [("nominal", "ev: ev.Weight_{dataset}")],
-    }, {
-        "name": ["METnoX_diMuonPerpProjPt_Plus_DiMuon_pt_Div_DiMuon_pt",
-                 "METnoX_pt"],
-        "categories": dimuon_categories,
-        "variables": ["ev: ev.METnoX_diMuonPerpProjPt_Plus_DiMuon_pt_Div_DiMuon_pt",
-                      "ev: ev.METnoX_pt"],
+    } for variation in all_variations
+] + [
+    {
+        "name": ["METnoX_diMuonPerpProjPt_Plus_DiMuon_pt_Div_DiMuon_pt{}".format(variation),
+                 "METnoX_pt{}".format(variation)],
+        "categories": [(d, c+variation) for d, c in dimuon_categories],
+        "variables": ["ev: ev.METnoX_diMuonPerpProjPt_Plus_DiMuon_pt_Div_DiMuon_pt{}".format(variation),
+                      "ev: ev.METnoX_pt{}".format(variation)],
         "bins": [[-inf]+list(np.linspace(0., 2., 51))+[inf],
                  [-inf]+bins+[inf]],
         "weights": [("nominal", "ev: ev.Weight_{dataset}")],
-    },
+    } for variation in all_variations
 ]
 
 sample_colours = {
@@ -133,6 +149,8 @@ sample_names = {
 axis_label = {
     "DiMuon_pt": r'$p_{T}(\mu\mu)$ (GeV)',
     "METnoX_pt": r'$E_{T}^{miss}$ (GeV)',
+    "METnoX_ptjesUp": r'$E_{T}^{miss}+\delta_{JES} E_{T}^{miss}$ (GeV)',
+    "METnoX_ptjesDown": r'$E_{T}^{miss}-\delta_{JES} E_{T}^{miss}$ (GeV)',
     "METnoX_diMuonParaProjPt_Minus_DiMuon_pt": r'$E_{T,\parallel}^{miss} - p_{T}(\mu\mu)$ (GeV)',
     "METnoX_diMuonPerpProjPt": r'$E_{T,\perp}^{miss}$ (GeV)',
     "METnoX_diMuonParaProjPt_Div_DiMuon_pt": r'$E_{T,\parallel}^{miss} / p_{T}(\mu\mu)$',
