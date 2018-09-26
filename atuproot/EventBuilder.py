@@ -14,11 +14,20 @@ class EventBuilder(object):
 
     def __call__(self):
         if len(self.config.inputPaths) != 1:
+            # TODO - support multiple inputPaths
             raise AttributeError("Multiple inputPaths not yet supported")
+
+        # Try to open the tree - some machines have configured limitations
+        # which prevent memmaps from begin created. Use a fallback - the
+        # localsource option
         try:
-            tree = uproot.open(self.config.inputPaths[0])[self.config.treeName]
+            rootfile = uproot.open(self.config.inputPaths[0])
+            tree = rootfile[self.config.treeName]
         except:
-            tree = uproot.open(self.config.inputPaths[0], localsource=uproot.FileSource.defaults)[self.config.treeName]
+            rootfile = uproot.open(self.config.inputPaths[0],
+                               localsource = uproot.FileSource.defaults)
+            tree = rootfile [self.config.treeName]
+
         events = BEvents(tree,
                          self.config.blocksize,
                          self.config.start,

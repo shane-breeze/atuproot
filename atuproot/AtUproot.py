@@ -9,7 +9,6 @@ logger.addHandler(handler)
 
 from .EventBuilderConfigMaker import EventBuilderConfigMaker
 from .EventBuilder import EventBuilder
-from .build_parallel import build_parallel
 
 class AtUproot(object):
     def __init__(self, outdir,
@@ -26,7 +25,7 @@ class AtUproot(object):
                  blocksize = 1000000,
                  profile = False, profile_out_path = None
     ):
-        self.parallel = build_parallel(
+        self.parallel = alphatwirl.parallel.build_parallel(
             parallel_mode = parallel_mode,
             quiet = quiet,
             processes = process,

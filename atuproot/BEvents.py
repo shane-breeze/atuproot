@@ -1,5 +1,3 @@
-import logging
-
 class BEvents(object):
     non_branch_attrs = ["tree", "nevents_in_tree", "nevents_per_block",
                         "nblocks", "start_block", "stop_block", "iblock",
@@ -36,15 +34,17 @@ class BEvents(object):
         )
 
     def _repr_content(self):
-        return 'tree = {!r}, nevents_in_tree = {!r}, nevents_per_block = {!r}, nblocks = {!r}, iblock = {!r}, start_block = {!r}, stop_block = {!r}'.format(
-            self.tree,
-            self.nevents_in_tree,
-            self.nevents_per_block,
-            self.nblocks,
-            self.iblock,
-            self.start_block,
-            self.stop_block,
-        )
+        return 'tree = {!r}, nevents_in_tree = {!r}, nevents_per_block = {!r}, '
+               'nblocks = {!r}, iblock = {!r}, start_block = {!r}, '
+               'stop_block = {!r}'.format(
+                   self.tree,
+                   self.nevents_in_tree,
+                   self.nevents_per_block,
+                   self.nblocks,
+                   self.iblock,
+                   self.start_block,
+                   self.stop_block,
+               )
 
     def __getitem__(self, i):
         if i >= self.nblocks:
@@ -57,22 +57,6 @@ class BEvents(object):
 
     def __iter__(self):
         for self.iblock in range(self.nblocks):
-            #sizes = {}
-            #for k, v in self._branch_cache.items():
-            #    size = 0
-            #    if hasattr(v, "content"):
-            #        size += v.content.nbytes
-            #        size += v.starts.nbytes
-            #        size += v.stops.nbytes
-            #    elif hasattr(v, "nbytes"):
-            #        size += v.nbytes
-            #    sizes[k] = size
-            #logger = logging.getLogger(__name__)
-            #for (k, v) in sorted([(k, v) for k, v in sizes.items()], key=lambda x: x[1]):
-            #    logger.info("Memory of {} = {} MB".format(k, v / (1024*1024.)))
-            #total = sum([v for k, v in sizes.items()])
-            #logger.info("Memory of _branch_cache = {} MB".format(total / (1024*1024.)))
-
             self._branch_cache = {}
             yield self
         self.iblock = -1
