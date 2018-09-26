@@ -1,26 +1,10 @@
 #!/usr/bin/env python
+import argparse
 import os
 import sys
-import warnings
-warnings.filterwarnings('ignore')
 
 from atuproot.AtUproot import AtUproot
-from atuproot.build_parallel import build_parallel
-from atuproot.utils import grouped_run
-from datasets.datasets import get_datasets
-from sequence.config import build_sequence
 
-import logging
-logging.getLogger(__name__).setLevel(logging.INFO)
-logging.getLogger("alphatwirl").setLevel(logging.INFO)
-logging.getLogger("atuproot.SGEJobSubmitter").setLevel(logging.INFO)
-
-logging.getLogger(__name__).propagate = False
-logging.getLogger("alphatwirl").propagate = False
-logging.getLogger("atuproot.SGEJobSubmitter").propagate = False
-logging.getLogger("atuproot.AtUproot").propagate = False
-
-import argparse
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("dataset_cfg", type=str,
@@ -44,17 +28,7 @@ def parse_args():
                         help="Keep progress report quiet")
     parser.add_argument("--profile", default=False, action='store_true',
                         help="Profile the code")
-    parser.add_argument("--sample", default=None, type=str,
-                        help="Select some sample")
-    parser.add_argument("--redraw", default=False, action='store_true',
-                        help="Overrides most options. Runs over collectors "
-                             "only to rerun the draw function on outdir")
     return parser.parse_args()
-
-def generate_report(outdir):
-    filepath = os.path.join(outdir, "report.txt")
-    with open(filepath, 'w') as f:
-        f.write("python "+" ".join(sys.argv)+"\n")
 
 def run(sequence, datasets, options):
     process = AtUproot(options.outdir,
@@ -69,56 +43,17 @@ def run(sequence, datasets, options):
     )
     return process.run(datasets, sequence)
 
-def redraw(sequence, datasets, options):
-    return [
-        collector.reload(options.outdir)
-        for (reader, collector) in sequence
-        if hasattr(collector, "reload")
-    ]
+def get_sequence(sequence_cfg):
+    return []
 
-def parallel_draw(jobs, options):
-    if len(jobs)==0:
-        return
-    jobs = [job for subjobs in jobs for job in subjobs]
-    jobs = [jobs[i:i+len(jobs)/100+1]
-            for i in xrange(0, len(jobs), len(jobs)/100+1)]
-
-    parallel = build_parallel(
-        parallel_mode = options.mode,
-        quiet = options.quiet,
-        processes = options.ncores,
-    )
-    parallel.begin()
-    try:
-        parallel.communicationChannel.put_multiple([{
-            'task': grouped_run,
-            'args': args,
-            'kwargs': {},
-        } for args in jobs])
-        parallel.communicationChannel.receive()
-    except KeyboardInterrupt:
-        parallel.terminate()
-    parallel.end()
+def get_datasets(dataset_cfg):
+    return []
 
 if __name__ == "__main__":
     options = parse_args()
     if not os.path.exists(options.outdir):
         os.makedirs(options.outdir)
-    generate_report(options.outdir)
 
-    sequence = build_sequence(options.sequence_cfg)
+    sequence = get_sequence(options.sequence_cfg)
     datasets = get_datasets(options.dataset_cfg)
-    if options.sample is not None:
-        datasets = [d for d in datasets
-                    if d.name==options.sample or \
-                       d.parent==options.sample]
-
-    if options.redraw:
-        jobs = redraw(sequence, datasets, options)
-    else:
-        jobs = run(sequence, datasets, options)
-        jobs = [reduce(lambda x, y: x + y, [ssjobs
-            for ssjobs in sjobs
-            if not ssjobs is None
-        ]) for sjobs in jobs]
-    parallel_draw(jobs, options)
+    run(sequence, datasets, options)
