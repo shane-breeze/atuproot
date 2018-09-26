@@ -5,4 +5,3 @@ alphatwirl==0.20.1
 pandas
 pyyaml
 uproot==2.9.7
-rootpy
