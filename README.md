@@ -9,25 +9,26 @@ and [numba](https://numba.pydata.org/) to process [ROOT](https://root.cern.ch/)
 
 Can be installed using pip:
 ```
-pip install --user git@github.com:benkrikler/atuproot.git
+pip install --user git@github.com:shane-breeze/atuproot.git
 ```
 
 or for developing:
 ```
-git clone git@github.com:benkrikler/atuproot.git
+git clone git@github.com:shane-breeze/atuproot.git
 cd atuproot
 pip install --user -e .
 ```
 
 Pip should take care of the requirements, such as alphatwirl, numpy, uproot, numba, pandas, pyyaml
 
-The code uses input files located at Imperial. Currently can't chain multiple
-files together. Run the code like so:
+The script `run_atuproot.py` is an example of how to use the atuproot interface
+to run over ROOT trees. Run the code like so:
 
 ```
-python run_atuproot.py --blocksize 100000 --ncores 4
+python run_atuproot.py ${SEQUENCE_CFG} ${DATASET_CFG} --blocksize 100000 --ncores 4
 ```
 
-to run over the MET dataset (and associated MC samples) loading in 100k events
+where `${SEQUENCE_CFG}` and `${DATASET_CFG}` are paths to config files to setup
+the sequence to run and datasets to process. This will then load 100k events
 at a time into numpy arrays over 4 cores. You might need to reduce the
 blocksize depending on memory use.
