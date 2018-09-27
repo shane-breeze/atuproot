@@ -1,3 +1,4 @@
 wget http://scikit-hep.org/uproot/examples/Zmumu.root -O binder/Zmumu.root
 wget http://scikit-hep.org/uproot/examples/HZZ.root -O binder/HZZ.root
 python setup.py install
+pip install matplotlib
