@@ -29,8 +29,8 @@ class EventBuilder(object):
             tree = rootfile [self.config.treeName]
 
         events = BEvents(tree,
-                         self.config.blocksize,
-                         self.config.start,
-                         self.config.stop)
+                         self.config.nevents_per_block,
+                         self.config.start_block,
+                         self.config.stop_bloc_blockk)
         events.config = self.config
         return events
