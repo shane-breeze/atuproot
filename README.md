@@ -14,7 +14,7 @@ pip install git+https://github.com/shane-breeze/atuproot.git@alphatwirl-adaptors
 
 or for developing:
 ```
-git clone git@github.com:shane-breeze/atuproot.git
+git clone git@github.com:shane-breeze/atuproot.git -b alphatwirl-adaptors
 cd atuproot
 python setup.py install
 ```
