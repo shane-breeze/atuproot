@@ -31,6 +31,6 @@ class EventBuilder(object):
         events = BEvents(tree,
                          self.config.nevents_per_block,
                          self.config.start_block,
-                         self.config.stop_bloc_blockk)
+                         self.config.stop_block)
         events.config = self.config
         return events
