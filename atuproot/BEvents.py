@@ -34,8 +34,8 @@ class BEvents(object):
         )
 
     def _repr_content(self):
-        return 'tree = {!r}, nevents_in_tree = {!r}, nevents_per_block = {!r}, '
-               'nblocks = {!r}, iblock = {!r}, start_block = {!r}, '
+        return 'tree = {!r}, nevents_in_tree = {!r}, nevents_per_block = {!r}, '\
+                'nblocks = {!r}, iblock = {!r}, start_block = {!r}, '\
                'stop_block = {!r}'.format(
                    self.tree,
                    self.nevents_in_tree,
