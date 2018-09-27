@@ -1,9 +1,6 @@
 # atuproot
 
-Mainly use [alphatwirl](https://github.com/alphatwirl/alphatwirl),
-[numpy](https://www.numpy.org/), [uproot](https://github.com/scikit-hep/uproot)
-and [numba](https://numba.pydata.org/) to process [ROOT](https://root.cern.ch/)
-`TTrees` for data analysis.
+[alphatwirl](https://github.com/alphatwirl/alphatwirl) interface to process and read [ROOT](https://root.cern.ch/) `TTrees` with [uproot](https://github.com/scikit-hep/uproot).
 
 ## How to use
 
