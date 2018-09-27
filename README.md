@@ -32,3 +32,7 @@ where `${SEQUENCE_CFG}` and `${DATASET_CFG}` are paths to config files to setup
 the sequence to run and datasets to process. This will then load 100k events
 at a time into numpy arrays over 4 cores. You might need to reduce the
 blocksize depending on memory use.
+
+## Binder tutorial
+
+[![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/shane-breeze/atuproot/alphatwirl-adaptors?filepath=binder%2Ftutorial.ipynb)
