@@ -11,7 +11,7 @@ setuptools.setup(
     version="0.1.0",
     author="Shane Breeze",
     author_email="sdb15@ic.ac.uk",
-    scripts=["run_atuproot.py"],
+    scripts=[],
     description="AlphaTwirl + uproot = FAST analysis code",
     long_description=long_description,
     long_description_content_type="text/markdown",
