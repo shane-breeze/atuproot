@@ -1,7 +1,4 @@
+six
 numpy
-icc-rt
-numba
 alphatwirl==0.20.1
-pandas
-pyyaml
 uproot==2.9.7
