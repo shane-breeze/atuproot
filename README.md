@@ -20,4 +20,4 @@ python setup.py install
 
 An example of how to use this is shown in a binder tutorial linked below.
 
-[![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/shane-breeze/atuproot?filepath=binder%2Ftutorial.ipynb)
+[![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/shane-breeze/atuproot/master?filepath=binder%2Ftutorial.ipynb)
