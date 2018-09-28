@@ -6,12 +6,12 @@
 
 Can be installed via pip
 ```
-pip install git+https://github.com/shane-breeze/atuproot.git@alphatwirl-adaptors
+pip install git+https://github.com/shane-breeze/atuproot.git
 ```
 
 or for developing:
 ```
-git clone git@github.com:shane-breeze/atuproot.git -b alphatwirl-adaptors
+git clone git@github.com:shane-breeze/atuproot.git
 cd atuproot
 python setup.py install
 ```
@@ -20,4 +20,4 @@ python setup.py install
 
 An example of how to use this is shown in a binder tutorial linked below.
 
-[![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/shane-breeze/atuproot/alphatwirl-adaptors?filepath=binder%2Ftutorial.ipynb)
+[![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/shane-breeze/atuproot?filepath=binder%2Ftutorial.ipynb)
