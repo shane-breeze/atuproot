@@ -6,7 +6,7 @@
 
 Can be installed via pip
 ```
-pip install git+https://github.com/shane-breeze/atuproot.git
+pip install atuproot
 ```
 
 or for developing:
