@@ -1,4 +1,4 @@
 six
 numpy
-alphatwirl
-uproot
+alphatwirl>=0.20.1
+uproot>=2.9.7
