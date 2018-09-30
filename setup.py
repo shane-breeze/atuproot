@@ -3,9 +3,6 @@ import setuptools
 with open("README.md", 'r') as fh:
     long_description = fh.read()
 
-with open("requirements.txt", 'r') as fh:
-    requirements = fh.read().splitlines()
-
 setuptools.setup(
     name="atuproot",
     version="0.1.0",
@@ -17,7 +14,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/shane-breeze/atuproot",
     packages=setuptools.find_packages(),
-    install_requires=requirements,
+    install_requires=["six", "numpy", "alphatwirl>=0.20.1", "uproot>=2.9.7"],
     setup_requires=["pytest-runner"],
     tests_require=["pytest"],
     classifiers=(
