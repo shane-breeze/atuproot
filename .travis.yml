@@ -5,6 +5,9 @@ python:
     - 2.7
     - 3.6
 
+env:
+    - CODECOV_TOKEN="41d6e3b6-ed0b-44a3-bbb0-347f147f8bb1"
+
 install:
     pip install -e .
 
