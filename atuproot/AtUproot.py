@@ -14,7 +14,6 @@ class AtUproot(object):
     def __init__(self, outdir,
                  force=False, quiet=False,
                  parallel_mode='multiprocessing',
-                 htcondor_job_desc_extra = [],
                  dispatcher_options = dict(),
                  process = 4,
                  user_modules = (),
