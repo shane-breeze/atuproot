@@ -83,7 +83,7 @@ class AtUproot(object):
 
         dataset_readers.add(eventReader)
 
-        if self.parallel_mode in ('subprocess', 'htcondor', 'sge'):
+        if self.parallel_mode not in ('multiprocessing',):
             loop = alphatwirl.datasetloop.ResumableDatasetLoop(
                 datasets=datasets, reader=dataset_readers,
                 workingarea=self.parallel.workingarea
