@@ -1,4 +1,14 @@
-import alphatwirl
+from alphatwirl.parallel import build_parallel
+from alphatwirl.datasetloop import (DatasetReaderComposite, ResumableDatasetLoop,
+                                    DatasetLoop)
+from alphatwirl.loop import (ReaderComposite, CollectorComposite,
+                             MPEventLoopRunner, DatasetIntoEventBuildersSplitter,
+                             EventDatasetReader)
+from alphatwirl.misc import print_profile_func
+
+from .EventBuilderConfigMaker import EventBuilderConfigMaker
+from .EventBuilder import EventBuilder
+
 import logging
 
 logger = logging.getLogger(__name__)
@@ -6,9 +16,6 @@ handler = logging.StreamHandler()
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 handler.setFormatter(formatter)
 logger.addHandler(handler)
-
-from .EventBuilderConfigMaker import EventBuilderConfigMaker
-from .EventBuilder import EventBuilder
 
 class AtUproot(object):
     def __init__(self, outdir,
@@ -24,7 +31,7 @@ class AtUproot(object):
                  nevents_per_block = 1000000,
                  profile = False, profile_out_path = None
     ):
-        self.parallel = alphatwirl.parallel.build_parallel(
+        self.parallel = build_parallel(
             parallel_mode = parallel_mode,
             quiet = quiet,
             processes = process,
@@ -55,18 +62,18 @@ class AtUproot(object):
         self.parallel.end()
 
     def _configure(self, datasets, reader_collector_pairs):
-        dataset_readers = alphatwirl.datasetloop.DatasetReaderComposite()
+        dataset_readers = DatasetReaderComposite()
 
-        reader_top = alphatwirl.loop.ReaderComposite()
-        collector_top = alphatwirl.loop.CollectorComposite()
+        reader_top = ReaderComposite()
+        collector_top = CollectorComposite()
         for r, c in reader_collector_pairs:
             reader_top.add(r)
             collector_top.add(c)
-        eventLoopRunner = alphatwirl.loop.MPEventLoopRunner(
+        eventLoopRunner = MPEventLoopRunner(
             self.parallel.communicationChannel
         )
         eventBuilderConfigMaker = EventBuilderConfigMaker(self.nevents_per_block)
-        datasetIntoEventBuildersSplitter = alphatwirl.loop.DatasetIntoEventBuildersSplitter(
+        datasetIntoEventBuildersSplitter = DatasetIntoEventBuildersSplitter(
             EventBuilder = EventBuilder,
             eventBuilderConfigMaker = eventBuilderConfigMaker,
             maxEvents = self.max_blocks_per_dataset,
@@ -74,7 +81,7 @@ class AtUproot(object):
             maxFiles = self.max_files_per_dataset,
             maxFilesPerRun = self.max_files_per_process,
         )
-        eventReader = alphatwirl.loop.EventDatasetReader(
+        eventReader = EventDatasetReader(
             eventLoopRunner = eventLoopRunner,
             reader = reader_top,
             collector = collector_top,
@@ -84,12 +91,12 @@ class AtUproot(object):
         dataset_readers.add(eventReader)
 
         if self.parallel_mode not in ('multiprocessing',):
-            loop = alphatwirl.datasetloop.ResumableDatasetLoop(
+            loop = ResumableDatasetLoop(
                 datasets=datasets, reader=dataset_readers,
                 workingarea=self.parallel.workingarea
             )
         else:
-            loop = alphatwirl.datasetloop.DatasetLoop(
+            loop = DatasetLoop(
                 datasets=datasets,
                 reader=dataset_readers
             )
@@ -100,7 +107,7 @@ class AtUproot(object):
         if not self.profile:
             result = loop()
         else:
-            result = alphatwirl.misc.print_profile_func(
+            result = print_profile_func(
                func=loop,
                profile_out_path=self.profile_out_path
             )
