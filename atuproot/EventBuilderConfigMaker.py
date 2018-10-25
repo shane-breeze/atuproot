@@ -7,8 +7,9 @@ EventBuilderConfig = collections.namedtuple(
 )
 
 class EventBuilderConfigMaker(object):
-    def __init__(self, nevents_per_block):
+    def __init__(self, nevents_per_block, treename_of_files_map={}):
         self.nevents_per_block = nevents_per_block
+        self._treename_of_files_map = treename_of_files_map
 
         # Cache nevents in each file - getting nevents takes a while
         self._nevents_in_file_cache = {}
@@ -40,7 +41,7 @@ class EventBuilderConfigMaker(object):
                 rootfile = uproot.open(path)
             except:
                 rootfile = uproot.open(path, localsource=uproot.FileSource.defaults)
-            nevents = len(rootfile[self.treeName])
+            nevents = len(rootfile[self._treename_of_files_map[path]])
             nblocks = int((nevents-1) / self.nevents_per_block + 1)
             self._nevents_in_file_cache[path] = nblocks
         return nblocks

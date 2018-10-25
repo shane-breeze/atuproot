@@ -61,6 +61,11 @@ class AtUproot(object):
             self.parallel.terminate()
         self.parallel.end()
 
+    def _treename_of_files(self, datasets):
+        return {path: dataset.tree
+                for dataset in datasets
+                for path in dataset.files}
+
     def _configure(self, datasets, reader_collector_pairs):
         dataset_readers = DatasetReaderComposite()
 
@@ -72,7 +77,10 @@ class AtUproot(object):
         eventLoopRunner = MPEventLoopRunner(
             self.parallel.communicationChannel
         )
-        eventBuilderConfigMaker = EventBuilderConfigMaker(self.nevents_per_block)
+        eventBuilderConfigMaker = EventBuilderConfigMaker(
+            self.nevents_per_block,
+            treename_of_files_map = self._treename_of_files(datasets),
+        )
         datasetIntoEventBuildersSplitter = DatasetIntoEventBuildersSplitter(
             EventBuilder = EventBuilder,
             eventBuilderConfigMaker = eventBuilderConfigMaker,
