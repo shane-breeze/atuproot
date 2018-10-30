@@ -1,4 +1,3 @@
-import pandas as pd
 import base64
 
 class DummyBranch(object):
