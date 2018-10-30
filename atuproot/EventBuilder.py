@@ -31,6 +31,7 @@ class EventBuilder(object):
         events = BEvents(tree,
                          self.config.nevents_per_block,
                          self.config.start_block,
-                         self.config.stop_block)
+                         self.config.stop_block,
+                         cache = uproot.cache.ArrayCache(self.config.cache_size))
         events.config = self.config
         return events

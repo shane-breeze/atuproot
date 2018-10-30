@@ -29,6 +29,7 @@ class AtUproot(object):
                  max_files_per_dataset = -1,
                  max_files_per_process = 1,
                  nevents_per_block = 1000000,
+                 cache_size = 2*1024**3,
                  profile = False, profile_out_path = None
     ):
         self.parallel = build_parallel(
@@ -45,6 +46,7 @@ class AtUproot(object):
         self.max_files_per_dataset = max_files_per_dataset
         self.max_files_per_process = max_files_per_process
         self.nevents_per_block = nevents_per_block
+        self.cache_size = cache_size
         self.profile = profile
         self.profile_out_path = profile_out_path
         self.parallel_mode = parallel_mode
@@ -80,6 +82,7 @@ class AtUproot(object):
         eventBuilderConfigMaker = EventBuilderConfigMaker(
             self.nevents_per_block,
             treename_of_files_map = self._treename_of_files(datasets),
+            cache_size = self.cache_size,
         )
         datasetIntoEventBuildersSplitter = DatasetIntoEventBuildersSplitter(
             EventBuilder = EventBuilder,

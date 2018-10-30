@@ -3,13 +3,14 @@ import uproot
 
 EventBuilderConfig = collections.namedtuple(
     'EventBuilderConfig',
-    'inputPaths treeName start_block stop_block nevents_per_block dataset name'
+    'inputPaths treeName start_block stop_block nevents_per_block dataset name cache_size'
 )
 
 class EventBuilderConfigMaker(object):
-    def __init__(self, nevents_per_block, treename_of_files_map={}):
+    def __init__(self, nevents_per_block, treename_of_files_map={}, cache_size=2*1024**3):
         self.nevents_per_block = nevents_per_block
         self._treename_of_files_map = treename_of_files_map
+        self.cache_size = cache_size
 
         # Cache nevents in each file - getting nevents takes a while
         self._nevents_in_file_cache = {}
@@ -23,6 +24,7 @@ class EventBuilderConfigMaker(object):
             nevents_per_block = self.nevents_per_block,
             dataset = dataset,
             name = dataset.name,
+            cache_size = self.cache_size,
         )
         return config
 
