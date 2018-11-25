@@ -1,4 +1,5 @@
 import uproot
+import logging
 
 from .BEvents import BEvents
 
@@ -23,9 +24,13 @@ class EventBuilder(object):
         try:
             rootfile = uproot.open(self.config.inputPaths[0])
             tree = rootfile[self.config.treeName]
-        except:
+        except Exception as e:
+            logger = logging.getLogger(__name__)
+            logger.warning("Hit error {} while trying to open {}. Trying alternative localsource".format(e, self.config.inputPaths[0]))
+            def localsource(path):
+                return uproot.FileSource(path, **uproot.FileSource.defaults)
             rootfile = uproot.open(self.config.inputPaths[0],
-                               localsource = uproot.FileSource.defaults)
+                                   localsource = localsouce)
             tree = rootfile [self.config.treeName]
 
         events = BEvents(tree,
