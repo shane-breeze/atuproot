@@ -1,5 +1,5 @@
 import uproot
-import logging
+import mmap
 
 from .BEvents import BEvents
 
@@ -24,9 +24,7 @@ class EventBuilder(object):
         try:
             rootfile = uproot.open(self.config.inputPaths[0])
             tree = rootfile[self.config.treeName]
-        except Exception as e:
-            logger = logging.getLogger(__name__)
-            logger.warning("Hit error {} while trying to open {}. Trying alternative localsource".format(e, self.config.inputPaths[0]))
+        except mmap.error:
             def localsource(path):
                 return uproot.FileSource(path, **uproot.FileSource.defaults)
             rootfile = uproot.open(self.config.inputPaths[0],
