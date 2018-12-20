@@ -21,6 +21,7 @@ class BEvents(object):
         self.stop_block = stop_block
         self.start_block = start_block
         self.iblock = -1
+        self.size = 0
 
         self._branch_cache = {}
 
