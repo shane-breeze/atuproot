@@ -53,13 +53,14 @@ class AtUproot(object):
         self.parallel.begin()
         try:
             loop = self._configure(datasets, reader_collector_pairs)
-            return self._run(loop)
+            result = self._run(loop)
         except KeyboardInterrupt:
             logger = logging.getLogger(__name__)
             logger.warning('received KeyboardInterrupt')
             logger.warning('terminating running jobs')
             self.parallel.terminate()
         self.parallel.end()
+        return result
 
     def _treename_of_files(self, datasets):
         return {path: dataset.tree
