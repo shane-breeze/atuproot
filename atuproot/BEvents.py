@@ -1,8 +1,8 @@
 class BEvents(object):
     non_branch_attrs = ["tree", "nevents_in_tree", "nevents_per_block",
                         "nblocks", "start_block", "stop_block", "iblock",
-                        "start_entry", "stop_entry", "_branch_cache", "size",
-                        "config"]
+                        "start_entry", "stop_entry", "_branch_cache",
+                        "_callable_cache", "size", "config"]
     def __init__(self, tree,
                  nevents_per_block=100000,
                  start_block=0, stop_block=-1):
@@ -23,6 +23,7 @@ class BEvents(object):
         self.iblock = -1
 
         self._branch_cache = {}
+        self._callable_cache = {}
 
     def __len__(self):
         return self.nblocks
@@ -70,11 +71,16 @@ class BEvents(object):
         if attr in self.non_branch_attrs:
             super(BEvents, self).__setattr__(attr, val)
         else:
-            self._branch_cache[attr] = val
+            if callable(val):
+                self._callable_cache[attr] = val
+            else:
+                self._branch_cache[attr] = val
 
     def _get_branch(self, name):
         if name in self._branch_cache:
             branch = self._branch_cache[name]
+        elif name in self._callable_cache:
+            branch = self._callable_cache[name]
         else:
             self.start_entry = (self.start_block + self.iblock) * self.nevents_per_block
             self.stop_entry= min(
@@ -90,10 +96,13 @@ class BEvents(object):
         return branch
 
     def hasbranch(self, branch):
-        return (branch in self.tree.keys() or branch in self._branch_cache)
+        return (branch in self.tree.keys() or branch in self._branch_cache or branch in self._callable_cache)
 
     def delete_branches(self, branches):
         for branch in branches:
             if branch in self._branch_cache:
                 self._branch_cache[branch] = None
                 del self._branch_cache[branch]
+            elif branch in self._callable_cache:
+                self._callable_cache[branch] = None
+                del self._callable_cache[branch]
