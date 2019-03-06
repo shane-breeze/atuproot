@@ -1,7 +1,7 @@
 from alphatwirl.parallel import build_parallel
 from alphatwirl.datasetloop import (DatasetReaderComposite, ResumableDatasetLoop,
                                     DatasetLoop)
-from alphatwirl.loop import MPEventLoopRunner, DatasetIntoEventBuildersSplitter,
+from alphatwirl.loop import MPEventLoopRunner, DatasetIntoEventBuildersSplitter
 from alphatwirl.misc import print_profile_func
 
 from .EventBuilderConfigMaker import EventBuilderConfigMaker
