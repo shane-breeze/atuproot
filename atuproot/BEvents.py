@@ -89,9 +89,14 @@ class BEvents(object):
                 self.nevents_in_tree,
             )
             self.size = self.stop_entry - self.start_entry
-            branch = self.tree.array(name,
-                                     entrystart = self.start_entry,
-                                     entrystop = self.stop_entry)
+            try:
+                branch = self.tree.array(
+                    name,
+                    entrystart = self.start_entry,
+                    entrystop = self.stop_entry,
+                )
+            except KeyError as e:
+                raise AttributeError(e)
             self._branch_cache[name] = branch
         return branch
 
