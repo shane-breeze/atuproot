@@ -1,3 +1,6 @@
 from .atuproot_main import AtUproot
 from .EventBuilder import EventBuilder
 from .EventBuilderConfigMaker import EventBuilderConfigMaker
+from .ReaderComposite import CustomReaderComposite as ReaderComposite
+from .CollectorComposite import CustomCollectorComposite as CollectorComposite
+from .EventDatasetReader import CustomEventDatasetReader as EventDatasetReader
