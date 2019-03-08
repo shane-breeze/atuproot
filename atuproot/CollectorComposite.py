@@ -1,4 +1,7 @@
+import alphatwirl
+
 from alphatwirl.loop import CollectorComposite
+from alphatwirl.progressbar import ProgressReport
 
 class CustomCollectorComposite(CollectorComposite):
     def collect(self, dataset_readers_list):
