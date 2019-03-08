@@ -5,7 +5,7 @@ with open("README.md", 'r') as fh:
 
 setuptools.setup(
     name = "atuproot",
-    version = "0.1.10",
+    version = "0.1.11",
     author = "Shane Breeze",
     author_email = "sdb15@ic.ac.uk",
     scripts = [],
@@ -13,7 +13,7 @@ setuptools.setup(
     long_description = long_description,
     long_description_content_type = "text/markdown",
     url = "https://github.com/shane-breeze/atuproot",
-    download_url = "https://github.com/shane-breeze/atuproot/archive/0.1.10.tar.gz",
+    download_url = "https://github.com/shane-breeze/atuproot/archive/0.1.11.tar.gz",
     packages = setuptools.find_packages(),
     install_requires = ["six", "numpy", "alphatwirl>=0.20.1", "uproot>=2.9.7"],
     setup_requires = ["pytest-runner"],
