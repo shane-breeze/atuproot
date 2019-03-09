@@ -61,6 +61,7 @@ class BEvents(object):
             self._branch_cache = {}
             yield self
         self.iblock = -1
+        self._callable_cache = {}
 
     def __getattr__(self, attr):
         if attr in self.non_branch_attrs:
