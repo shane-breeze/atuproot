@@ -30,7 +30,8 @@ class AtUproot(object):
                  max_files_per_dataset = -1,
                  max_files_per_process = 1,
                  nevents_per_block = 1000000,
-                 profile = False, profile_out_path = None
+                 profile = False, profile_out_path = None,
+                 predetermined_nevents_in_file = {},
     ):
         self.parallel = build_parallel(
             parallel_mode = parallel_mode,
@@ -49,6 +50,7 @@ class AtUproot(object):
         self.profile = profile
         self.profile_out_path = profile_out_path
         self.parallel_mode = parallel_mode
+        self.predetermined_nevents_in_file = predetermined_nevents_in_file
 
     def run(self, datasets, reader_collector_pairs):
         self.parallel.begin()
@@ -82,6 +84,7 @@ class AtUproot(object):
         eventBuilderConfigMaker = EventBuilderConfigMaker(
             self.nevents_per_block,
             treename_of_files_map = self._treename_of_files(datasets),
+            predetermined_nevents_in_file = self.predetermined_nevents_in_file,
         )
         datasetIntoEventBuildersSplitter = DatasetIntoEventBuildersSplitter(
             EventBuilder = EventBuilder,
