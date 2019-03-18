@@ -7,12 +7,15 @@ EventBuilderConfig = collections.namedtuple(
 )
 
 class EventBuilderConfigMaker(object):
-    def __init__(self, nevents_per_block, treename_of_files_map={}):
+    def __init__(
+        self, nevents_per_block, treename_of_files_map={},
+        predetermined_nevents_in_file={},
+    ):
         self.nevents_per_block = nevents_per_block
         self._treename_of_files_map = treename_of_files_map
 
         # Cache nevents in each file - getting nevents takes a while
-        self._nevents_in_file_cache = {}
+        self._nevents_in_file_cache = predetermined_nevents_in_file
 
     def create_config_for(self, dataset, files, start, length):
         config = EventBuilderConfig(
