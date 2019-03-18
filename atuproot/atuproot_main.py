@@ -50,6 +50,7 @@ class AtUproot(object):
         self.profile = profile
         self.profile_out_path = profile_out_path
         self.parallel_mode = parallel_mode
+        self.predetermined_nevents_in_file = predetermined_nevents_in_file
 
     def run(self, datasets, reader_collector_pairs):
         self.parallel.begin()
