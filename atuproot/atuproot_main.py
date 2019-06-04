@@ -20,22 +20,21 @@ logger.addHandler(handler)
 
 class AtUproot(object):
     def __init__(
-        self, outdir, quiet=False, parallel_mode='multiprocessing',
-        process=4, sge_opts="-q hep.q", max_blocks_per_dataset=-1,
-        max_blocks_per_process=-1, max_files_per_dataset=-1,
-        max_files_per_process=1, nevents_per_block=1000000, branch_cache={},
+        self, outdir, quiet=False,
+        max_blocks_per_dataset=-1, max_blocks_per_process=-1,
+        max_files_per_dataset=-1, max_files_per_process=1,
+        nevents_per_block=1000000,
+        branch_cache={},
     ):
-        self.parallel_mode = parallel_mode
-        self.sge_opts = sge_opts
-        self.ncores = process
+        self.outdir = outdir
         self.quiet = quiet
 
-        self.outdir = outdir
         self.max_blocks_per_dataset = max_blocks_per_dataset
         self.max_blocks_per_process = max_blocks_per_process
         self.max_files_per_dataset = max_files_per_dataset
         self.max_files_per_process = max_files_per_process
         self.nevents_per_block = nevents_per_block
+
         self.branch_cache = branch_cache
 
     def run(self, datasets, reader_collector_pairs):
@@ -64,18 +63,6 @@ class AtUproot(object):
         ]
 
         return tasks
-
-        if self.parallel_mode=="multiprocessing" and self.ncores==0:
-            results = pysge.local_submit(tasks)
-        elif self.parallel_mode=="multiprocessing":
-            results = pysge.mp_submit(tasks, ncores=self.ncores)
-        elif self.parallel_mode=="sge":
-            results = pysge.sge_submit(
-                    "zinv", "_ccsp_temp/", tasks=tasks,
-                options=self.sge_opts, sleep=5,
-                request_resubmission_options=True,
-            )
-        return results
 
     def _treename_of_files(self, datasets):
         return {
