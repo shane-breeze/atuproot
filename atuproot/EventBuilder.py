@@ -27,13 +27,15 @@ class EventBuilder(object):
         except mmap.error:
             def localsource(path):
                 return uproot.FileSource(path, **uproot.FileSource.defaults)
-            rootfile = uproot.open(self.config.inputPaths[0],
-                                   localsource = localsouce)
+            rootfile = uproot.open(
+                self.config.inputPaths[0],
+                localsource = lambda p: uproot.FileSource(p, **uproot.FileSource.defaults),
+            )
             tree = rootfile [self.config.treeName]
 
-        events = BEvents(tree,
-                         self.config.nevents_per_block,
-                         self.config.start_block,
-                         self.config.stop_block)
+        events = BEvents(
+            tree, self.config.nevents_per_block, self.config.start_block,
+            self.config.stop_block, branch_cache=self.config.branch_cache,
+        )
         events.config = self.config
         return events
