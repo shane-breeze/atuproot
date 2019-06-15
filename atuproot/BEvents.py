@@ -1,6 +1,7 @@
 import mmap
 import numpy as np
 import awkward as awk
+import uproot
 
 class BEvents(object):
     non_branch_attrs = [
