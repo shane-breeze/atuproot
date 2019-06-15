@@ -110,12 +110,16 @@ class BEvents(object):
         return branch
 
     def hasbranch(self, branch):
-        return (branch in self.tree.keys() or branch in self._branch_cache or branch in self._nonbranch_cache)
+        return (
+            branch in self.tree.keys()
+            or hashkey('BEvents._get_branch', branch) in self._branch_cache
+            or branch in self._nonbranch_cache
+        )
 
     def delete_branches(self, branches):
         for branch in branches:
-            if branch in self._branch_cache:
-                key = hashkey('BEvents._get_branch', branch)
+            key = hashkey('BEvents._get_branch', branch)
+            if key in self._branch_cache:
                 self._branch_cache.popitem(key)
             elif branch in self._nonbranch_cache:
                 self._nonbranch_cache.popitem(branch)
