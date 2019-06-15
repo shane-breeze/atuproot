@@ -21,12 +21,12 @@ class BEvents(object):
         )
 
         nblocks = int((self.nevents_in_tree-1)/self.nevents_per_block + 1)
-        start_block = min(nblocks, start_block)
-        if stop_block > -1:
-            self.nblocks = min(nblocks-start_block, stop_block)
+        start_block = min(nblocks, config.start_block)
+        if config.stop_block > -1:
+            self.nblocks = min(nblocks-start_block, config.stop_block)
         else:
             self.nblocks = nblocks-start_block
-        self.stop_block = stop_block
+        self.stop_block = config.stop_block
         self.start_block = start_block
         self.iblock = -1
 
@@ -114,7 +114,7 @@ class BEvents(object):
             self.nevents_in_tree,
         )
         self.size = self.stop_entry - self.start_entry
-        return getattr(self.tree[self.start_entry, self.stop_entry], name)
+        return getattr(self.tree[self.start_entry:self.stop_entry], name)
 
     def hasbranch(self, branch):
         return (

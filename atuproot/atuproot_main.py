@@ -24,7 +24,7 @@ class AtUproot(object):
         max_blocks_per_dataset=-1, max_blocks_per_process=-1,
         max_files_per_dataset=-1, max_files_per_process=1,
         nevents_per_block=1_000_000, profile=False, profile_out_path=None,
-        branch_cache={},
+        branch_cache={}, uproot_kwargs={},
     ):
         self.parallel = build_parallel(
             parallel_mode = parallel_mode,
@@ -45,6 +45,7 @@ class AtUproot(object):
         self.parallel_mode = parallel_mode
 
         self.branch_cache = branch_cache
+        self.uproot_kwargs = uproot_kwargs
 
     def run(self, datasets, reader_collector_pairs):
         self.parallel.begin()
@@ -79,6 +80,7 @@ class AtUproot(object):
             self.nevents_per_block,
             treename_of_files_map = self._treename_of_files(datasets),
             branch_cache = self.branch_cache,
+            uproot_kwargs = self.uproot_kwargs,
         )
         datasetIntoEventBuildersSplitter = DatasetIntoEventBuildersSplitter(
             EventBuilder = EventBuilder,
