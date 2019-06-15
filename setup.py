@@ -5,7 +5,7 @@ with open("README.md", 'r') as fh:
 
 setuptools.setup(
     name = "atuproot",
-    version = "0.1.14",
+    version = "0.2.0",
     author = "Shane Breeze",
     author_email = "sdb15@ic.ac.uk",
     scripts = [],
