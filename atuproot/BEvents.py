@@ -9,13 +9,13 @@ class BEvents(object):
         "_branch_cache", "_nonbranch_cache", "size", "config",
     ]
     def __init__(self, config):
-        self._branch_cache = config.get("branch_cache", {})
+        self._branch_cache = config.branch_cache
         self.tree = self._build_tree(config)
 
         self.nevents_in_tree = len(self.tree)
         self.nevents_per_block = (
-            int(config.get("nevents_per_block", 1_000_000))
-            if config.get("nevents_per_block", 1_000_000) >= 0 else
+            int(config.nevents_per_block)
+            if config.nevents_per_block >= 0 else
             self.nevents_in_tree
         )
 
@@ -35,8 +35,8 @@ class BEvents(object):
     def _build_tree(self, config):
         args = (config.inputPaths, config.treeName)
         kwargs = dict(
-            entrysteps=config.get("nevents_per_block", 1_000_000),
-            **config.get("uproot_kwargs", {}),
+            entrysteps=config.nevents_per_block,
+            **config.uproot_kwargs,
         )
 
         # Try to open the tree - some machines have configured limitations
