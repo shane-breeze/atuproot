@@ -4,20 +4,20 @@ import uproot
 
 EventBuilderConfig = collections.namedtuple(
     'EventBuilderConfig',
-    'inputPaths treeName start_block stop_block nevents_per_block dataset name branch_cache'
+    'inputPaths treeName start_block stop_block nevents_per_block dataset name branch_cache uproot_kwargs'
 )
 
 class EventBuilderConfigMaker(object):
     def __init__(
-        self, nevents_per_block, treename_of_files_map={},
-        predetermined_nevents_in_file={}, branch_cache={},
+        self, nevents_per_block, treename_of_files_map={}, branch_cache={},
+        uproot_kwargs={},
     ):
         self.nevents_per_block = nevents_per_block
         self._treename_of_files_map = treename_of_files_map
 
-        # Cache nevents in each file - getting nevents takes a while
-        self._nevents_in_file_cache = predetermined_nevents_in_file
+        self._nevents_in_file_cache = {}
         self._branch_cache = branch_cache
+        self.uproot_kwargs = uproot_kwargs
 
     def create_config_for(self, dataset, files, start, length):
         config = EventBuilderConfig(
@@ -29,6 +29,7 @@ class EventBuilderConfigMaker(object):
             dataset = dataset,
             name = dataset.name,
             branch_cache = self._branch_cache,
+            uproot_kwargs = self.uproot_kwargs,
         )
         return config
 
@@ -39,16 +40,17 @@ class EventBuilderConfigMaker(object):
 
     def nevents_in_file(self, path):
         path = os.path.abspath(path)
-        if path in self._nevents_in_file_cache:
-            nblocks = self._nevents_in_file_cache[path]
-        else:
+        if path not in self._nevents_in_file_cache:
             # Try to open root file with standard memmap with uproot. Use
             # localsource option if it fails
             try:
                 rootfile = uproot.open(path)
             except:
-                rootfile = uproot.open(path, localsource=uproot.FileSource.defaults)
+                rootfile = uproot.open(
+                    path,
+                    localsource=lambda p: uproot.FileSource(p, **uproot.FileSource.defaults),
+                )
             nevents = rootfile[self._treename_of_files_map[path]].numentries
             nblocks = int((nevents-1) / self.nevents_per_block + 1)
             self._nevents_in_file_cache[path] = nblocks
-        return nblocks
+        return self._nevents_in_file_cache[path]

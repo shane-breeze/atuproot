@@ -1,8 +1,7 @@
-import tqdm
-import copy
-
+from alphatwirl.parallel import build_parallel
 from alphatwirl.datasetloop import DatasetReaderComposite, DatasetLoop
 from alphatwirl.loop import EventLoopRunner, DatasetIntoEventBuildersSplitter
+from alphatwirl.misc import print_profile_func
 
 from .EventBuilderConfigMaker import EventBuilderConfigMaker
 from .EventBuilder import EventBuilder
@@ -20,49 +19,45 @@ logger.addHandler(handler)
 
 class AtUproot(object):
     def __init__(
-        self, outdir, quiet=False,
+        self, outdir, force=False, quiet=False, parallel_mode='multiprocessing',
+        dispatcher_options=dict(), process=4, user_modules=(),
         max_blocks_per_dataset=-1, max_blocks_per_process=-1,
         max_files_per_dataset=-1, max_files_per_process=1,
-        nevents_per_block=1000000,
+        nevents_per_block=1_000_000, profile=False, profile_out_path=None,
         branch_cache={},
     ):
+        self.parallel = build_parallel(
+            parallel_mode = parallel_mode,
+            quiet = quiet,
+            processes = process,
+            user_modules = user_modules,
+            dispatcher_options = dispatcher_options
+        )
         self.outdir = outdir
-        self.quiet = quiet
-
+        self.force = force
         self.max_blocks_per_dataset = max_blocks_per_dataset
         self.max_blocks_per_process = max_blocks_per_process
         self.max_files_per_dataset = max_files_per_dataset
         self.max_files_per_process = max_files_per_process
         self.nevents_per_block = nevents_per_block
+        self.profile = profile
+        self.profile_out_path = profile_out_path
+        self.parallel_mode = parallel_mode
 
         self.branch_cache = branch_cache
 
     def run(self, datasets, reader_collector_pairs):
-        loop = self._configure(datasets, reader_collector_pairs)
-
-        event_loops = []
-        for d in tqdm.tqdm(
-            loop.datasets, unit='dataset', dynamic_ncols=True,
-            disable=self.quiet,
-        ):
-            for r in loop.reader.readers:
-                r.begin()
-
-            for r in loop.reader.readers:
-                for b in r.split_into_build_events(d):
-                    r_copy = copy.deepcopy(r.reader)
-                    event_loop = r.EventLoop(b, r_copy, d.name)
-                    event_loops.append(event_loop)
-
-            for r in loop.reader.readers:
-                r.end()
-
-        tasks = [
-            {"task": event_loop, "args": [], "kwargs": {}}
-            for event_loop in event_loops
-        ]
-
-        return tasks
+        self.parallel.begin()
+        try:
+            loop = self._configure(datasets, reader_collector_pairs)
+            result = self._run(loop)
+        except KeyboardInterrupt:
+            logger = logging.getLogger(__name__)
+            logger.warning('received KeyboardInterrupt')
+            logger.warning('terminating running jobs')
+            self.parallel.terminate()
+        self.parallel.end()
+        return result
 
     def _treename_of_files(self, datasets):
         return {
@@ -101,4 +96,25 @@ class AtUproot(object):
         )
 
         dataset_readers.add(eventReader)
-        return DatasetLoop(datasets=datasets, reader=dataset_readers)
+
+        if self.parallel_mode not in ('multiprocessing',):
+            loop = ResumableDatasetLoop(
+                datasets=datasets, reader=dataset_readers,
+                workingarea=self.parallel.workingarea
+            )
+        else:
+            loop = DatasetLoop(
+                datasets=datasets,
+                reader=dataset_readers
+            )
+
+        return loop
+
+    def _run(self, loop):
+        if not self.profile:
+            result = loop()
+        else:
+            result = print_profile_func(
+               func=loop, profile_out_path=self.profile_out_path
+            )
+        return result

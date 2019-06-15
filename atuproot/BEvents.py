@@ -1,8 +1,4 @@
-import operator
-from cachetools import cachedmethod
-from cachetools.keys import hashkey
-from functools import partial
-
+import mmap
 import numpy as np
 import awkward as awk
 
@@ -12,15 +8,16 @@ class BEvents(object):
         "start_block", "stop_block", "iblock", "start_entry", "stop_entry",
         "_branch_cache", "_nonbranch_cache", "size", "config",
     ]
-    def __init__(
-        self, tree, nevents_per_block=100000, start_block=0, stop_block=-1,
-        branch_cache = {},
-    ):
-        self.tree = tree
-        self.nevents_in_tree = len(tree)
-        self.nevents_per_block = int(nevents_per_block) \
-                if nevents_per_block >= 0 \
-                else self.nevents_in_tree
+    def __init__(self, config):
+        self._branch_cache = config.get("branch_cache", {})
+        self.tree = self._build_tree(config)
+
+        self.nevents_in_tree = len(self.tree)
+        self.nevents_per_block = (
+            int(config.get("nevents_per_block", 1_000_000))
+            if config.get("nevents_per_block", 1_000_000) >= 0 else
+            self.nevents_in_tree
+        )
 
         nblocks = int((self.nevents_in_tree-1)/self.nevents_per_block + 1)
         start_block = min(nblocks, start_block)
@@ -32,8 +29,25 @@ class BEvents(object):
         self.start_block = start_block
         self.iblock = -1
 
-        self._branch_cache = branch_cache
         self._nonbranch_cache = {}
+        self.config = config
+
+    def _build_tree(self, config):
+        args = (config.inputPaths, config.treeName)
+        kwargs = dict(
+            entrysteps=config.get("nevents_per_block", 1_000_000),
+            **config.get("uproot_kwargs", {}),
+        )
+
+        # Try to open the tree - some machines have configured limitations
+        # which prevent memmaps from begin created. Use a fallback - the
+        # localsource option
+        try:
+            tree = uproot.lazyarrays(*args, **kwargs)
+        except mmap.error:
+            kwargs["localsource"] = lambda p: uproot.FileSource(p, **uproot.FileSource.defaults),
+            tree = uproot.lazyarrays(*args, **kwargs)
+        return tree
 
     def __len__(self):
         return self.nblocks
@@ -45,17 +59,19 @@ class BEvents(object):
         )
 
     def _repr_content(self):
-        return 'tree = {!r}, nevents_in_tree = {!r}, nevents_per_block = {!r}, '\
-                'nblocks = {!r}, iblock = {!r}, start_block = {!r}, '\
-               'stop_block = {!r}'.format(
-                   self.tree,
-                   self.nevents_in_tree,
-                   self.nevents_per_block,
-                   self.nblocks,
-                   self.iblock,
-                   self.start_block,
-                   self.stop_block,
-               )
+        return (
+            'tree = {!r}, nevents_in_tree = {!r}, nevents_per_block = {!r}, '
+            'nblocks = {!r}, iblock = {!r}, start_block = {!r}, '
+            'stop_block = {!r}'.format(
+                self.tree,
+                self.nevents_in_tree,
+                self.nevents_per_block,
+                self.nblocks,
+                self.iblock,
+                self.start_block,
+                self.stop_block,
+            )
+        )
 
     def __getitem__(self, i):
         if i >= self.nblocks:
@@ -87,39 +103,28 @@ class BEvents(object):
             if not (isinstance(val, awk.JaggedArray) or isinstance(val, np.ndarray)):
                 self._nonbranch_cache[attr] = val
             else:
-                key = hashkey('BEvents._get_branch', attr)
-                self._branch_cache[key] = val
+                self._branch_cache[attr] = val
 
-    @cachedmethod(operator.attrgetter('_branch_cache'), key=partial(hashkey, 'BEvents._get_branch'))
     def _get_branch(self, name):
         self.start_entry = (self.start_block + self.iblock) * self.nevents_per_block
-        self.stop_entry= min(
+        self.stop_entry = min(
             (self.start_block + self.iblock + 1) * self.nevents_per_block,
             (self.start_block + self.nblocks) * self.nevents_per_block,
             self.nevents_in_tree,
         )
         self.size = self.stop_entry - self.start_entry
-        try:
-            branch = self.tree.array(
-                name,
-                entrystart = self.start_entry,
-                entrystop = self.stop_entry,
-            )
-        except KeyError as e:
-            raise AttributeError(e)
-        return branch
+        return getattr(self.tree[self.start_entry, self.stop_entry], name)
 
     def hasbranch(self, branch):
         return (
             branch in self.tree.keys()
-            or hashkey('BEvents._get_branch', branch) in self._branch_cache
+            or branch in self._branch_cache
             or branch in self._nonbranch_cache
         )
 
     def delete_branches(self, branches):
         for branch in branches:
-            key = hashkey('BEvents._get_branch', branch)
-            if key in self._branch_cache:
-                self._branch_cache.popitem(key)
+            if branch in self._branch_cache:
+                self._branch_cache.popitem(branch)
             elif branch in self._nonbranch_cache:
                 self._nonbranch_cache.popitem(branch)
