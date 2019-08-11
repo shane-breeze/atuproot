@@ -1,4 +1,4 @@
-import tqdm
+from tqdm.auto import tqdm
 import copy
 
 from alphatwirl.datasetloop import DatasetReaderComposite, DatasetLoop
@@ -41,7 +41,7 @@ class AtUproot(object):
         loop = self._configure(datasets, reader_collector_pairs)
 
         event_loops = []
-        for d in tqdm.tqdm(
+        for d in tqdm(
             loop.datasets, unit='dataset', dynamic_ncols=True,
             disable=self.quiet,
         ):
