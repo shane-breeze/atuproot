@@ -24,6 +24,7 @@ class AtUproot(object):
         max_blocks_per_dataset=-1, max_blocks_per_process=-1,
         max_files_per_dataset=-1, max_files_per_process=1,
         nevents_per_block=1000000,
+        predetermined_nevents_in_file={},
         branch_cache={},
     ):
         self.outdir = outdir
@@ -35,16 +36,14 @@ class AtUproot(object):
         self.max_files_per_process = max_files_per_process
         self.nevents_per_block = nevents_per_block
 
+        self.predetermined_nevents_in_file = predetermined_nevents_in_file
         self.branch_cache = branch_cache
 
     def run(self, datasets, reader_collector_pairs):
         loop = self._configure(datasets, reader_collector_pairs)
 
         event_loops = []
-        for d in tqdm(
-            loop.datasets, unit='dataset', dynamic_ncols=True,
-            disable=self.quiet,
-        ):
+        for d in tqdm(loop.datasets, unit='dataset', disable=self.quiet):
             for r in loop.reader.readers:
                 r.begin()
 
@@ -84,6 +83,7 @@ class AtUproot(object):
             self.nevents_per_block,
             treename_of_files_map = self._treename_of_files(datasets),
             branch_cache = self.branch_cache,
+            predetermined_nevents_in_file = self.predetermined_nevents_in_file,
         )
         datasetIntoEventBuildersSplitter = DatasetIntoEventBuildersSplitter(
             EventBuilder = EventBuilder,

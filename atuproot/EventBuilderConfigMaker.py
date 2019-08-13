@@ -38,17 +38,23 @@ class EventBuilderConfigMaker(object):
         return dataset.files[:min(maxFiles, len(dataset.files))]
 
     def nevents_in_file(self, path):
-        path = os.path.abspath(path)
         if path in self._nevents_in_file_cache:
-            nblocks = self._nevents_in_file_cache[path]
+            nevents = self._nevents_in_file_cache[path]
+            nblocks = int((nevents-1) / self.nevents_per_block + 1)
         else:
             # Try to open root file with standard memmap with uproot. Use
             # localsource option if it fails
             try:
                 rootfile = uproot.open(path)
-            except:
-                rootfile = uproot.open(path, localsource=uproot.FileSource.defaults)
-            nevents = rootfile[self._treename_of_files_map[path]].numentries
+                tree = rootfile[self._treename_of_files_map[path]]
+            except mmap.error:
+                def localsource(path):
+                    return uproot.FileSource(path, **uproot.FileSource.defaults)
+                rootfile = uproot.open(
+                    path, localsource=lambda p: uproot.FileSource(p, **uproot.FileSource.defaults),
+                )
+                tree = rootfile[self._treename_of_files_map[path]]
+            nevents = tree.numentries
+            self._nevents_in_file_cache[path] = nevents
             nblocks = int((nevents-1) / self.nevents_per_block + 1)
-            self._nevents_in_file_cache[path] = nblocks
         return nblocks
