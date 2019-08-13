@@ -1,15 +1,14 @@
-import alphatwirl
-
-from alphatwirl.loop import CollectorComposite
-from alphatwirl.progressbar import ProgressReport
+from tqdm.auto import tqdm
+from alphatwirl.datasetloop import CollectorComposite
+from atpbar import disable
+disable()
 
 class CustomCollectorComposite(CollectorComposite):
     def collect(self, dataset_readers_list):
         ret = []
-        for i, collector in enumerate(self.components):
-            report = ProgressReport(name='collecting results', done=(i + 1), total=len(self.components))
-            alphatwirl.progressbar.report_progress(report)
-
+        for i, collector in enumerate(tqdm(
+            self.components, desc="collecting results",
+        )):
             ret.append(collector.collect([
                 (dataset, tuple(r.readers[i] for r in readerComposites if hasattr(r, "readers")))
                 for dataset, readerComposites in dataset_readers_list

@@ -1,4 +1,4 @@
-from alphatwirl.loop import EventDatasetReader
+from alphatwirl.datasetloop import EventDatasetReader
 import logging
 
 class CustomEventDatasetReader(EventDatasetReader):
