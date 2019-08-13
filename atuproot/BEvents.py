@@ -109,9 +109,9 @@ class BEvents(object):
             raise AttributeError(e)
         return branch
 
-    def hasbranch(self, branch):
+    def hasbranch(self, branch, encoding='utf-8'):
         return (
-            branch in self.tree.keys()
+            branch.encode(encoding) in self.tree.keys()
             or hashkey('BEvents._get_branch', branch) in self._branch_cache
             or branch in self._nonbranch_cache
         )
