@@ -44,7 +44,10 @@ class EventBuilderConfigMaker(object):
         else:
             # Try to open root file with standard memmap with uproot. Use
             # localsource option if it fails
-            nevents = uproot.numentries(path, self._treename_of_files_map[path])
+            try:
+                nevents = uproot.numentries(path, self._treename_of_files_map[path])
+            except OSError as e:
+                raise OSError("Failed on {}\n".format(path)+str(e))
             self._nevents_in_file_cache[path] = nevents
             nblocks = int((nevents-1) / self.nevents_per_block + 1)
         return nblocks

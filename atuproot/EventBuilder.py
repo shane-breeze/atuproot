@@ -14,6 +14,7 @@ class EventBuilder(object):
         )
 
     def __call__(self):
+        print(self.config.inputPaths)
         if len(self.config.inputPaths) != 1:
             # TODO - support multiple inputPaths
             raise AttributeError("Multiple inputPaths not yet supported")
